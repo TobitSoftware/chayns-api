@@ -1,6 +1,6 @@
 {
     "name": "chayns-api",
-    "version": "0.0.76",
+    "version": "1.0.0",
     "description": "new chayns api",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
@@ -10,9 +10,6 @@
         "chayns-toolkit",
         "react"
     ],
-    "publishConfig": {
-        "registry": "http://repo.tobit.ag:8081/repository/npm-local/"
-    },
     "scripts": {
         "start": "npm run dev",
         "build:cjs": "cross-env NODE_ENV=cjs babel src --out-dir dist/cjs --extensions=.ts,.tsx",
