@@ -21,6 +21,11 @@ const AppWrapper = () => (
 )
 ```
 
+When adding the page to your chayns site activate the v5 checkbox.
+
+![add page](https://chayns.space/75508-15270/code/add_page.png?1)
+
+
 ## Example Hook
 
 The user object is null when no user is logged in. 
