@@ -1,0 +1,79 @@
+{
+    "name": "chayns-api",
+    "version": "0.0.76",
+    "description": "new chayns api",
+    "main": "dist/cjs/index.js",
+    "module": "dist/esm/index.js",
+    "types": "dist/types/index.d.ts",
+    "keywords": [
+        "chayns",
+        "chayns-toolkit",
+        "react"
+    ],
+    "publishConfig": {
+        "registry": "http://repo.tobit.ag:8081/repository/npm-local/"
+    },
+    "scripts": {
+        "start": "npm run dev",
+        "build:cjs": "cross-env NODE_ENV=cjs babel src --out-dir dist/cjs --extensions=.ts,.tsx",
+        "build:esm": "cross-env NODE_ENV=esm babel src --out-dir dist/esm --extensions=.ts,.tsx",
+        "build-docs": "npm i && cd website && npm i && npm run build",
+        "build:typescript": "tsc",
+        "watch:cjs": "npm run build:cjs -- --watch",
+        "watch:esm": "npm run build:esm -- --watch",
+        "watch:typescript": "tsc -w",
+        "watch": "concurrently \"npm run watch:cjs\" \"npm run watch:esm\" \"npm run watch:typescript\"",
+        "dev": "npm link && npm run watch",
+        "format": "prettier . --write",
+        "lint": "eslint src",
+        "prepublishOnly": "npm run build:cjs && npm run build:esm && npm run build:typescript"
+    },
+    "prettier": {
+        "proseWrap": "always",
+        "singleQuote": true,
+        "tabWidth": 4
+    },
+    "eslintConfig": {
+        "extends": "@chayns-toolkit"
+    },
+    "dependencies": {
+        "@types/semver": "^7.3.9",
+        "comlink": "^4.3.1",
+        "detect-browser": "^5.2.1",
+        "htmlescape": "^1.1.1",
+        "lodash.throttle": "^4.1.1",
+        "prop-types": "^15.7.2",
+        "scheduler": "^0.20.2",
+        "semaphore-async-await": "^1.5.1",
+        "semver": "^7.3.5",
+        "use-context-selector": "^1.3.9"
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.16.0",
+        "@babel/core": "^7.16.0",
+        "@babel/preset-env": "^7.16.4",
+        "@babel/preset-react": "^7.16.0",
+        "@babel/preset-typescript": "^7.16.0",
+        "@chayns-toolkit/eslint-config": "^2.0.0",
+        "@testing-library/react": "^12.1.2",
+        "@types/htmlescape": "^1.1.1",
+        "@types/lodash.throttle": "^4.1.6",
+        "@types/prop-types": "^15.7.3",
+        "@types/react": "^17.0.37",
+        "@types/react-dom": "^17.0.11",
+        "@typescript-eslint/parser": "^5.4.0",
+        "chayns-toolkit": "^2.0.0-beta.21",
+        "concurrently": "^6.5.1",
+        "cross-env": "^7.0.3",
+        "postcss-prefix-selector": "^1.13.0",
+        "prettier": "^2.5.0",
+        "prettier-plugin-packagejson": "^2.2.15",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "typescript": "^4.5.2"
+    },
+    "peerDependencies": {
+        "react": "^16.8 || ^17.0.1",
+        "react-dom": "^16.8 || ^17.0.1"
+    }
+}

@@ -1,0 +1,7 @@
+.git/
+.idea/
+node_modules/
+website/node_modules/
+src/
+build/
+website/
