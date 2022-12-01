@@ -16,6 +16,7 @@ type ChaynsHostType =  {
     functions: ChaynsReactFunctions,
     src: string,
     iFrameRef: React.MutableRefObject<HTMLIFrameElement | null> | undefined,
+    loadingComponent?: JSX.Element,
     children?: JSX.Element,
     system: TypeSystem,
     // shallow data
@@ -38,6 +39,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
     functions,
     src,
     iFrameRef = undefined,
+    loadingComponent = undefined,
     children = undefined,
     system,
     // shallow data
@@ -82,6 +84,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     user={user}
                     device={device}
                     currentPage={currentPage}
+                    children={loadingComponent}
                     functions={functions}
                     language={language}
                     parameters={parameters}
