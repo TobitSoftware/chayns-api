@@ -2,12 +2,12 @@ import { Browser, OperatingSystem } from 'detect-browser';
 import { DialogButton, SelectDialogItem } from "./dialog";
 
 export type ChaynsApiUser = {
-    firstName: string;
-    lastName: string;
-    gender: Gender;
-    uacGroups: UacGroup[];
-    userId: number;
-    personId: string;
+    firstName?: string;
+    lastName?: string;
+    gender?: Gender;
+    uacGroups?: UacGroup[];
+    userId?: number;
+    personId?: string;
 };
 
 export type ChaynsApiSite = {
@@ -178,11 +178,31 @@ export type IntercomMessage = {
     images?: string[];
 }
 
+export enum ScanQrCodeCodeType {
+    QR = 0,
+    BARCODE = 0,
+    ALL = 2
+}
+
+export enum ScanQrCodeCameraTypes {
+    AUTO = 0,
+    BACK = 1,
+    FRONT = 2
+}
+
 export type ScanQrCodeRequest = {
-    cancel: boolean;
+    cancel?: boolean;
     timeout?: number;
-    cameraType: 0 | 1 | 2;
-    // TODO: add missing props
+    cameraType?: ScanQrCodeCameraTypes;
+    dialogTitle?: string,
+    dialogSubtitle?: string,
+    enableFlashToggle?: boolean,
+    enableCameraSwitch?: boolean,
+    ccAnimation?: boolean,
+    geoLocation?: boolean,
+    showInput?: boolean,
+    codeType?: ScanQrCodeCodeType,
+    codeFormats?: 4 | 5
 }
 
 export type ScanQrCodeResult = {
@@ -387,8 +407,11 @@ export interface OpenVideo {
 }
 
 enum LoginState {
+    FACEBOOK = 0,
+    T_WEB = 1,
     LoginFailed = 2,
-    AlreadyLoggedIn = 3
+    AlreadyLoggedIn = 3,
+    SUCCESS = 4
 }
 
 export interface LoginResult {
@@ -401,7 +424,7 @@ export interface Login {
 
 export interface InvokeCall {
     action: number;
-    value: object;
+    value?: object;
 }
 
 export interface WaitCursor {
@@ -410,6 +433,7 @@ export interface WaitCursor {
     timeout?: number;
     progress?: number;
     progressText?: string;
+    disappearTimeout?: number;
 }
 
 export enum FloatingButtonPosition {
@@ -498,8 +522,17 @@ export interface WindowMetricsListenerResult {
     pageSize: ScreenSize;
 }
 
+export enum TappEvent {
+    OnShow = 0,
+    OnHide = 1,
+    OnRefresh = 2,
+    OnOpenCcScanner = 3,
+    OnCloseCcScanner = 4
+}
+
 export interface VisibilityChangeListenerResult {
     isVisible: boolean
+    tappEvent: TappEvent
 }
 
 export interface ScrollListenerResult { // ?

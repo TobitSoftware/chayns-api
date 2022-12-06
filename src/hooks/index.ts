@@ -12,7 +12,7 @@ export { useWindowMetrics, useWindowMetricsListener } from './windowMetricsListe
 export { useDevice } from './useDevice';
 export { useSite } from './useSite';
 export { useParameters } from './useParameters';
-export { usePages, usePage } from './usePages';
+export { usePages, usePage, getPage } from './usePages';
 export { useEnvironment } from './useEnvironment';
 export { useLanguage } from './useLanguage';
 export { useValues } from './useValues';

@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import * as comlink from 'comlink';
-import { customCallbackFunction } from '../calls';
 import {
     AccessToken,
     ChaynsReactFunctions,

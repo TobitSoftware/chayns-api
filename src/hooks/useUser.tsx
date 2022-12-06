@@ -5,5 +5,4 @@ import { ChaynsApiUser } from '../types/IChaynsReact';
 /**
  * @category Hooks
  */
-// @ts-ignore
 export const useUser = (): ChaynsApiUser => useContextSelector(ChaynsContext, v => v?.user || {})

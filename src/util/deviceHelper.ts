@@ -42,14 +42,12 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
 }
 
 // Infos that are only available on client or iframe side
-export const getClientDeviceInfo = () => {
-    return {
+export const getClientDeviceInfo = () => ({
         isTouch: navigator.maxTouchPoints > 0 && window.matchMedia('(pointer: coarse)')
-    }
-}
+    })
 
-export const getScreenSize = (width) => {
-    let value;
+export const getScreenSize = (width): ScreenSize => {
+    let value: ScreenSize;
     if(width > 1200) {
         value = ScreenSize.XL;
     } else if(width > 993) {
