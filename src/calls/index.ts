@@ -116,6 +116,10 @@ export const removeWindowMetricsListener = (...args: Parameters<ChaynsReactFunct
  */
 export const selectPage = (...args: Parameters<ChaynsReactFunctions["selectPage"]>) => moduleWrapper.current.functions.selectPage(...args);
 /**
+ * Scrolls by specific amount.
+ */
+export const scrollByY = (...args: Parameters<ChaynsReactFunctions["scrollByY"]>) => moduleWrapper.current.functions.scrollByY(...args);
+/**
  * Scrolls to specific position.
  */
 export const scrollToY = (...args: Parameters<ChaynsReactFunctions["scrollToY"]>) => moduleWrapper.current.functions.scrollToY(...args);

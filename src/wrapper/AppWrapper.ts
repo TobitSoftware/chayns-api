@@ -292,6 +292,11 @@ export class AppWrapper implements IChaynsReact {
                 top: position
             })
         },
+        scrollByY: (value, duration) => {
+            window.scrollBy({
+                top: value
+            })
+        },
         sendMessageToGroup: async (groupId, message) => {
             return sendMessageToGroup(this, message, groupId);
         },
@@ -379,11 +384,6 @@ export class AppWrapper implements IChaynsReact {
         },
         vibrate: async (value) => {
             void this.appCall(19, value, { awaitResult: false });
-        },
-        scrollByY: (value, duration) => {
-            window.scrollBy({
-                top: value
-            })
         }
     }
 
