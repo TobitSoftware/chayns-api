@@ -230,6 +230,10 @@ export class FrameWrapper implements IChaynsReact {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.vibrate(value);
         },
+        scrollByY: async (value, duration) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.scrollByY(value, duration);
+        }
     };
 
     initialized = false;

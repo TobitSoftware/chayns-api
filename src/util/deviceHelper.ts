@@ -12,7 +12,7 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
         appName = AppName.David;
     } else if (match) {
         appName = AppName.Location;
-    } else if ((/dface|h96pp|h96max|jabiru|chaynsterminal|wayter|odroidn2p/i).test(navigator.userAgent)) {
+    } else if ((/dface|h96pp|h96max|jabiru|chaynsterminal|wayter|odroidn2p/i).test(userAgent)) {
         appName = AppName.ChaynsLauncher;
     }
 

@@ -134,6 +134,7 @@ export interface ChaynsReactFunctions {
     storageRemoveItem: (key: string, accessMode?: AccessMode) => Promise<void>;
     storageSetItem: (key: string, value: any, accessMode?: AccessMode, tappIds?: number[]) => Promise<void>;
     vibrate: (value: Vibrate) => Promise<void>;
+    scrollByY: (position: number, duration?: number) => Promise<void>;
     // findSite: () => Promise<void>; // TODO: Maybe unused
     // findPerson: () => Promise<void>; // TODO: Maybe unused
     setOverlay: (value: ShowOverlay, callback: () => void) => Promise<void>;

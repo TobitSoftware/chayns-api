@@ -17,7 +17,6 @@ import {
     RuntimeEnviroment,
     ScanQrCodeResult,
     TappEvent,
-    VisibilityChangeListenerResult,
 } from '../types/IChaynsReact';
 import invokeAppCall from "../util/appCall";
 import getDeviceInfo, { getScreenSize } from "../util/deviceHelper";
@@ -381,6 +380,11 @@ export class AppWrapper implements IChaynsReact {
         vibrate: async (value) => {
             void this.appCall(19, value, { awaitResult: false });
         },
+        scrollByY: (value, duration) => {
+            window.scrollBy({
+                top: value
+            })
+        }
     }
 
     async init() {
