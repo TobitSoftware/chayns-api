@@ -193,6 +193,7 @@ export const setOverlay = (...args: Parameters<ChaynsReactFunctions["setOverlay"
  */
 export const getUser = () => moduleWrapper.current.values.user;
 export const getSite = () => moduleWrapper.current.values.site;
+export const getCurrentPage = () => moduleWrapper.current.values.currentPage;
 export const getDevice = () => moduleWrapper.current.values.device;
 export const getLanguage = () => moduleWrapper.current.values.language;
 export const getParameters = () => moduleWrapper.current.values.parameters;
