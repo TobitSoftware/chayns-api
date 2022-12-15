@@ -72,7 +72,7 @@ export class AppWrapper implements IChaynsReact {
                 locationPersonId: AppInfo.LocationPersonId,
                 urlHash: window?.location.hash.replace('#', '')
             },
-            parameters: [...new URLSearchParams(location.search)] as unknown,
+            parameters: [...new URLSearchParams(location.search)].reduce((p, [k, v]) => { p[k] = v; return p; }, {}),
             user: {
                 firstName: AppUser.FirstName,
                 lastName: AppUser.LastName,
