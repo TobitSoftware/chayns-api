@@ -29,7 +29,8 @@ type ChaynsHostType =  {
     language: ChaynsReactValues["language"],
     parameters: ChaynsReactValues["parameters"],
     customData: any,
-    environment: ChaynsReactValues["environment"]
+    environment: ChaynsReactValues["environment"],
+    preventStagingReplacement?: boolean
 }
 
 
@@ -52,7 +53,8 @@ const ChaynsHost: FC<ChaynsHostType> = ({
     device,
     parameters,
     customData,
-    environment
+    environment,
+    preventStagingReplacement
 }) => {
     switch (type) {
         case 'client-iframe':
@@ -72,6 +74,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     parameters={parameters}
                     environment={environment}
                     customData={customData}
+                    preventStagingReplacement={preventStagingReplacement}
                 />
             )
         case 'client-module':
@@ -90,6 +93,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     parameters={parameters}
                     customData={customData}
                     environment={environment}
+                    preventStagingReplacement={preventStagingReplacement}
                 />
             )
         case 'server-iframe':
@@ -110,6 +114,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     parameters={parameters}
                     environment={environment}
                     customData={customData}
+                    preventStagingReplacement={preventStagingReplacement}
                 />
             )
         case 'server-module':
@@ -127,6 +132,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     parameters={parameters}
                     customData={customData}
                     environment={environment}
+                    preventStagingReplacement={preventStagingReplacement}
                 >
                     {children}
                 </ModuleHost>

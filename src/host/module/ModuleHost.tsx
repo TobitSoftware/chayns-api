@@ -9,6 +9,7 @@ import {
     ChaynsReactValues,
     Page
 } from '../../types/IChaynsReact';
+import { replaceStagingUrl } from "../../util/url";
 
 export type TypeSystem = {
     scope: string,
@@ -35,6 +36,7 @@ type ModulePropTypes = {
     parameters: ChaynsReactValues["parameters"],
     customData: any,
     environment: ChaynsReactValues["environment"]
+    preventStagingReplacement?: boolean
 }
 
 const System: FC<SystemPropTypes> = ({
@@ -82,7 +84,8 @@ const ModuleHost: FC<ModulePropTypes> = ({
     language,
     parameters,
     customData,
-    environment
+    environment,
+    preventStagingReplacement
 }) => {
     // region initialData
     const initialData = {
@@ -106,7 +109,11 @@ const ModuleHost: FC<ModulePropTypes> = ({
         <>
             <div className="module-css"/>
             <System
-                system={system}
+                system={{
+                    scope: system.scope,
+                    url: replaceStagingUrl(preventStagingReplacement, system.url, environment.runtimeEnvironment),
+                    module: system.module
+                }}
                 data={initialData}
                 functions={functions}
                 fallback={children}

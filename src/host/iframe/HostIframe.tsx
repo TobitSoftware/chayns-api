@@ -12,6 +12,7 @@ import {
     Page,
 } from '../../types/IChaynsReact';
 import useUpdateData from './utils/useUpdateData';
+import { replaceStagingUrl } from "../../util/url";
 
 type HostIframeProps = {
     iFrameProps: { [key: string]: unknown, name: string },
@@ -30,6 +31,7 @@ type HostIframeProps = {
     parameters: ChaynsReactValues["parameters"],
     environment: ChaynsReactValues["environment"],
     customData: ChaynsReactValues["customData"],
+    preventStagingReplacement?: boolean
 }
 
 const HostIframe: FC<HostIframeProps> = ({
@@ -49,6 +51,7 @@ const HostIframe: FC<HostIframeProps> = ({
     parameters,
     environment,
     customData,
+    preventStagingReplacement
 }) => {
     const eventTarget = useRef<EventTarget>();
     const ref = useRef<HTMLIFrameElement | null>();
@@ -86,7 +89,7 @@ const HostIframe: FC<HostIframeProps> = ({
         (async() => {
             if (postForm) {
                 const accessToken = (await functions.getAccessToken() ?? {});
-                void postIframeForm(src, JSON.stringify({ ...initialData, pages: undefined, ...accessToken }), 'chayns', iFrameProps.name)
+                void postIframeForm(replaceStagingUrl(preventStagingReplacement, src, environment.runtimeEnvironment), JSON.stringify({ ...initialData, pages: undefined, ...accessToken }), 'chayns', iFrameProps.name)
             }
         })()
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -142,7 +145,7 @@ const HostIframe: FC<HostIframeProps> = ({
             }}
             title=" "
             {...iFrameProps}
-            src={postForm ? undefined : src}
+            src={postForm ? undefined : replaceStagingUrl(preventStagingReplacement, src, environment.runtimeEnvironment)}
         />
     );
 }
