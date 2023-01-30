@@ -250,9 +250,9 @@ export class AppWrapper implements IChaynsReact {
                 awaitResult: false,
             });
         },
-        // openUrl: async (value) => {
-        //
-        // },
+        openUrl: async (value) => {
+            window.open(value.url);
+        },
         openVideo: async (value) => {
             this.appCall(15, {
                 url: value.url,
