@@ -18,18 +18,18 @@ import {
     ScanQrCodeResult,
     TappEvent,
 } from '../types/IChaynsReact';
-import invokeAppCall from "../util/appCall";
-import getDeviceInfo, { getScreenSize } from "../util/deviceHelper";
-import { removeVisibilityChangeListener } from "../calls/visibilityChangeListener";
-import getUserInfo from "../calls/getUserInfo";
-import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from "../calls/sendMessage";
-import { addApiListener, dispatchApiEvent } from "../helper/apiListenerHelper";
+import invokeAppCall from '../util/appCall';
+import getDeviceInfo, { getScreenSize } from '../util/deviceHelper';
+import { removeVisibilityChangeListener } from '../calls/visibilityChangeListener';
+import getUserInfo from '../calls/getUserInfo';
+import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
+import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
 
 export class AppWrapper implements IChaynsReact {
 
     values: ChaynsReactValues = null!;
 
-    accessToken = "";
+    accessToken = '';
 
     mapOldApiToNew(retVal) {
         const { AppInfo, AppUser } = retVal;
@@ -38,13 +38,13 @@ export class AppWrapper implements IChaynsReact {
             device: getDeviceInfo(navigator.userAgent, 'image/webp'),
             environment: {
                 buildEnvironment: Environment.Production,
-                runtimeEnvironment: RuntimeEnviroment.Unknown
+                runtimeEnvironment: RuntimeEnviroment.Unknown,
             },
             language: {
                 site: AppInfo.Language,
                 translation: null,
                 device: AppInfo.Language,
-                active: AppInfo.Language
+                active: AppInfo.Language,
             }, // ToDo: Find better way to detect
             site: {
                 id: AppInfo.SiteID,
@@ -57,7 +57,7 @@ export class AppWrapper implements IChaynsReact {
                     coverDetached: false,
                     coverHidden: false,
                     coverWide: false,
-                    docked: false
+                    docked: false,
                 },
                 title: AppInfo.Title,
                 colorMode: AppInfo.colorMode,
@@ -66,11 +66,11 @@ export class AppWrapper implements IChaynsReact {
                 font: {
                     id: Font.Roboto,
                     headlineFont: Font.Roboto,
-                    dynamicFontSize: false
+                    dynamicFontSize: false,
                 },
                 dynamicFontSize: false,
                 locationPersonId: AppInfo.LocationPersonId,
-                urlHash: window?.location.hash.replace('#', '')
+                urlHash: window?.location.hash.replace('#', ''),
             },
             parameters: Object.fromEntries(new URLSearchParams(location.search)),
             user: {
@@ -79,13 +79,13 @@ export class AppWrapper implements IChaynsReact {
                 gender: Gender.Unknown,
                 userId: AppUser.TobitUserID,
                 personId: AppUser.PersonID,
-                uacGroups: []
+                uacGroups: [],
             },
             customData: null,
             isAdminModeActive: AppUser.AdminMode,
             currentPage: {
                 id: AppInfo.TappSelected?.TappID,
-                siteId: AppInfo.SiteID
+                siteId: AppInfo.SiteID,
             },
             pages: AppInfo.Tapps.map(x => ({
                 id: x.TappID,
@@ -96,44 +96,44 @@ export class AppWrapper implements IChaynsReact {
                 isHiddenFromMenu: x.isHiddenFromMenu,
                 minAge: null,
                 name: x.ShowName,
-                sortId: x.SortUID
-            }))
-        } as ChaynsReactValues
+                sortId: x.SortUID,
+            })),
+        } as ChaynsReactValues;
     }
 
     constructor() {
     }
 
     notImplemented(call: string) {
-        console.warn(`call ${call} not implement in app`)
+        console.warn(`call ${call} not implement in app`);
     }
 
     counter: number = 0;
 
-    appCall(action, value: unknown = {}, { callback, awaitResult = true } = { }) {
-        if(!awaitResult) {
+    appCall(action, value: unknown = {}, { callback, awaitResult = true } = {}) {
+        if (!awaitResult) {
             invokeAppCall({ action, value });
             return;
         }
         return new Promise((resolve) => {
             const callbackName = `chaynsApiV5Callback_${this.counter++}`;
             window[callbackName] = (v) => {
-                if(callback) {
+                if (callback) {
                     callback(v?.retVal ?? v);
                 } else {
                     delete window[callbackName];
                 }
                 resolve(v?.retVal ?? v);
-            }
-            value.callback = "window." + callbackName;
+            };
+            value.callback = 'window.' + callbackName;
             invokeAppCall({ action, value });
-        })
+        });
     }
 
     functions: ChaynsReactFunctions = {
         getAccessToken: async () => ({
-                accessToken: this.accessToken
-            }),
+            accessToken: this.accessToken,
+        }),
         // addGeoLocationListener: async (value , callback) => {
         //     return invokeAppCall({
         //         'action': 14,
@@ -146,40 +146,42 @@ export class AppWrapper implements IChaynsReact {
         // addScrollListener: async (value, callback) => {
         //
         // },
-       addVisibilityChangeListener: async (callback) => {
-           const { id, shouldInitialize } = addApiListener('windowMetricsListener', callback);
-            this.appCall(60, {}, { callback: (v) => {
-                console.log("v", v)
-                dispatchApiEvent("windowMetricsListener", {
-                    isVisible: v.tappEvent === TappEvent.OnShow,
-                    tappEvent: v.tappEvent
+        addVisibilityChangeListener: async (callback) => {
+            const { id, shouldInitialize } = addApiListener('visibilityChangeListener', callback);
+
+            if (shouldInitialize) {
+                this.appCall(60, {}, {
+                    callback: (v) => {
+                        dispatchApiEvent('visibilityChangeListener', {
+                            isVisible: v.tappEvent === TappEvent.OnShow,
+                            tappEvent: v.tappEvent,
+                        });
+                    },
                 });
-            }})
-           return id;
-       },
-        // addWindowMetricsListener: async (callback) => {
-        //     const { id, shouldInitialize } = addApiListener('windowMetricsListener', callback);
-        //
-        //     if (shouldInitialize) {
-        //         window.addEventListener('resize', this.resizeListener = () => {
-        //             void (async() => {
-        //                 dispatchApiEvent('windowMetricsListener', {
-        //
-        //                 });
-        //             })();
-        //         })
-        //     }
-        //     return id;
-        // },
+            }
+            return id;
+        },
+        addWindowMetricsListener: async (callback) => {
+            const { id, shouldInitialize } = addApiListener('windowMetricsListener', callback);
+
+            if (shouldInitialize) {
+                window.addEventListener('resize', this.resizeListener = () => {
+                    void (async () => {
+                        dispatchApiEvent('windowMetricsListener', await this.functions.getWindowMetrics());
+                    })();
+                });
+            }
+            return id;
+        },
         customCallbackFunction: async () => {
-            this.notImplemented("customCallbackFunction");
+            this.notImplemented('customCallbackFunction');
         },
         getAvailableSharingServices: async () => {
             const res = await this.appCall(79) as AvailableSharingServices;
             return {
                 availableSharingApps: res.availableSharingApps,
-                availableAndroidApps: res.availableAndroidApps as string []
-            }
+                availableAndroidApps: res.availableAndroidApps as string [],
+            };
         },
         getGeoLocation: async () => {
             const res = await this.appCall(14) as GeoLocation;
@@ -188,8 +190,8 @@ export class AppWrapper implements IChaynsReact {
                 longitude: res.longitude,
                 speed: res.speed,
                 code: res.code,
-                isAccurate: res.isAccurate
-            }
+                isAccurate: res.isAccurate,
+            };
         },
         getUserInfo: async (query) => {
             return getUserInfo(this, query);
@@ -197,20 +199,20 @@ export class AppWrapper implements IChaynsReact {
         getScrollPosition: async () => {
             return {
                 scrollX: window.scrollX,
-                scrollY: window.scrollY
-            }
+                scrollY: window.scrollY,
+            };
         },
         getWindowMetrics: async () => ({
-                bottomBarHeight: 0,
-                windowHeight: window.innerHeight,
-                offsetTop: 0,
-                pageHeight: window.innerHeight,
-                pageSize: getScreenSize(window.innerWidth),
-                pageWidth: window.innerWidth,
-                topBarHeight: 0
-            }),
+            bottomBarHeight: 0,
+            windowHeight: window.innerHeight,
+            offsetTop: 0,
+            pageHeight: window.innerHeight,
+            pageSize: getScreenSize(window.innerWidth),
+            pageWidth: window.innerWidth,
+            topBarHeight: 0,
+        }),
         invokeCall: async (value, callback) => {
-            return this.appCall(value.action, value.value, {callback});
+            return this.appCall(value.action, value.value, { callback });
         },
         invokeDialogCall: async (value, callback) => {
             const callbackName = `chaynsApiV5Callback_${this.counter++}`;
@@ -218,21 +220,21 @@ export class AppWrapper implements IChaynsReact {
                 callback?.(retVal);
                 delete window[callbackName];
             };
-            const callObj = { ...value, value: { ...value.value, callback: callbackName }};
+            const callObj = { ...value, value: { ...value.value, callback: callbackName } };
             invokeAppCall(callObj);
         },
-        login: async(value, callback, closeCallback) => {
+        login: async (value, callback, closeCallback) => {
             const res = await this.appCall({}, callback);
-            return { loginState: res?.loginState }
+            return { loginState: res?.loginState };
         },
         logout: async () => {
             this.appCall(56, undefined, {
-                awaitResult: false
+                awaitResult: false,
             });
         },
         navigateBack: async () => {
             this.appCall(20, undefined, {
-                awaitResult: false
+                awaitResult: false,
             });
         },
         openImage: async (value) => {
@@ -243,59 +245,66 @@ export class AppWrapper implements IChaynsReact {
                     description: x.description,
                     preventCache: x.preventCache,
                 })),
-                startIndex: value.startIndex
+                startIndex: value.startIndex,
             }, {
-                awaitResult: false
-            })
+                awaitResult: false,
+            });
         },
         // openUrl: async (value) => {
         //
         // },
         openVideo: async (value) => {
             this.appCall(15, {
-                url: value.url
+                url: value.url,
             }, {
-                awaitResult: false
-            })
+                awaitResult: false,
+            });
         },
         refreshAccessToken: async () => {
             this.appCall(55, undefined, {
-                awaitResult: false
+                awaitResult: false,
             });
         },
         refreshData: async (value) => {
-            this.notImplemented("refreshData");
+            this.notImplemented('refreshData');
         },
         // removeGeoLocationListener: async (id) => {
         // },
         // removeScrollListener: async (id) => {
         // },
-        removeVisibilityChangeListener(number) {
-            removeVisibilityChangeListener(number);
-            return Promise.resolve();
+        removeVisibilityChangeListener: async (number) => {
+            const { shouldRemove } = removeApiListener(number, 'visibilityChangeListener');
+            if (shouldRemove) {
+                // App does not support removal of onActivate callback which makes this a no-op
+            }
         },
-        // removeWindowMetricsListener: async (id) => {
-        //
-        // },
-        selectPage: async(options) => {
+        removeWindowMetricsListener: async (id) => {
+            const shouldRemove = removeApiListener('windowMetricsListener', id);
+            if (shouldRemove) {
+                void this.exposedFunctions.removeWindowMetricsListener(id);
+                if (this.resizeListener) window.removeEventListener('resize', this.resizeListener);
+                this.resizeListener = null;
+            }
+        },
+        selectPage: async (options) => {
             void this.appCall(2, {
                 id: options.id,
                 showName: options.showName,
                 position: options.position,
-                params: options.params
+                params: options.params,
             }, {
-                awaitResult: false
-            })
+                awaitResult: false,
+            });
         },
-        scrollToY: async(position) => {
+        scrollToY: async (position) => {
             window.scrollTo({
-                top: position
-            })
+                top: position,
+            });
         },
         scrollByY: (value, duration) => {
             window.scrollBy({
-                top: value
-            })
+                top: value,
+            });
         },
         sendMessageToGroup: async (groupId, message) => {
             return sendMessageToGroup(this, message, groupId);
@@ -307,13 +316,13 @@ export class AppWrapper implements IChaynsReact {
             return sendMessageToUser(this, message, userId);
         },
         setAdminMode: async () => {
-            this.notImplemented("setAdminMode");
+            this.notImplemented('setAdminMode');
         },
         setDisplayTimeout: async (enabled) => {
-            this.appCall(94, { enabled }, {awaitResult: false});
+            this.appCall(94, { enabled }, { awaitResult: false });
             return {
-                isEnabled: enabled
-            }
+                isEnabled: enabled,
+            };
         },
         setFloatingButton: async (value, callback) => {
             void await this.appCall(72, {
@@ -328,24 +337,24 @@ export class AppWrapper implements IChaynsReact {
             }, callback);
         },
         setHeight: async () => {
-            this.notImplemented("setOverlay");
+            this.notImplemented('setOverlay');
         },
         setOverlay: async () => {
-            this.notImplemented("setOverlay");
+            this.notImplemented('setOverlay');
         },
         setRefreshScrollEnabled: async (isEnabled) => {
             this.appCall(0, {
-                enabled: isEnabled
-            }, {awaitResult: false});
+                enabled: isEnabled,
+            }, { awaitResult: false });
             return {
-                isEnabled
-            }
+                isEnabled,
+            };
         },
         setScanQrCode: async (value) => {
             return await this.appCall(34, value) as Promise<ScanQrCodeResult>;
         },
         setTempDesignSettings: async () => {
-            this.notImplemented("setTempDesignSettings");
+            this.notImplemented('setTempDesignSettings');
         },
         setWaitCursor: async (value) => {
             void this.appCall(1, {
@@ -354,22 +363,22 @@ export class AppWrapper implements IChaynsReact {
                 timeout: value.timeout,
                 progress: value.progress,
                 progressText: value.progressText,
-                disappearTimeout: value.disappearTimeout
+                disappearTimeout: value.disappearTimeout,
             }, {
-                awaitResult: false
-            })
+                awaitResult: false,
+            });
         },
         storageGetItem: async (key, accessMode) => {
             const result = await this.appCall(74, {
                 key,
-                accessMode
+                accessMode,
             });
             return result?.object;
         },
         storageRemoveItem: async (key, accessMode) => {
             this.appCall(73, {
                 key,
-                accessMode
+                accessMode,
             }, { awaitResult: false });
         },
         storageSetItem: async (key, value, accessMode, tappIds) => {
@@ -377,15 +386,15 @@ export class AppWrapper implements IChaynsReact {
                 key,
                 object: value as unknown,
                 accessMode,
-                tappIDs: tappIds
+                tappIDs: tappIds,
             }, {
-                awaitResult: false
+                awaitResult: false,
             });
         },
         vibrate: async (value) => {
             void this.appCall(19, value, { awaitResult: false });
-        }
-    }
+        },
+    };
 
     async init() {
         this.values = this.mapOldApiToNew(await this.appCall(18));
@@ -398,8 +407,10 @@ export class AppWrapper implements IChaynsReact {
 
     addDataListener(cb: DataChangeCallback): CleanupCallback {
         const listener = (ev: CustomEventInit<DataChangeValue>) => ev.detail && cb(ev.detail);
-        document.addEventListener('chayns_api_data', listener)
-        return () => {document.removeEventListener('chayns_api_data', listener)}
+        document.addEventListener('chayns_api_data', listener);
+        return () => {
+            document.removeEventListener('chayns_api_data', listener);
+        };
     }
 
     getInitialData() {
