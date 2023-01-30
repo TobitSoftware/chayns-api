@@ -134,15 +134,25 @@ export class AppWrapper implements IChaynsReact {
         getAccessToken: async () => ({
             accessToken: this.accessToken,
         }),
-        // addGeoLocationListener: async (value , callback) => {
-        //     return invokeAppCall({
-        //         'action': 14,
-        //         'value': {
-        //             'permanent': false,
-        //             callback: callback
-        //         }
-        //     });
-        // },
+        addGeoLocationListener: async (value , callback) => {
+            const { id, shouldInitialize } = addApiListener('geoLocationListener', callback);
+
+            if (shouldInitialize) {
+                this.appCall(14, { permanent: true }, {
+                   callback: (v) => {
+                       dispatchApiEvent('geoLocationListener', {
+                           latitude: v.latitude,
+                           longitude: v.longitude,
+                           accuracy: v.accuracy ?? null,
+                           speed: v.speed,
+                           code: v.code ?? null,
+                       });
+                   }
+                });
+            }
+
+            return id;
+        },
         addScrollListener: async (value, callback) => {
             let throttledCallback = callback;
             if (value.throttle) {
@@ -282,8 +292,13 @@ export class AppWrapper implements IChaynsReact {
         refreshData: async (value) => {
             this.notImplemented('refreshData');
         },
-        // removeGeoLocationListener: async (id) => {
-        // },
+        removeGeoLocationListener: async (id) => {
+            const { shouldRemove } = removeApiListener('geoLocationListener', id);
+
+            if (shouldRemove) {
+                // App does not support removal of request geo location call with permanent true which makes this a no-op
+            }
+        },
         removeScrollListener: async (id) => {
             const { shouldRemove } = removeApiListener('scrollListener', id);
 
