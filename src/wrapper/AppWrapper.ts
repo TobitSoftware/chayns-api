@@ -285,15 +285,15 @@ export class AppWrapper implements IChaynsReact {
         // removeGeoLocationListener: async (id) => {
         // },
         removeScrollListener: async (id) => {
-            const { shouldRemove } = removeApiListener(id, 'scrollListener');
+            const { shouldRemove } = removeApiListener('scrollListener', id);
 
             if (shouldRemove && this.scrollListener) {
                 window.removeEventListener('scroll', this.scrollListener);
                 this.scrollListener = null;
             }
         },
-        removeVisibilityChangeListener: async (number) => {
-            const { shouldRemove } = removeApiListener(number, 'visibilityChangeListener');
+        removeVisibilityChangeListener: async (id) => {
+            const { shouldRemove } = removeApiListener('visibilityChangeListener', id);
             if (shouldRemove) {
                 // App does not support removal of onActivate callback which makes this a no-op
             }
