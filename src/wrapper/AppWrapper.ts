@@ -1,6 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
+import throttle from 'lodash.throttle';
 import {
     AvailableSharingServices,
     ChaynsReactFunctions,
@@ -20,7 +21,6 @@ import {
 } from '../types/IChaynsReact';
 import invokeAppCall from '../util/appCall';
 import getDeviceInfo, { getScreenSize } from '../util/deviceHelper';
-import { removeVisibilityChangeListener } from '../calls/visibilityChangeListener';
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
@@ -143,9 +143,23 @@ export class AppWrapper implements IChaynsReact {
         //         }
         //     });
         // },
-        // addScrollListener: async (value, callback) => {
-        //
-        // },
+        addScrollListener: async (value, callback) => {
+            let throttledCallback = callback;
+            if (value.throttle) {
+                throttledCallback = throttle(callback, value.throttle);
+            }
+            const { id, shouldInitialize } = addApiListener('scrollListener', throttledCallback);
+
+            if (shouldInitialize) {
+                window.addEventListener('scroll', this.scrollListener = () => {
+                    void (async () => {
+                        dispatchApiEvent('scrollListener', { scrollX: window.scrollX, scrollY: window.scrollY });
+                    })();
+                });
+            }
+
+            return id;
+        },
         addVisibilityChangeListener: async (callback) => {
             const { id, shouldInitialize } = addApiListener('visibilityChangeListener', callback);
 
@@ -270,8 +284,14 @@ export class AppWrapper implements IChaynsReact {
         },
         // removeGeoLocationListener: async (id) => {
         // },
-        // removeScrollListener: async (id) => {
-        // },
+        removeScrollListener: async (id) => {
+            const { shouldRemove } = removeApiListener(id, 'scrollListener');
+
+            if (shouldRemove && this.scrollListener) {
+                window.removeEventListener('scroll', this.scrollListener);
+                this.scrollListener = null;
+            }
+        },
         removeVisibilityChangeListener: async (number) => {
             const { shouldRemove } = removeApiListener(number, 'visibilityChangeListener');
             if (shouldRemove) {
