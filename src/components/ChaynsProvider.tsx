@@ -1,5 +1,5 @@
 import htmlEscape from 'htmlescape';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { AppName, ChaynsReactFunctions, ChaynsReactValues, IChaynsReact } from '../types/IChaynsReact';
 import getDeviceInfo from '../util/deviceHelper';
 import { AppWrapper } from '../wrapper/AppWrapper';
@@ -25,7 +25,8 @@ type ChaynsProviderProps = {
     data?: ChaynsReactValues;
     functions?: ChaynsReactFunctions,
     renderedByServer?: boolean,
-    isModule?: boolean
+    isModule?: boolean,
+    children?: ReactNode,
 }
 
 const ChaynsProvider: React.FC<ChaynsProviderProps> = ({

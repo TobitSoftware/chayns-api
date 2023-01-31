@@ -35,8 +35,9 @@ type ModulePropTypes = {
     language: ChaynsReactValues["language"],
     parameters: ChaynsReactValues["parameters"],
     customData: any,
-    environment: ChaynsReactValues["environment"]
-    preventStagingReplacement?: boolean
+    environment: ChaynsReactValues["environment"],
+    preventStagingReplacement?: boolean,
+    children?: ReactNode,
 }
 
 const System: FC<SystemPropTypes> = ({

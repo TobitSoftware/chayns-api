@@ -20,7 +20,7 @@ const handleTasks = async (tasks: TaskList) => {
     }
 }
 
-export const WaitUntil: FC<{tasks: TaskList, loadingComponent?: ReactNode}> = ({ tasks, children, loadingComponent }) => {
+export const WaitUntil: FC<{tasks: TaskList, children?: ReactNode, loadingComponent?: ReactNode}> = ({ tasks, children, loadingComponent }) => {
     const [loaded, setLoaded] = useState(() => !tasks.length);
     const mounted = useRef(false);
 
