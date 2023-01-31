@@ -26,6 +26,10 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
             ReactDOM.render(<Component {...this.props} ref={innerRef}/>, this.ref.current);
         }
 
+        componentWillUnmount() {
+            ReactDOM.render(<></>, this.ref.current);
+        }
+
         render() {
             return <div ref={this.ref}/>;
         }
