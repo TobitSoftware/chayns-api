@@ -59,7 +59,6 @@
         "@types/react": "^17.0.37",
         "@types/react-dom": "^17.0.11",
         "@typescript-eslint/parser": "^5.4.0",
-        "chayns-toolkit": "^2.0.0-beta.21",
         "concurrently": "^6.5.1",
         "cross-env": "^7.0.3",
         "postcss-prefix-selector": "^1.13.0",
