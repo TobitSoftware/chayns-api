@@ -31,7 +31,8 @@ type HostIframeProps = {
     parameters: ChaynsReactValues["parameters"],
     environment: ChaynsReactValues["environment"],
     customData: ChaynsReactValues["customData"],
-    preventStagingReplacement?: boolean
+    preventStagingReplacement?: boolean,
+    dialog: ChaynsReactValues["dialog"]
 }
 
 const HostIframe: FC<HostIframeProps> = ({
@@ -51,7 +52,8 @@ const HostIframe: FC<HostIframeProps> = ({
     parameters,
     environment,
     customData,
-    preventStagingReplacement
+    preventStagingReplacement,
+    dialog
 }) => {
     const eventTarget = useRef<EventTarget>();
     const ref = useRef<HTMLIFrameElement | null>();
@@ -79,6 +81,7 @@ const HostIframe: FC<HostIframeProps> = ({
         parameters,
         environment,
         customData,
+        dialog
     } as ChaynsReactValues;
     // endregion
 
@@ -89,7 +92,7 @@ const HostIframe: FC<HostIframeProps> = ({
         (async() => {
             if (postForm) {
                 const accessToken = (await functions.getAccessToken() ?? {});
-                void postIframeForm(replaceStagingUrl(preventStagingReplacement, src, environment.runtimeEnvironment), JSON.stringify({ ...initialData, pages: undefined, ...accessToken }), 'chayns', iFrameProps.name)
+                void postIframeForm(replaceStagingUrl(preventStagingReplacement, src, environment.buildEnvironment), JSON.stringify({ ...initialData, pages: undefined, ...accessToken }), 'chayns', iFrameProps.name)
             }
         })()
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -99,6 +102,7 @@ const HostIframe: FC<HostIframeProps> = ({
     // region expose data and functions to iframe
     useEffect(() => {
         if (ref.current?.contentWindow) {
+            console.log("current", currentDataRef.current)
             const obj = {
                 [iFrameProps.name]: {
                     functions: {

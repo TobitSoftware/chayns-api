@@ -34,6 +34,19 @@ export class ModuleFederationWrapper implements IChaynsReact {
             this.functions[k] = async (...args) => (fn as Function)(...args);
         });
 
+        this.functions.createDialog = (config) => {
+            return {
+                close: () => {
+
+                },
+                open: async () => {
+                    const dialog = await functions.openDialog(config);
+                    console.log("yeee", dialog)
+                    return dialog;
+                },
+            }
+        }
+
         this.functions.addWindowMetricsListener = async (callback) => {
             const { id, shouldInitialize } = addApiListener('windowMetrics', callback);
 

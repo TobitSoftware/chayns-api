@@ -56,6 +56,24 @@ export type ChaynsApiDevice = {
     screenSize: ScreenSize;
 }
 
+export type Dialog = {
+    dialogInput: {
+        [key: string | symbol]: object;
+    },
+    isClosingRequested: boolean
+}
+
+export type DialogHookResult = {
+    isClosingRequested: boolean,
+    closeDialog: (value) => Promise<void>
+}
+
+export type DialogDataHookResult = {
+    inputData: {
+        [key: string | symbol]: object;
+    }
+}
+
 /**
  * @ignore
  */
@@ -85,7 +103,8 @@ export interface ChaynsReactValues {
         buildEnvironment: Environment;
         runtimeEnvironment: RuntimeEnviroment | string;
     },
-    customData: any
+    customData: any,
+    dialog: Dialog
 }
 
 /**
@@ -138,6 +157,9 @@ export interface ChaynsReactFunctions {
     // findSite: () => Promise<void>; // TODO: Maybe unused
     // findPerson: () => Promise<void>; // TODO: Maybe unused
     setOverlay: (value: ShowOverlay, callback: () => void) => Promise<void>;
+    createDialog: (value) => Promise<void>;
+    openDialog: (value) => Promise<void>;
+    closeDialog: (value) => Promise<void>;
 }
 
 export type SelectPage = {
@@ -694,4 +716,15 @@ enum selectType {
     ICON = 1
 }
 
+export enum DialogTypes {
+    ALERT = 'alert',
+    CONFIRM = 'confirm',
+    DATE = 'date',
+    FILE_SELECT = 'fileSelect',
+    IFRAME = 'iframe',
+    MODULE = 'module',
+    INPUT = 'input',
+    SELECT = 'select',
+    TOAST = 'toast'
+}
 

@@ -233,6 +233,20 @@ export class FrameWrapper implements IChaynsReact {
         scrollByY: async (value, duration) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.scrollByY(value, duration);
+        },
+        createDialog: (config) => {
+            return {
+                close: async (value) => {
+                    await this.exposedFunctions.closeDialog(value);
+                },
+                open: async () => {
+                    return await this.exposedFunctions.openDialog(config);
+                },
+            }
+        },
+        closeDialog: async (value) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.closeDialog(value);
         }
     };
 

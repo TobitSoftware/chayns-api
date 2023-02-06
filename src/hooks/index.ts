@@ -19,3 +19,4 @@ export { useValues } from './useValues';
 export { useFunctions } from './useFunctions';
 export { useCurrentPage } from './useCurrentPage';
 export { useCustomData } from './useCustomData';
+export { useDialogState, useDialogData } from './useDialogState';

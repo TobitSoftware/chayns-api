@@ -46,15 +46,16 @@ export const getClientDeviceInfo = () => ({
         isTouch: navigator.maxTouchPoints > 0 && window.matchMedia('(pointer: coarse)')
     })
 
-export const getScreenSize = (width): ScreenSize => {
+export const getScreenSize = (width, height): ScreenSize => {
+    const size = Math.max(width, height);
     let value: ScreenSize;
-    if(width > 1200) {
+    if(size > 1200) {
         value = ScreenSize.XL;
-    } else if(width > 993) {
+    } else if(size > 993) {
         value = ScreenSize.LG;
-    } else if(width > 769) {
+    } else if(size > 769) {
         value = ScreenSize.MD;
-    } else if(width > 556) {
+    } else if(size > 556) {
         value = ScreenSize.SM;
     } else {
         value = ScreenSize.XS;
