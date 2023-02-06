@@ -89,7 +89,7 @@ const HostIframe: FC<HostIframeProps> = ({
         (async() => {
             if (postForm) {
                 const accessToken = (await functions.getAccessToken() ?? {});
-                void postIframeForm(replaceStagingUrl(preventStagingReplacement, src, environment.runtimeEnvironment), JSON.stringify({ ...initialData, pages: undefined, ...accessToken }), 'chayns', iFrameProps.name)
+                void postIframeForm(replaceStagingUrl(preventStagingReplacement, src, environment.buildEnvironment), JSON.stringify({ ...initialData, pages: undefined, ...accessToken }), 'chayns', iFrameProps.name)
             }
         })()
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -145,7 +145,7 @@ const HostIframe: FC<HostIframeProps> = ({
             }}
             title=" "
             {...iFrameProps}
-            src={postForm ? undefined : replaceStagingUrl(preventStagingReplacement, src, environment.runtimeEnvironment)}
+            src={postForm ? undefined : replaceStagingUrl(preventStagingReplacement, src, environment.buildEnvironment)}
         />
     );
 }

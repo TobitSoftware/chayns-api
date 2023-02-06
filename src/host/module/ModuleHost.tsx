@@ -112,7 +112,7 @@ const ModuleHost: FC<ModulePropTypes> = ({
             <System
                 system={{
                     scope: system.scope,
-                    url: replaceStagingUrl(preventStagingReplacement, system.url, environment.runtimeEnvironment),
+                    url: replaceStagingUrl(preventStagingReplacement, system.url, environment.buildEnvironment),
                     module: system.module
                 }}
                 data={initialData}
