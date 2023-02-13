@@ -102,7 +102,6 @@ const HostIframe: FC<HostIframeProps> = ({
     // region expose data and functions to iframe
     useEffect(() => {
         if (ref.current?.contentWindow) {
-            console.log("current", currentDataRef.current)
             const obj = {
                 [iFrameProps.name]: {
                     functions: {

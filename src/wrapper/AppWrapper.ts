@@ -25,6 +25,8 @@ import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
 
+let appWrapperDialogId = 0;
+
 export class AppWrapper implements IChaynsReact {
 
     values: ChaynsReactValues = null!;
@@ -106,6 +108,11 @@ export class AppWrapper implements IChaynsReact {
 
     notImplemented(call: string) {
         console.warn(`call ${call} not implement in app`);
+    }
+
+    private dispatchDialogChange(detail) {
+        this.dialogs = detail;
+        this.dialogEventTarget.dispatchEvent(new CustomEvent('change', {detail}));
     }
 
     counter: number = 0;
@@ -429,7 +436,80 @@ export class AppWrapper implements IChaynsReact {
         vibrate: async (value) => {
             void this.appCall(19, value, { awaitResult: false });
         },
+        // openDialog: async (config) => {
+        //     const currentDialogId = dialogId;
+        //     const res = await new Promise((resolve) => {
+        //
+        //
+        //         console.log("open dialog", config)
+        //         // set(({dialogs: oldDialogs}) => ({
+        //         //     dialogs: [...(oldDialogs || []), {config, resolve, dialogId: dialogId++, eventTarget}]
+        //         // }));
+        //     });
+        //
+        //     dispatchDialogChange(this.dialogs.filter(x => x.dialogId !== currentDialogId))
+        //     // set(({dialogs: oldDialogs}) => {
+        //     //
+        //     //     console.log("mhm", oldDialogs, currentDialogId)
+        //     //     return ({
+        //     //         dialogs: oldDialogs.filter(x => x.dialogId !== currentDialogId)
+        //     //     })});
+        //
+        //     return res;
+        // },
+        createDialog: (config) => {
+            return {
+                close: async (value) => {
+                    this.dialogs.find(x => x.dialogId === dialogId).eventTarget.dispatchEvent(new CustomEvent('close', { detail: data }));
+                },
+                open: async () => {
+                    const currentDialogId = appWrapperDialogId;
+                    const res = await new Promise((resolve) => {
+                        const eventTarget = new EventTarget();
+
+                        this.dispatchDialogChange([...(this.dialogs || []), {
+                            config,
+                            resolve,
+                            dialogId: appWrapperDialogId++,
+                            eventTarget
+                        }])
+                    });
+
+                    this.dispatchDialogChange(this.dialogs.filter(x => x.dialogId !== currentDialogId))
+
+                    return res;
+                },
+            }
+        },
+        closeDialog: (dialogId, data) => {
+            console.log("close dialog", dialogId, data, this.dialogs);
+            // const newDialogs = this.dialogs;
+            // const closingDialogIndex = this.dialogs.findIndex(x => x.dialogId === dialogId);
+            // newDialogs[closingDialogIndex].eventTarget.disp
+            // this.dispatchDialogChange([...(this.dialogs || []), {
+            //     config,
+            //     resolve,
+            //     dialogId: appWrapperDialogId++,
+            //     eventTarget
+            // }])
+            try {
+                this.dialogs.find(x => x.dialogId === dialogId).eventTarget.dispatchEvent(new CustomEvent('requestClose', { detail: data }));
+            } catch(e) {
+                console.error(e);
+            }
+            // set(({dialogs: oldDialogs}) => ({
+            //     dialogs: oldDialogs.filter(x => x.dialogId !== dialogId)
+            // }));
+        }
     };
+
+    private dialogs = [];
+
+    dialogEventTarget = new EventTarget();
+
+    getDialogEventTarget() {
+        return this.dialogEventTarget;
+    }
 
     async init() {
         this.values = this.mapOldApiToNew(await this.appCall(18));
@@ -450,5 +530,17 @@ export class AppWrapper implements IChaynsReact {
 
     getInitialData() {
         return this.values;
+    }
+
+    createDialog(config) {
+        return {
+            close: () => {
+
+            },
+            open: async () => {
+                const dialog = await functions.openDialog(config);
+                return dialog;
+            },
+        }
     }
 }

@@ -1,6 +1,10 @@
 import { Browser, OperatingSystem } from 'detect-browser';
 import { DialogButton, SelectDialogItem } from "./dialog";
 
+export type DialogTypes ={
+    ALERT: 0
+}
+
 export type ChaynsApiUser = {
     firstName?: string;
     lastName?: string;

@@ -7,6 +7,8 @@ import { FrameWrapper } from '../wrapper/FrameWrapper';
 import { ModuleFederationWrapper } from '../wrapper/ModuleFederationWrapper';
 import { SsrWrapper } from '../wrapper/SsrWrapper';
 import { ChaynsContext, ChaynsFunctionsContext } from './ChaynsContext';
+import ChaynsHost from "../host/ChaynsHost";
+import AppDialogWrapper from "./AppDialogWrapper";
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 export const moduleWrapper: { current: IChaynsReact } = { current: undefined! }
@@ -78,6 +80,10 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
             if (customWrapper.current.values) {
                 setState({ ...customWrapper.current.values });
             }
+
+            customWrapper.current.dialogListener = () => {
+
+            }
         })();
     }, []);
 
@@ -96,6 +102,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
                 <ChaynsContext.Provider value={state}>
                     <ChaynsFunctionsContext.Provider value={customWrapper.current?.functions}>
                         {children}
+                        {customWrapper.current instanceof AppWrapper ? <AppDialogWrapper dialogEventTarget={customWrapper.current?.getDialogEventTarget()}/> : false}
                     </ChaynsFunctionsContext.Provider>
                 </ChaynsContext.Provider>
             )}
