@@ -1,7 +1,13 @@
 /* eslint-disable react/jsx-props-no-spreading */
 
 import React, { PureComponent, RefObject } from 'react';
-const ReactDOM = React.version >= '18' ? require('react-dom/client') : require('react-dom');
+import ReactDOM from 'react-dom';
+let ReactDOMClient;
+try {
+    ReactDOMClient = require('react-dom/client');
+} catch (e) {
+    // do nothing
+}
 
 type Props = {
     innerRef?: RefObject<unknown>,
@@ -19,25 +25,29 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
 
         componentDidMount() {
             const { innerRef } = this.props;
-            if (React.version >= '18') {
-                this.root = ReactDOM.createRoot(this.ref.current);
-                this.root.render(<Component {...this.props} ref={innerRef}/>);
+
+            const component = <Component {...this.props} ref={innerRef}/>;
+            if (typeof ReactDOMClient?.createRoot === 'function') {
+                this.root = ReactDOMClient.createRoot(this.ref.current);
+                this.root.render(component);
             } else {
-                ReactDOM.render(<Component {...this.props} ref={innerRef}/>, this.ref.current);
+                ReactDOM.render(component, this.ref.current);
             }
         }
 
         componentDidUpdate() {
             const { innerRef } = this.props;
-            if (React.version >= '18') {
-                this.root.render(<Component {...this.props} ref={innerRef}/>);
+
+            const component = <Component {...this.props} ref={innerRef}/>
+            if (this.root) {
+                this.root.render(component);
             } else {
-                ReactDOM.render(<Component {...this.props} ref={innerRef}/>, this.ref.current);
+                ReactDOM.render(component, this.ref.current);
             }
         }
 
         componentWillUnmount() {
-            if (React.version >= '18') {
+            if (this.root) {
                 this.root.render(<></>);
             } else {
                 ReactDOM.render(<></>, this.ref.current);
