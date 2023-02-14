@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 
 import React, { PureComponent, RefObject } from 'react';
-import ReactDOM from 'react-dom';
+const ReactDOM = React.version >= '18' ? require('react-dom/client') : require('react-dom');
 
 type Props = {
     innerRef?: RefObject<unknown>,
@@ -10,6 +10,7 @@ type Props = {
 export const withCompatMode = <P extends Props>(Component: React.ComponentType<P>) => {
     class CompatComponent extends PureComponent<P> {
         ref: RefObject<HTMLDivElement>;
+        root;
 
         constructor(props: P) {
             super(props);
@@ -18,16 +19,29 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
 
         componentDidMount() {
             const { innerRef } = this.props;
-            ReactDOM.render(<Component {...this.props} ref={innerRef}/>, this.ref.current);
+            if (React.version >= '18') {
+                this.root = ReactDOM.createRoot(this.ref.current);
+                this.root.render(<Component {...this.props} ref={innerRef}/>);
+            } else {
+                ReactDOM.render(<Component {...this.props} ref={innerRef}/>, this.ref.current);
+            }
         }
 
         componentDidUpdate() {
             const { innerRef } = this.props;
-            ReactDOM.render(<Component {...this.props} ref={innerRef}/>, this.ref.current);
+            if (React.version >= '18') {
+                this.root.render(<Component {...this.props} ref={innerRef}/>);
+            } else {
+                ReactDOM.render(<Component {...this.props} ref={innerRef}/>, this.ref.current);
+            }
         }
 
         componentWillUnmount() {
-            ReactDOM.render(<></>, this.ref.current);
+            if (React.version >= '18') {
+                this.root.render(<></>);
+            } else {
+                ReactDOM.render(<></>, this.ref.current);
+            }
         }
 
         render() {
