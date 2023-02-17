@@ -80,10 +80,6 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
             if (customWrapper.current.values) {
                 setState({ ...customWrapper.current.values });
             }
-
-            customWrapper.current.dialogListener = () => {
-
-            }
         })();
     }, []);
 

@@ -1,4 +1,4 @@
-import { DialogDataHookResult, DialogHookResult } from "../types/IChaynsReact";
+import { DialogDataHookResult, DialogHookResult, DialogModule } from "../types/IChaynsReact";
 import { useContextSelector } from "use-context-selector";
 import { ChaynsContext, ChaynsFunctionsContext } from "../components/ChaynsContext";
 
@@ -7,19 +7,19 @@ import { ChaynsContext, ChaynsFunctionsContext } from "../components/ChaynsConte
  */
 export const useDialogState = (): DialogHookResult => {
     const closeDialog = useContextSelector(ChaynsFunctionsContext, v => v?.closeDialog);
-    const isClosingRequested = useContextSelector(ChaynsContext, v => v?.dialog.isClosingRequested!);
+    const isClosingRequested = useContextSelector(ChaynsContext, v => (v?.dialog as DialogModule).isClosingRequested!);
 
     return {
         closeDialog,
         isClosingRequested
-    }
+    } as DialogHookResult
 }
 
 /**
  * @category Hooks
  */
 export const useDialogData = (): DialogDataHookResult => {
-    const inputData = useContextSelector(ChaynsContext, v => v?.dialog.dialogInput!);
+    const inputData = useContextSelector(ChaynsContext, v => (v?.dialog as DialogModule).dialogInput!);
     return {
         inputData
     }

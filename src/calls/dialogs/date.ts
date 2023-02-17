@@ -1,7 +1,7 @@
 import {buttonText, buttonType, dialogAction} from './chaynsDialog';
 import { isDate, isNumber, isObject } from './utils/is';
 import {open} from './open';
-import { DialogButton, DialogTextBlock, IntervalItem, WeekDayIntervalObject } from "../../types/dialog";
+import { DialogButtonOld, DialogTextBlock, IntervalItem, WeekDayIntervalObject } from "../../types/dialog";
 import { getDevice } from "../index";
 
 /**
@@ -35,7 +35,7 @@ import { getDevice } from "../index";
 type DateConfig = {
     title?: string;
     message?: string;
-    buttons?: DialogButton[];
+    buttons?: DialogButtonOld[];
     minDate?: Date | number;
     maxDate?: Date | number;
     minuteInterval?: number;
@@ -104,7 +104,7 @@ type preSelect = preSelectObj | Date | undefined | number | number[]
 type AdvancedDateConfig = {
     title?: string;
     message?: string;
-    buttons?: DialogButton[];
+    buttons?: DialogButtonOld[];
     minDate?: Date | number;
     maxDate?: Date | number;
     minuteInterval?: number;

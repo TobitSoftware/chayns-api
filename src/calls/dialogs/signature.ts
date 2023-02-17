@@ -1,9 +1,9 @@
 import {buttonText, buttonType, dialogAction} from './chaynsDialog';
 import {open} from './open';
-import { DialogButton } from "../../types/dialog";
+import { DialogButtonOld } from "../../types/dialog";
 
 type SignatureInput = {
-    buttons?: DialogButton[],
+    buttons?: DialogButtonOld[],
     callType?: number
 }
 

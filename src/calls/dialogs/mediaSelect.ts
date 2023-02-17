@@ -1,10 +1,10 @@
 import {buttonText, buttonType, dialogAction} from './chaynsDialog';
 import {open} from './open';
-import { DialogButton } from "../../types/dialog";
+import { DialogButtonOld } from "../../types/dialog";
 import { getAccessToken, getUser, login } from "../index";
 
 type MediaSelectInput = {
-    buttons?: DialogButton[],
+    buttons?: DialogButtonOld[],
     callType?: number,
     chaynsToken?: string
 }

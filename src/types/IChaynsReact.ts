@@ -1,9 +1,62 @@
 import { Browser, OperatingSystem } from 'detect-browser';
-import { DialogButton, SelectDialogItem } from "./dialog";
+import { DialogButtonOld, SelectDialogItem } from "./dialog";
 
-export type DialogTypes ={
-    ALERT: 0
+export type DialogButton = {
+    type: DialogButtonType,
+    text: string
 }
+
+export type BaseDialog = {
+    text?: string,
+    buttons?: DialogButton[],
+    dialogId: number
+}
+
+export type Dialog = BaseDialog & (DialogInput | DialogModule | DialogIFrame | DialogSelect);
+
+export type DialogModule = {
+    type: DialogType.MODULE
+    system: {
+        url: string,
+        module: string,
+        scope: string
+    },
+    dialogInput: {
+        [key: string | symbol]: object;
+    },
+    isClosingRequested: boolean,
+}
+
+export type DialogIFrame = {
+    type: DialogType.IFRAME
+    url: string,
+    dialogInput: {
+        [key: string | symbol]: object;
+    },
+    isClosingRequested: boolean,
+}
+
+export type DialogInput = {
+    type: DialogType.INPUT
+    placeholder: string
+}
+
+export type DialogSelect =  {
+    type: DialogSelect,
+    list: {
+        id: number,
+        name: string,
+        disabled?: boolean,
+        isSelected?: boolean
+    }[]
+}
+
+export enum DialogButtonType {
+    OK=1,
+    CANCEL=-1,
+    NEGATIVE=0
+}
+
 
 export type ChaynsApiUser = {
     firstName?: string;
@@ -60,16 +113,11 @@ export type ChaynsApiDevice = {
     screenSize: ScreenSize;
 }
 
-export type Dialog = {
-    dialogInput: {
-        [key: string | symbol]: object;
-    },
-    isClosingRequested: boolean
-}
-
 export type DialogHookResult = {
     isClosingRequested: boolean,
-    closeDialog: (value) => Promise<void>
+    buttonType: DialogButtonType,
+    data: any,
+    closeDialog: (buttonType, data) => Promise<void>
 }
 
 export type DialogDataHookResult = {
@@ -161,9 +209,14 @@ export interface ChaynsReactFunctions {
     // findSite: () => Promise<void>; // TODO: Maybe unused
     // findPerson: () => Promise<void>; // TODO: Maybe unused
     setOverlay: (value: ShowOverlay, callback: () => void) => Promise<void>;
-    createDialog: (value) => Promise<void>;
+    createDialog: (config: Dialog) => DialogResult;
     openDialog: (value) => Promise<void>;
-    closeDialog: (value) => Promise<void>;
+    closeDialog: (buttonType: DialogButtonType, data) => Promise<void>;
+}
+
+export type DialogResult = {
+    open: () => Promise<void>,
+    close: (buttonType: DialogButtonType, data) => Promise<void>
 }
 
 export type SelectPage = {
@@ -710,8 +763,8 @@ export interface SelectInput {
     quickfind?: boolean;
     type?: selectType;
     preventCloseOnClick?: boolean;
-    buttons?: DialogButton[];
-    links?: DialogButton[];
+    buttons?: DialogButtonOld[];
+    links?: DialogButtonOld[];
     selectAllButton?: string;
 }
 
@@ -720,7 +773,7 @@ enum selectType {
     ICON = 1
 }
 
-export enum DialogTypes {
+export enum DialogType {
     ALERT = 'alert',
     CONFIRM = 'confirm',
     DATE = 'date',

@@ -12,13 +12,13 @@ import {
 
 type ChaynsHostType =  {
     type: string,
-    iFrameProps: { [key: string]: unknown, name: string },
+    iFrameProps?: { [key: string]: unknown, name: string },
     functions: ChaynsReactFunctions,
-    src: string,
-    iFrameRef: React.MutableRefObject<HTMLIFrameElement | null> | undefined,
+    src?: string,
+    iFrameRef?: React.MutableRefObject<HTMLIFrameElement | null> | undefined,
     loadingComponent?: JSX.Element,
     children?: JSX.Element,
-    system: TypeSystem,
+    system?: TypeSystem,
     // shallow data
     pages: Page[],
     isAdminModeActive: boolean,
@@ -63,7 +63,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
             return (
                 <HostIframe
                     iFrameRef={iFrameRef}
-                    iFrameProps={iFrameProps}
+                    iFrameProps={iFrameProps!}
                     pages={pages}
                     isAdminModeActive={isAdminModeActive}
                     site={site}
@@ -71,7 +71,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     device={device}
                     currentPage={currentPage}
                     functions={functions}
-                    src={src}
+                    src={src!}
                     language={language}
                     parameters={parameters}
                     environment={environment}
@@ -83,7 +83,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
         case 'client-module':
             return (
                 <ModuleHost
-                    system={system}
+                    system={system!}
                     pages={pages}
                     isAdminModeActive={isAdminModeActive}
                     site={site}
@@ -103,7 +103,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
             return (
                 <HostIframe
                     iFrameRef={iFrameRef}
-                    iFrameProps={iFrameProps}
+                    iFrameProps={iFrameProps!}
                     pages={pages}
                     isAdminModeActive={isAdminModeActive}
                     site={site}
@@ -111,7 +111,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     device={device}
                     currentPage={currentPage}
                     functions={functions}
-                    src={src}
+                    src={src!}
                     postForm
                     language={language}
                     parameters={parameters}
@@ -124,7 +124,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
         case 'server-module':
             return (
                 <ModuleHost
-                    system={system}
+                    system={system!}
                     pages={pages}
                     isAdminModeActive={isAdminModeActive}
                     site={site}

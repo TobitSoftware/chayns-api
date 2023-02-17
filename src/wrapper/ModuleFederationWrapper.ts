@@ -36,8 +36,8 @@ export class ModuleFederationWrapper implements IChaynsReact {
 
         this.functions.createDialog = (config) => {
             return {
-                close: () => {
-
+                close: (buttonType, data) => {
+                    return functions.closeDialog(buttonType, data);
                 },
                 open: async () => {
                     const dialog = await functions.openDialog(config);

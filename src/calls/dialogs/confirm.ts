@@ -1,10 +1,10 @@
 import {buttonText, buttonType, chaynsDialog} from './chaynsDialog';
-import { DialogButton } from "../../types/dialog";
+import { DialogButtonOld } from "../../types/dialog";
 
 type Confirm = {
     headline?: string,
     text?: string,
-    buttons?: DialogButton[] | { buttons?: DialogButton[], links?: DialogButton[] },
+    buttons?: DialogButtonOld[] | { buttons?: DialogButtonOld[], links?: DialogButtonOld[] },
     links?: unknown,
     select?: unknown
 }

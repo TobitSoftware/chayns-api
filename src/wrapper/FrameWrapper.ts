@@ -236,17 +236,20 @@ export class FrameWrapper implements IChaynsReact {
         },
         createDialog: (config) => {
             return {
-                close: async (value) => {
-                    await this.exposedFunctions.closeDialog(value);
+                close: async (buttonType, data) => {
+                    await this.exposedFunctions.closeDialog(buttonType, data);
                 },
                 open: async () => {
                     return await this.exposedFunctions.openDialog(config);
                 },
             }
         },
-        closeDialog: async (value) => {
+        closeDialog: async (buttonType, value) => {
             if (!this.initialized) await this.ready;
-            return this.exposedFunctions.closeDialog(value);
+            return this.exposedFunctions.closeDialog(buttonType, value);
+        },
+        openDialog: async (value) => {
+
         }
     };
 

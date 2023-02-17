@@ -31,7 +31,7 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
     result.accessToken = undefined; // TODO
     result.os = parsedUA?.os;
     if (typeof window !== 'undefined') {
-        result.screenSize = getScreenSize(window.innerWidth);
+        result.screenSize = getScreenSize(window.innerWidth, window.innerHeight);
     } else {
         // estimate size over user agent, very inaccurate, could be improved by setting a cookie with the screensize
         const screenSizeByUA = /mobi/i.test(userAgent) ? ScreenSize.SM : ScreenSize.XL;

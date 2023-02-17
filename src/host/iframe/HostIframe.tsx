@@ -135,6 +135,7 @@ const HostIframe: FC<HostIframeProps> = ({
     useUpdateData(eventTarget.current, 'parameters', parameters);
     useUpdateData(eventTarget.current, 'environment', environment);
     useUpdateData(eventTarget.current, 'customData', customData);
+    useUpdateData(eventTarget.current, 'dialog', dialog);
     // endregion
 
     return (

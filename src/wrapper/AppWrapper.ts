@@ -436,72 +436,45 @@ export class AppWrapper implements IChaynsReact {
         vibrate: async (value) => {
             void this.appCall(19, value, { awaitResult: false });
         },
-        // openDialog: async (config) => {
-        //     const currentDialogId = dialogId;
-        //     const res = await new Promise((resolve) => {
-        //
-        //
-        //         console.log("open dialog", config)
-        //         // set(({dialogs: oldDialogs}) => ({
-        //         //     dialogs: [...(oldDialogs || []), {config, resolve, dialogId: dialogId++, eventTarget}]
-        //         // }));
-        //     });
-        //
-        //     dispatchDialogChange(this.dialogs.filter(x => x.dialogId !== currentDialogId))
-        //     // set(({dialogs: oldDialogs}) => {
-        //     //
-        //     //     console.log("mhm", oldDialogs, currentDialogId)
-        //     //     return ({
-        //     //         dialogs: oldDialogs.filter(x => x.dialogId !== currentDialogId)
-        //     //     })});
-        //
-        //     return res;
-        // },
+        openDialog: async (...args) => {
+            return this.openDialog(...args);
+        },
         createDialog: (config) => {
             return {
                 close: async (value) => {
                     this.dialogs.find(x => x.dialogId === dialogId).eventTarget.dispatchEvent(new CustomEvent('close', { detail: data }));
                 },
                 open: async () => {
-                    const currentDialogId = appWrapperDialogId;
-                    const res = await new Promise((resolve) => {
-                        const eventTarget = new EventTarget();
-
-                        this.dispatchDialogChange([...(this.dialogs || []), {
-                            config,
-                            resolve,
-                            dialogId: appWrapperDialogId++,
-                            eventTarget
-                        }])
-                    });
-
-                    this.dispatchDialogChange(this.dialogs.filter(x => x.dialogId !== currentDialogId))
-
-                    return res;
+                    return await this.openDialog(config);
                 },
             }
         },
         closeDialog: (dialogId, data) => {
-            console.log("close dialog", dialogId, data, this.dialogs);
-            // const newDialogs = this.dialogs;
-            // const closingDialogIndex = this.dialogs.findIndex(x => x.dialogId === dialogId);
-            // newDialogs[closingDialogIndex].eventTarget.disp
-            // this.dispatchDialogChange([...(this.dialogs || []), {
-            //     config,
-            //     resolve,
-            //     dialogId: appWrapperDialogId++,
-            //     eventTarget
-            // }])
             try {
                 this.dialogs.find(x => x.dialogId === dialogId).eventTarget.dispatchEvent(new CustomEvent('requestClose', { detail: data }));
             } catch(e) {
                 console.error(e);
             }
-            // set(({dialogs: oldDialogs}) => ({
-            //     dialogs: oldDialogs.filter(x => x.dialogId !== dialogId)
-            // }));
         }
     };
+
+    private async openDialog(config) {
+        const currentDialogId = appWrapperDialogId;
+        const res = await new Promise((resolve) => {
+            const eventTarget = new EventTarget();
+
+            this.dispatchDialogChange([...(this.dialogs || []), {
+                config,
+                resolve,
+                dialogId: appWrapperDialogId++,
+                eventTarget
+            }])
+        });
+
+        this.dispatchDialogChange(this.dialogs.filter(x => x.dialogId !== currentDialogId))
+
+        return res;
+    }
 
     private dialogs = [];
 
