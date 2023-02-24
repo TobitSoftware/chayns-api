@@ -27,6 +27,7 @@ export type ChaynsApiSite = {
     title: string;
     url: string;
     urlHash: string;
+    originSiteId?: string;
 }
 
 export enum ScreenSize {
