@@ -29,7 +29,7 @@ export class FrameWrapper implements IChaynsReact {
 
     values: ChaynsReactValues = null!;
 
-    functions: ChaynsReactFunctions = {
+    private _functions: ChaynsReactFunctions = {
         addGeoLocationListener: async (value , callback) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.addGeoLocationListener(value, callback && comlink.proxy((result: GeoLocation) => callback(result)));
@@ -235,6 +235,22 @@ export class FrameWrapper implements IChaynsReact {
             return this.exposedFunctions.scrollByY(value, duration);
         }
     };
+
+    functions = new Proxy(this._functions, {
+        get: (target: ChaynsReactFunctions, p: string | symbol): any => {
+            if (p in target) {
+                return target[p];
+            }
+            return target[p] = async (...args) => {
+                if (!this.initialized) await this.ready;
+                if (args.length > 4) {
+                    console.warn(`function '${String(p)}' has been called with more than 4 arguments which is not supported. only first 4 arguments will be used`);
+                }
+                const wrappedArgs = args.map((v) => typeof v === 'function' ? comlink.proxy(v) : v);
+                return this.exposedFunctions[p](wrappedArgs[0], wrappedArgs[1], wrappedArgs[2], wrappedArgs[3]);
+            }
+        },
+    });
 
     initialized = false;
 

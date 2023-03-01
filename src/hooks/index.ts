@@ -16,6 +16,7 @@ export { usePages, usePage, getPage } from './usePages';
 export { useEnvironment } from './useEnvironment';
 export { useLanguage } from './useLanguage';
 export { useValues } from './useValues';
+export { useFunction } from './useFunction';
 export { useFunctions } from './useFunctions';
 export { useCurrentPage } from './useCurrentPage';
 export { useCustomData } from './useCustomData';
