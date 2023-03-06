@@ -1,5 +1,5 @@
 import { Browser, OperatingSystem } from 'detect-browser';
-import { DialogButtonOld, SelectDialogItem } from "./dialog";
+import { DialogButtonOld, SelectDialogItem } from './dialog';
 
 export type DialogButton = {
     type: DialogButtonType,
@@ -41,8 +41,8 @@ export type DialogInput = {
     placeholder: string
 }
 
-export type DialogSelect =  {
-    type: DialogSelect,
+export type DialogSelect = {
+    type: DialogType.SELECT,
     list: {
         id: number,
         name: string,
@@ -52,9 +52,9 @@ export type DialogSelect =  {
 }
 
 export enum DialogButtonType {
-    OK=1,
-    CANCEL=-1,
-    NEGATIVE=0
+    OK = 1,
+    CANCEL = -1,
+    NEGATIVE = 0
 }
 
 
@@ -311,7 +311,7 @@ enum IOSFeedbackVibration {
 
 export interface Vibrate {
     pattern: number[];
-    iOSFeedbackVibration?: IOSFeedbackVibration
+    iOSFeedbackVibration?: IOSFeedbackVibration;
 }
 
 export interface ShowOverlay {
@@ -537,7 +537,7 @@ export interface FloatingButton {
         onClick?: () => Promise<void>;
         text: string;
         icon: string;
-    }[]
+    }[];
 }
 
 export enum SharingApp {
@@ -585,7 +585,7 @@ export type DataChangeValue = {
     value: ChaynsApiSite;
 } | {
     type: 'isAdminModeActive',
-    value: ChaynsReactValues["isAdminModeActive"]
+    value: ChaynsReactValues['isAdminModeActive']
 }
 
 
@@ -611,8 +611,8 @@ export enum TappEvent {
 }
 
 export interface VisibilityChangeListenerResult {
-    isVisible: boolean
-    tappEvent: TappEvent
+    isVisible: boolean;
+    tappEvent: TappEvent;
 }
 
 export interface ScrollListenerResult { // ?
