@@ -210,12 +210,12 @@ export interface ChaynsReactFunctions {
     // findPerson: () => Promise<void>; // TODO: Maybe unused
     setOverlay: (value: ShowOverlay, callback: () => void) => Promise<void>;
     createDialog: (config: Dialog) => DialogResult;
-    openDialog: (value) => Promise<void>;
+    openDialog: (value, callback: (data: any) => any) => Promise<any>;
     closeDialog: (buttonType: DialogButtonType, data) => Promise<void>;
 }
 
 export type DialogResult = {
-    open: () => Promise<void>,
+    open: () => Promise<any>,
     close: (buttonType: DialogButtonType, data) => Promise<void>
 }
 

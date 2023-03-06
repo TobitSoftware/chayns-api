@@ -7,7 +7,7 @@ import { ChaynsContext, ChaynsFunctionsContext } from "../components/ChaynsConte
  */
 export const useDialogState = (): DialogHookResult => {
     const closeDialog = useContextSelector(ChaynsFunctionsContext, v => v?.closeDialog);
-    const isClosingRequested = useContextSelector(ChaynsContext, v => (v?.dialog as DialogModule).isClosingRequested!);
+    const isClosingRequested = useContextSelector(ChaynsContext, v => (v?.dialog as DialogModule)?.isClosingRequested!);
 
     return {
         closeDialog,

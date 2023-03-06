@@ -16,6 +16,7 @@ import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/a
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { setTappHeight } from '../util/heightHelper';
+import Dialog from './Dialog';
 
 export class FrameWrapper implements IChaynsReact {
 
@@ -235,14 +236,8 @@ export class FrameWrapper implements IChaynsReact {
             return this.exposedFunctions.scrollByY(value, duration);
         },
         createDialog: (config) => {
-            return {
-                close: async (buttonType, data) => {
-                    await this.exposedFunctions.closeDialog(buttonType, data);
-                },
-                open: async () => {
-                    return await this.exposedFunctions.openDialog(config);
-                },
-            }
+            const openDialog = (config, callback) => this.exposedFunctions.openDialog(config, comlink.proxy(callback));
+            return new Dialog(config, openDialog, this.exposedFunctions.closeDialog);
         },
         closeDialog: async (buttonType, value) => {
             if (!this.initialized) await this.ready;
