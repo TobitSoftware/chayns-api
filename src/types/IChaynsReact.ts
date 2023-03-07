@@ -489,10 +489,11 @@ export interface RefreshScrollEnabled {
 }
 
 export interface GeoLocation {
-    accuracy: number | null;
     latitude: number;
     longitude: number;
     speed: number;
+    accuracy: number | null;
+    isAccurate: boolean | null;
     code: number;
 }
 

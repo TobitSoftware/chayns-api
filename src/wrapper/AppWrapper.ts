@@ -139,15 +139,16 @@ export class AppWrapper implements IChaynsReact {
 
             if (shouldInitialize) {
                 this.appCall(14, { permanent: true }, {
-                   callback: (v) => {
-                       dispatchApiEvent('geoLocationListener', {
-                           latitude: v.latitude,
-                           longitude: v.longitude,
-                           accuracy: v.accuracy ?? null,
-                           speed: v.speed,
-                           code: v.code ?? null,
-                       });
-                   }
+                    callback: (v) => {
+                        dispatchApiEvent('geoLocationListener', {
+                            latitude: v.latitude,
+                            longitude: v.longitude,
+                            accuracy: v.accuracy ?? null,
+                            speed: v.speed,
+                            isAccurate: v.isAccurate ?? null,
+                            code: v.code ?? null,
+                        });
+                    },
                 });
             }
 
@@ -213,8 +214,9 @@ export class AppWrapper implements IChaynsReact {
                 latitude: res.latitude,
                 longitude: res.longitude,
                 speed: res.speed,
-                code: res.code,
-                isAccurate: res.isAccurate,
+                accuracy: res.accuracy ?? null,
+                isAccurate: res.isAccurate ?? null,
+                code: res.code ?? null,
             };
         },
         getUserInfo: async (query) => {
