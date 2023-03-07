@@ -48,7 +48,7 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
 
         componentWillUnmount() {
             if (this.root) {
-                this.root.render(<></>);
+                this.root.unmount();
             } else {
                 ReactDOM.render(<></>, this.ref.current);
             }
