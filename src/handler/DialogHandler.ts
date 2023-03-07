@@ -1,5 +1,5 @@
 
-export default class Dialog {
+export default class DialogHandler {
     private dialogId;
     private isOpen = false;
     private readonly _open;

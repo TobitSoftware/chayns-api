@@ -1,4 +1,5 @@
 import { Browser, OperatingSystem } from 'detect-browser';
+import DialogHandler from '../wrapper/Dialog';
 import { DialogButtonOld, SelectDialogItem } from './dialog';
 
 export type DialogButton = {
@@ -209,9 +210,12 @@ export interface ChaynsReactFunctions {
     // findSite: () => Promise<void>; // TODO: Maybe unused
     // findPerson: () => Promise<void>; // TODO: Maybe unused
     setOverlay: (value: ShowOverlay, callback: () => void) => Promise<void>;
-    createDialog: (config: Dialog) => DialogResult;
+    // public interface to create dialogs
+    createDialog: (config: Dialog) => DialogHandler;
+    // used internally by createDialog
     openDialog: (value, callback: (data: any) => any) => Promise<any>;
-    closeDialog: (buttonType: DialogButtonType, data) => Promise<void>;
+    // used internally by createDialog
+    closeDialog: (dialogId: number) => Promise<void>;
 }
 
 export type DialogResult = {

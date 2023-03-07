@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import * as comlink from 'comlink';
+import DialogHandler from '../handler/DialogHandler';
 import {
     AccessToken,
     ChaynsReactFunctions,
@@ -16,7 +17,6 @@ import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/a
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { setTappHeight } from '../util/heightHelper';
-import Dialog from './Dialog';
 
 export class FrameWrapper implements IChaynsReact {
 
@@ -237,14 +237,15 @@ export class FrameWrapper implements IChaynsReact {
         },
         createDialog: (config) => {
             const openDialog = (config, callback) => this.exposedFunctions.openDialog(config, comlink.proxy(callback));
-            return new Dialog(config, openDialog, this.exposedFunctions.closeDialog);
+            return new DialogHandler(config, openDialog, this.exposedFunctions.closeDialog);
         },
-        closeDialog: async (buttonType, value) => {
+        closeDialog: async (dialogId) => {
             if (!this.initialized) await this.ready;
-            return this.exposedFunctions.closeDialog(buttonType, value);
+            return this.exposedFunctions.closeDialog(dialogId);
         },
-        openDialog: async (value) => {
-
+        openDialog: async (config, callback) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.openDialog(config, comlink.proxy(callback));
         }
     };
 
