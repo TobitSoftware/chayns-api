@@ -157,7 +157,7 @@ export interface ChaynsReactValues {
         runtimeEnvironment: RuntimeEnviroment | string;
     },
     customData: any,
-    dialog: Dialog
+    dialog: { dialogInput: any, isCloseRequested: boolean }
 }
 
 /**

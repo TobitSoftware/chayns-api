@@ -10,7 +10,7 @@ import {
     Page
 } from '../types/IChaynsReact';
 
-type ChaynsHostType =  {
+type ChaynsHostType = {
     type: string,
     iFrameProps?: { [key: string]: unknown, name: string },
     functions: ChaynsReactFunctions,
@@ -31,7 +31,7 @@ type ChaynsHostType =  {
     customData: any,
     environment: ChaynsReactValues["environment"],
     preventStagingReplacement?: boolean,
-    dialog: ChaynsReactValues["dialog"]
+    dialog: ChaynsReactValues["dialog"],
 }
 
 
