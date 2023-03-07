@@ -97,6 +97,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     customData={customData}
                     environment={environment}
                     preventStagingReplacement={preventStagingReplacement}
+                    dialog={dialog}
                 />
             )
         case 'server-iframe':
@@ -137,6 +138,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     customData={customData}
                     environment={environment}
                     preventStagingReplacement={preventStagingReplacement}
+                    dialog={dialog}
                 >
                     {children}
                 </ModuleHost>

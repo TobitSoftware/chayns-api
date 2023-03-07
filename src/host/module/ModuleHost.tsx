@@ -37,6 +37,7 @@ type ModulePropTypes = {
     customData: any,
     environment: ChaynsReactValues["environment"],
     preventStagingReplacement?: boolean,
+    dialog: ChaynsReactValues["dialog"],
     children?: ReactNode,
 }
 
@@ -85,6 +86,7 @@ const ModuleHost: FC<ModulePropTypes> = ({
     language,
     parameters,
     customData,
+    dialog,
     environment,
     preventStagingReplacement
 }) => {
@@ -98,11 +100,14 @@ const ModuleHost: FC<ModulePropTypes> = ({
         language,
         parameters,
         customData,
-        environment
+        environment,
     } as ChaynsReactValues;
 
     if (user) {
         initialData.user = user;
+    }
+    if (dialog) {
+        initialData.dialog = dialog;
     }
     // endregion
 
