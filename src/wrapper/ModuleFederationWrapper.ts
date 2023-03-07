@@ -1,3 +1,4 @@
+import DialogHandler from '../handler/DialogHandler';
 import {
     ChaynsReactFunctions,
     ChaynsReactValues,
@@ -10,7 +11,6 @@ import { addVisibilityChangeListener, removeVisibilityChangeListener } from '../
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
-import Dialog from './Dialog';
 
 export class ModuleFederationWrapper implements IChaynsReact {
     values: ChaynsReactValues;
@@ -36,7 +36,7 @@ export class ModuleFederationWrapper implements IChaynsReact {
         });
 
         this.functions.createDialog = (config) => {
-            return new Dialog(config, functions.openDialog, functions.closeDialog);
+            return new DialogHandler(config, functions.openDialog, functions.closeDialog);
         }
 
         this.functions.addWindowMetricsListener = async (callback) => {
