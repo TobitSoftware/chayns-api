@@ -216,6 +216,8 @@ export interface ChaynsReactFunctions {
     openDialog: (value, callback: (data: any) => any) => Promise<any>;
     // used internally by createDialog
     closeDialog: (dialogId: number) => Promise<void>;
+    // used internally by dialogs only
+    setDialogResult: (result: any) => Promise<void>;
 }
 
 export type DialogResult = {

@@ -246,6 +246,10 @@ export class FrameWrapper implements IChaynsReact {
         openDialog: async (config, callback) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.openDialog(config, comlink.proxy(callback));
+        },
+        setDialogResult: async (result: any) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.setDialogResult(result);
         }
     };
 
