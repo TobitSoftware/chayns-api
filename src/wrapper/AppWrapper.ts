@@ -2,6 +2,7 @@
 // @ts-nocheck
 
 import throttle from 'lodash.throttle';
+import DialogHandler from '../handler/DialogHandler';
 import {
     AvailableSharingServices,
     ChaynsReactFunctions,
@@ -112,7 +113,7 @@ export class AppWrapper implements IChaynsReact {
 
     private dispatchDialogChange(detail) {
         this.dialogs = detail;
-        this.dialogEventTarget.dispatchEvent(new CustomEvent('change', {detail}));
+        this.dialogEventTarget.dispatchEvent(new CustomEvent('change', { detail }));
     }
 
     counter: number = 0;
@@ -141,20 +142,20 @@ export class AppWrapper implements IChaynsReact {
         getAccessToken: async () => ({
             accessToken: this.accessToken,
         }),
-        addGeoLocationListener: async (value , callback) => {
+        addGeoLocationListener: async (value, callback) => {
             const { id, shouldInitialize } = addApiListener('geoLocationListener', callback);
 
             if (shouldInitialize) {
                 this.appCall(14, { permanent: true }, {
-                   callback: (v) => {
-                       dispatchApiEvent('geoLocationListener', {
-                           latitude: v.latitude,
-                           longitude: v.longitude,
-                           accuracy: v.accuracy ?? null,
-                           speed: v.speed,
-                           code: v.code ?? null,
-                       });
-                   }
+                    callback: (v) => {
+                        dispatchApiEvent('geoLocationListener', {
+                            latitude: v.latitude,
+                            longitude: v.longitude,
+                            accuracy: v.accuracy ?? null,
+                            speed: v.speed,
+                            code: v.code ?? null,
+                        });
+                    },
                 });
             }
 
@@ -436,45 +437,35 @@ export class AppWrapper implements IChaynsReact {
         vibrate: async (value) => {
             void this.appCall(19, value, { awaitResult: false });
         },
-        openDialog: async (...args) => {
-            return this.openDialog(...args);
-        },
         createDialog: (config) => {
-            return {
-                close: async (value) => {
-                    this.dialogs.find(x => x.dialogId === dialogId).eventTarget.dispatchEvent(new CustomEvent('close', { detail: data }));
-                },
-                open: async () => {
-                    return await this.openDialog(config);
-                },
-            }
+            return new DialogHandler(config, this.functions.openDialog, this.functions.closeDialog);
         },
-        closeDialog: (dialogId, data) => {
-            try {
-                this.dialogs.find(x => x.dialogId === dialogId).eventTarget.dispatchEvent(new CustomEvent('requestClose', { detail: data }));
-            } catch(e) {
-                console.error(e);
-            }
-        }
-    };
+        openDialog: async (config, callback) => {
+            const currentDialogId = appWrapperDialogId++;
 
-    private async openDialog(config) {
-        const currentDialogId = appWrapperDialogId;
-        const res = await new Promise((resolve) => {
             const eventTarget = new EventTarget();
 
-            this.dispatchDialogChange([...(this.dialogs || []), {
+            const resolve = (result) => {
+                callback(result);
+                this.dispatchDialogChange(this.dialogs.filter(x => x.dialogId !== currentDialogId));
+            };
+
+            this.dispatchDialogChange([...this.dialogs, {
                 config,
                 resolve,
-                dialogId: appWrapperDialogId++,
-                eventTarget
-            }])
-        });
+                dialogId: currentDialogId,
+                eventTarget,
+            }]);
 
-        this.dispatchDialogChange(this.dialogs.filter(x => x.dialogId !== currentDialogId))
-
-        return res;
-    }
+            return currentDialogId;
+        },
+        closeDialog: (dialogId) => {
+            const dialog = this.dialogs.find(x => x.dialogId === dialogId);
+            if (dialog) {
+                dialog.resolve({ buttonType: -1 });
+            }
+        },
+    };
 
     private dialogs = [];
 
@@ -503,17 +494,5 @@ export class AppWrapper implements IChaynsReact {
 
     getInitialData() {
         return this.values;
-    }
-
-    createDialog(config) {
-        return {
-            close: () => {
-
-            },
-            open: async () => {
-                const dialog = await functions.openDialog(config);
-                return dialog;
-            },
-        }
     }
 }
