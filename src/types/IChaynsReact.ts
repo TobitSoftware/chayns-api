@@ -1,5 +1,5 @@
 import { Browser, OperatingSystem } from 'detect-browser';
-import DialogHandler from '../wrapper/Dialog';
+import DialogHandler from '../handler/DialogHandler';
 import { DialogButtonOld, SelectDialogItem } from './dialog';
 
 export type DialogButton = {
@@ -22,18 +22,14 @@ export type DialogModule = {
         module: string,
         scope: string
     },
-    dialogInput: {
-        [key: string | symbol]: object;
-    },
+    dialogInput: object,
     isClosingRequested: boolean,
 }
 
 export type DialogIFrame = {
     type: DialogType.IFRAME
     url: string,
-    dialogInput: {
-        [key: string | symbol]: object;
-    },
+    dialogInput: object,
     isClosingRequested: boolean,
 }
 
@@ -157,7 +153,7 @@ export interface ChaynsReactValues {
         runtimeEnvironment: RuntimeEnviroment | string;
     },
     customData: any,
-    dialog: { dialogInput: any, isCloseRequested: boolean }
+    dialog: { dialogInput: any, isClosingRequested: boolean }
 }
 
 /**
