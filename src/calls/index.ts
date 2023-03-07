@@ -178,7 +178,7 @@ export const storageRemoveItem = (...args: Parameters<ChaynsReactFunctions["stor
 /**
  * Sets the value that is assigned to the key from a storage outside the frame
  */
-export const storageSetItem = <T extends object | number | string>(...args: Parameters<ChaynsReactFunctions["storageSetItem"]>) => moduleWrapper.current.functions.storageSetItem<T>(...args);
+export const storageSetItem: ChaynsReactFunctions["storageSetItem"] = <T extends object | number | string>(...args: Parameters<ChaynsReactFunctions["storageSetItem"]>) => moduleWrapper.current.functions.storageSetItem(...args);
 /**
  * This method lets a smartphone vibrate for the given time.
  */
