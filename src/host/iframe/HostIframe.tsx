@@ -149,7 +149,7 @@ const HostIframe: FC<HostIframeProps> = ({
             }}
             title=" "
             {...iFrameProps}
-            src={postForm ? undefined : replaceStagingUrl(preventStagingReplacement, src, environment.runtimeEnvironment)}
+            src={postForm ? undefined : replaceStagingUrl(preventStagingReplacement, src, environment.buildEnvironment)}
         />
     );
 }

@@ -1,6 +1,6 @@
 {
     "name": "chayns-api",
-    "version": "1.0.10-beta.1",
+    "version": "1.0.12",
     "description": "new chayns api",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
@@ -35,7 +35,7 @@
     },
     "dependencies": {
         "@types/semver": "^7.3.9",
-        "comlink": "^4.4.0",
+        "comlink": "^4.4.1",
         "detect-browser": "^5.2.1",
         "htmlescape": "^1.1.1",
         "lodash.throttle": "^4.1.1",
@@ -56,16 +56,16 @@
         "@types/htmlescape": "^1.1.1",
         "@types/lodash.throttle": "^4.1.6",
         "@types/prop-types": "^15.7.3",
-        "@types/react": "^17.0.53",
-        "@types/react-dom": "^17.0.11",
+        "@types/react": "^18.0.28",
+        "@types/react-dom": "^18.0.10",
         "@typescript-eslint/parser": "^5.50.0",
         "concurrently": "^7.6.0",
         "cross-env": "^7.0.3",
         "postcss-prefix-selector": "^1.13.0",
         "prettier": "^2.5.0",
         "prettier-plugin-packagejson": "^2.2.15",
-        "react": "^17.0.2",
-        "react-dom": "^17.0.2",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
         "typescript": "^4.9.5"
     },
     "peerDependencies": {

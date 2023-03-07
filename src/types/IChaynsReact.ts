@@ -81,6 +81,7 @@ export type ChaynsApiSite = {
     title: string;
     url: string;
     urlHash: string;
+    originSiteId?: string;
 }
 
 export enum ScreenSize {
@@ -198,9 +199,9 @@ export interface ChaynsReactFunctions {
     setScanQrCode: (value: ScanQrCodeRequest) => Promise<ScanQrCodeResult>;
     setTempDesignSettings: (value: DesignSettings) => Promise<void>;
     setWaitCursor: (value: WaitCursor) => Promise<void>;
-    storageGetItem: (key: string, accessMode?: AccessMode) => Promise<any>;
+    storageGetItem: <T extends object | number | string>(key: string, accessMode?: AccessMode) => Promise<T | undefined>;
     storageRemoveItem: (key: string, accessMode?: AccessMode) => Promise<void>;
-    storageSetItem: (key: string, value: any, accessMode?: AccessMode, tappIds?: number[]) => Promise<void>;
+    storageSetItem: <T extends object | number | string>(key: string, value: T, accessMode?: AccessMode, tappIds?: number[]) => Promise<void>;
     vibrate: (value: Vibrate) => Promise<void>;
     scrollByY: (position: number, duration?: number) => Promise<void>;
     // findSite: () => Promise<void>; // TODO: Maybe unused

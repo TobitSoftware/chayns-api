@@ -170,7 +170,7 @@ export const setWaitCursor = (...args: Parameters<ChaynsReactFunctions["setWaitC
 /**
  * Retrieves the value that is assigned to the key from a storage outside the frame
  */
-export const storageGetItem = (...args: Parameters<ChaynsReactFunctions["storageGetItem"]>) => moduleWrapper.current.functions.storageGetItem(...args);
+export const storageGetItem = <T extends object | number | string>(...args: Parameters<ChaynsReactFunctions["storageGetItem"]>) => moduleWrapper.current.functions.storageGetItem<T>(...args);
 /**
  * Removes the value that is assigned to the key from a storage outside the frame
  */
@@ -178,7 +178,7 @@ export const storageRemoveItem = (...args: Parameters<ChaynsReactFunctions["stor
 /**
  * Sets the value that is assigned to the key from a storage outside the frame
  */
-export const storageSetItem = (...args: Parameters<ChaynsReactFunctions["storageSetItem"]>) => moduleWrapper.current.functions.storageSetItem(...args);
+export const storageSetItem: ChaynsReactFunctions["storageSetItem"] = <T extends object | number | string>(...args: Parameters<ChaynsReactFunctions["storageSetItem"]>) => moduleWrapper.current.functions.storageSetItem(...args);
 /**
  * This method lets a smartphone vibrate for the given time.
  */
