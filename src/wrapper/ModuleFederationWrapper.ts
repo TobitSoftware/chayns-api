@@ -36,7 +36,7 @@ export class ModuleFederationWrapper implements IChaynsReact {
         });
 
         this.functions.createDialog = (config) => {
-            return new DialogHandler(config, functions.openDialog, functions.closeDialog, functions.dispatchEventToDialogHost, functions.addDialogClientEventListener);
+            return new DialogHandler(config, functions.openDialog, functions.closeDialog, functions.dispatchEventToDialogClient, functions.addDialogClientEventListener);
         }
 
         this.functions.addWindowMetricsListener = async (callback) => {

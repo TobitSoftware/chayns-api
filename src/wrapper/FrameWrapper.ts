@@ -236,9 +236,7 @@ export class FrameWrapper implements IChaynsReact {
             return this.exposedFunctions.scrollByY(value, duration);
         },
         createDialog: (config) => {
-            const openDialog = (config, callback) => this.exposedFunctions.openDialog(config, comlink.proxy(callback));
-            const addDataListener = (dialogId, callback) => this.exposedFunctions.addDialogClientEventListener(dialogId, comlink.proxy(callback));
-            return new DialogHandler(config, openDialog, this.exposedFunctions.closeDialog, this.functions.dispatchEventToDialogClient, addDataListener);
+            return new DialogHandler(config, this.functions.openDialog, this.exposedFunctions.closeDialog, this.functions.dispatchEventToDialogClient, this.functions.addDialogClientEventListener);
         },
         closeDialog: async (dialogId) => {
             if (!this.initialized) await this.ready;
@@ -258,30 +256,7 @@ export class FrameWrapper implements IChaynsReact {
         },
         addDialogClientEventListener: async (dialogId: number, callback: (data: object) => void) => {
             if (!this.initialized) await this.ready;
-
-            const listenerKey = `dialogClientEventListener_${dialogId}`;
-
-            const { id, shouldInitialize } = addApiListener(listenerKey, callback);
-
-            if (shouldInitialize) {
-                console.log('initialize client event listenr', dialogId);
-                this.exposedFunctions.addDialogClientEventListener(dialogId, comlink.proxy((data) => {
-                    console.log('api dialog cleint listener', dialogId, data);
-                    dispatchApiEvent(listenerKey, data);
-                }));
-            }
-
-            return id;
-        },
-        removeDialogClientEventListener: async (dialogId: number, id: number) => {
-            if (!this.initialized) await this.ready;
-
-            const listenerKey = `dialogClientEventListener_${dialogId}`;
-            const shouldRemove = removeApiListener(listenerKey, id);
-
-            if (shouldRemove) {
-                this.exposedFunctions.removeDialogClientEventListener(dialogId, 0);
-            }
+            return this.exposedFunctions.addDialogClientEventListener(dialogId, comlink.proxy(callback));
         },
         dispatchEventToDialogHost: async (data: object) => {
             if (!this.initialized) await this.ready;
@@ -309,7 +284,7 @@ export class FrameWrapper implements IChaynsReact {
             const shouldRemove = removeApiListener(listenerKey, id);
 
             if (shouldRemove) {
-                this.exposedFunctions.removeDialogHostEventListener(0);
+                // this.exposedFunctions.removeDialogHostEventListener(0);
             }
         },
     };
