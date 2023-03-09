@@ -287,6 +287,9 @@ export class FrameWrapper implements IChaynsReact {
                 // this.exposedFunctions.removeDialogHostEventListener(0);
             }
         },
+        removeDialogClientEventListener: async () => {
+
+        }
     };
 
     initialized = false;
