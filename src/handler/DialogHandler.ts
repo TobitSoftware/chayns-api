@@ -1,4 +1,3 @@
-
 export default class DialogHandler {
     private dialogId;
     private isOpen = false;
@@ -6,11 +5,17 @@ export default class DialogHandler {
     private readonly _open;
     private readonly _close;
     private readonly _config;
+    private readonly _dispatchEvent;
+    private readonly _addDataListener;
+    private readonly _removeDataListener;
+    private readonly listeners: ((data: object) => void)[] = [];
 
-    constructor(config, open, close) {
+    constructor(config, open, close, dispatchEvent, addDataListener) {
         this._open = open;
         this._close = close;
         this._config = config;
+        this._dispatchEvent = dispatchEvent;
+        this._addDataListener = addDataListener;
     }
 
     async open() {
@@ -24,6 +29,13 @@ export default class DialogHandler {
             };
             this.isOpen = true;
             this.dialogId = await this._open(this._config, callback);
+
+            console.log('dialogId', this.dialogId);
+
+            this._addDataListener(this.dialogId, (data) => {
+                console.log('[DialogHandler]dataListener', this.dialogId, data);
+                this.listeners.forEach((cb) => cb(data));
+            });
         });
         return this.result = res;
     }
@@ -34,6 +46,24 @@ export default class DialogHandler {
         }
         this.isOpen = false;
         this._close(this.dialogId, data);
+    }
+
+    dispatchEvent(data: object) {
+        if (!this.isOpen) {
+            return;
+        }
+        this._dispatchEvent(this.dialogId, data);
+    }
+
+    addDataListener(listener: (data: any) => void) {
+        this.listeners.push(listener);
+    }
+
+    removeDataListener(listener: (data: any) => void) {
+        const index = this.listeners.findIndex((l) => l === listener);
+        if (index > -1) {
+            this.listeners.splice(index, 1);
+        }
     }
 
     getResult() {

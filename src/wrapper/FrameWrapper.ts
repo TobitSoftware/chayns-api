@@ -237,7 +237,8 @@ export class FrameWrapper implements IChaynsReact {
         },
         createDialog: (config) => {
             const openDialog = (config, callback) => this.exposedFunctions.openDialog(config, comlink.proxy(callback));
-            return new DialogHandler(config, openDialog, this.exposedFunctions.closeDialog);
+            const addDataListener = (dialogId, callback) => this.exposedFunctions.addDialogClientEventListener(dialogId, comlink.proxy(callback));
+            return new DialogHandler(config, openDialog, this.exposedFunctions.closeDialog, this.functions.dispatchEventToDialogClient, addDataListener);
         },
         closeDialog: async (dialogId) => {
             if (!this.initialized) await this.ready;
@@ -250,7 +251,67 @@ export class FrameWrapper implements IChaynsReact {
         setDialogResult: async (result: any) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.setDialogResult(result);
-        }
+        },
+        dispatchEventToDialogClient: async (dialogId: number, data: object) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.dispatchEventToDialogClient(dialogId, data);
+        },
+        addDialogClientEventListener: async (dialogId: number, callback: (data: object) => void) => {
+            if (!this.initialized) await this.ready;
+
+            const listenerKey = `dialogClientEventListener_${dialogId}`;
+
+            const { id, shouldInitialize } = addApiListener(listenerKey, callback);
+
+            if (shouldInitialize) {
+                console.log('initialize client event listenr', dialogId);
+                this.exposedFunctions.addDialogClientEventListener(dialogId, comlink.proxy((data) => {
+                    console.log('api dialog cleint listener', dialogId, data);
+                    dispatchApiEvent(listenerKey, data);
+                }));
+            }
+
+            return id;
+        },
+        removeDialogClientEventListener: async (dialogId: number, id: number) => {
+            if (!this.initialized) await this.ready;
+
+            const listenerKey = `dialogClientEventListener_${dialogId}`;
+            const shouldRemove = removeApiListener(listenerKey, id);
+
+            if (shouldRemove) {
+                this.exposedFunctions.removeDialogClientEventListener(dialogId, 0);
+            }
+        },
+        dispatchEventToDialogHost: async (data: object) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.dispatchEventToDialogHost(data);
+        },
+        addDialogHostEventListener: async (callback: (data: object) => void) => {
+            if (!this.initialized) await this.ready;
+
+            const listenerKey = `dialogHostEventListener`;
+
+            const { id, shouldInitialize } = addApiListener(listenerKey, callback);
+
+            if (shouldInitialize) {
+                this.exposedFunctions.addDialogHostEventListener(comlink.proxy((data) => {
+                    dispatchApiEvent(listenerKey, data);
+                }));
+            }
+
+            return id;
+        },
+        removeDialogHostEventListener: async (id: number) => {
+            if (!this.initialized) await this.ready;
+
+            const listenerKey = `dialogHostEventListener`;
+            const shouldRemove = removeApiListener(listenerKey, id);
+
+            if (shouldRemove) {
+                this.exposedFunctions.removeDialogHostEventListener(0);
+            }
+        },
     };
 
     initialized = false;

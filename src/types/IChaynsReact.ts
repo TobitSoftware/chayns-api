@@ -112,10 +112,10 @@ export type ChaynsApiDevice = {
 }
 
 export type DialogHookResult = {
-    isClosingRequested: boolean,
-    buttonType: DialogButtonType,
-    data: any,
-    closeDialog: (buttonType, data) => Promise<void>
+    isClosingRequested: boolean;
+    setResult: ChaynsReactFunctions["setDialogResult"];
+    sendData: ChaynsReactFunctions["dispatchEventToDialogHost"];
+    addDataListener: ChaynsReactFunctions["addDialogHostEventListener"];
 }
 
 export type DialogDataHookResult = {
@@ -215,6 +215,12 @@ export interface ChaynsReactFunctions {
     closeDialog: (dialogId: number) => Promise<void>;
     // used internally by dialogs only
     setDialogResult: (result: any) => Promise<void>;
+    dispatchEventToDialogClient: (dialogId: number, data: object) => Promise<void>;
+    addDialogClientEventListener: (dialogId: number, callback: (data: object) => void) => Promise<number>;
+    removeDialogClientEventListener: (dialogId: number, id: number) => Promise<void>;
+    dispatchEventToDialogHost: (data: object) => Promise<void>;
+    addDialogHostEventListener: (callback: (data: object) => void) => Promise<number>;
+    removeDialogHostEventListener: (id: number) => Promise<void>;
 }
 
 export type DialogResult = {
