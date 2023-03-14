@@ -1,6 +1,6 @@
 ---
-title: Dialog 
-slug: dialog
+title: Dialogs
+slug: dialogs
 ---
 
 The dialog functions provide you with the opportunity to interact with the user through modal windows that appear in

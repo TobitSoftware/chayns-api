@@ -22,6 +22,7 @@ module.exports = {
 			items: [
 			],
 		},
+        "dialogs",
 		"contributing",
 	],
 }
