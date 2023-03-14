@@ -30,10 +30,10 @@ export default class DialogHandler {
             this.isOpen = true;
             this.dialogId = await this._open(this._config, callback);
 
-            console.log('dialogId', this.dialogId);
+            // console.log('dialogId', this.dialogId);
 
             this._addDataListener(this.dialogId, (data) => {
-                console.log('[DialogHandler]dataListener', this.dialogId, data);
+                // console.log('[DialogHandler]dataListener', this.dialogId, data);
                 this.listeners.forEach((cb) => cb(data));
             });
         });
