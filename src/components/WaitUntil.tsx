@@ -5,7 +5,7 @@ import {
     useState
 } from "react";
 
-type TaskList = (TaskList | Promise<unknown> | (() => Promise<unknown>))[];
+export type TaskList = (TaskList | Promise<unknown> | (() => Promise<unknown>))[];
 
 const handleTasks = async (tasks: TaskList) => {
     for(let i = 0; i < tasks.length; i++) {

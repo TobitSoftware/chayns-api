@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import * as comlink from 'comlink';
+import DialogHandler from '../handler/DialogHandler';
 import {
     AccessToken,
     ChaynsReactFunctions,
@@ -233,6 +234,61 @@ export class FrameWrapper implements IChaynsReact {
         scrollByY: async (value, duration) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.scrollByY(value, duration);
+        },
+        createDialog: (config) => {
+            return new DialogHandler(config, this.functions.openDialog, this.exposedFunctions.closeDialog, this.functions.dispatchEventToDialogClient, this.functions.addDialogClientEventListener);
+        },
+        closeDialog: async (dialogId) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.closeDialog(dialogId);
+        },
+        openDialog: async (config, callback) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.openDialog(config, comlink.proxy(callback));
+        },
+        setDialogResult: async (result: any) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.setDialogResult(result);
+        },
+        dispatchEventToDialogClient: async (dialogId: number, data: object) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.dispatchEventToDialogClient(dialogId, data);
+        },
+        addDialogClientEventListener: async (dialogId: number, callback: (data: object) => void) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.addDialogClientEventListener(dialogId, comlink.proxy(callback));
+        },
+        dispatchEventToDialogHost: async (data: object) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.dispatchEventToDialogHost(data);
+        },
+        addDialogHostEventListener: async (callback: (data: object) => void) => {
+            if (!this.initialized) await this.ready;
+
+            const listenerKey = `dialogHostEventListener`;
+
+            const { id, shouldInitialize } = addApiListener(listenerKey, callback);
+
+            if (shouldInitialize) {
+                this.exposedFunctions.addDialogHostEventListener(comlink.proxy((data) => {
+                    dispatchApiEvent(listenerKey, data);
+                }));
+            }
+
+            return id;
+        },
+        removeDialogHostEventListener: async (id: number) => {
+            if (!this.initialized) await this.ready;
+
+            const listenerKey = `dialogHostEventListener`;
+            const shouldRemove = removeApiListener(listenerKey, id);
+
+            if (shouldRemove) {
+                // this.exposedFunctions.removeDialogHostEventListener(0);
+            }
+        },
+        removeDialogClientEventListener: async () => {
+
         }
     };
 

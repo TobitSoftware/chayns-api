@@ -1,11 +1,11 @@
 import {buttonText, buttonType, dialogAction} from './chaynsDialog';
 import {open} from './open';
 import {addDialogDataListener, sendData} from './communication';
-import { DialogButton } from "../../types/dialog";
+import { DialogButtonOld } from "../../types/dialog";
 import { getSite, invokeDialogCall } from "../index";
 
 type iFrameDialog = {
-    buttons?: DialogButton[],
+    buttons?: DialogButtonOld[],
     callType?: number,
     tappIframeName?: string,
     url: string

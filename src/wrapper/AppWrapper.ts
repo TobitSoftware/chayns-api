@@ -2,6 +2,7 @@
 // @ts-nocheck
 
 import throttle from 'lodash.throttle';
+import DialogHandler from '../handler/DialogHandler';
 import {
     AvailableSharingServices,
     ChaynsReactFunctions,
@@ -24,6 +25,8 @@ import getDeviceInfo, { getScreenSize } from '../util/deviceHelper';
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
+
+let appWrapperDialogId = 0;
 
 export class AppWrapper implements IChaynsReact {
 
@@ -108,6 +111,11 @@ export class AppWrapper implements IChaynsReact {
         console.warn(`call ${call} not implement in app`);
     }
 
+    private dispatchDialogChange(detail) {
+        this.dialogs = detail;
+        this.dialogEventTarget.dispatchEvent(new CustomEvent('change', { detail }));
+    }
+
     counter: number = 0;
 
     appCall(action, value: unknown = {}, { callback, awaitResult = true } = {}) {
@@ -134,7 +142,7 @@ export class AppWrapper implements IChaynsReact {
         getAccessToken: async () => ({
             accessToken: this.accessToken,
         }),
-        addGeoLocationListener: async (value , callback) => {
+        addGeoLocationListener: async (value, callback) => {
             const { id, shouldInitialize } = addApiListener('geoLocationListener', callback);
 
             if (shouldInitialize) {
@@ -431,7 +439,43 @@ export class AppWrapper implements IChaynsReact {
         vibrate: async (value) => {
             void this.appCall(19, value, { awaitResult: false });
         },
+        createDialog: (config) => {
+            return new DialogHandler(config, this.functions.openDialog, this.functions.closeDialog);
+        },
+        openDialog: async (config, callback) => {
+            const currentDialogId = appWrapperDialogId++;
+
+            const eventTarget = new EventTarget();
+
+            const resolve = (result) => {
+                callback(result);
+                this.dispatchDialogChange(this.dialogs.filter(x => x.dialogId !== currentDialogId));
+            };
+
+            this.dispatchDialogChange([...this.dialogs, {
+                config,
+                resolve,
+                dialogId: currentDialogId,
+                eventTarget,
+            }]);
+
+            return currentDialogId;
+        },
+        closeDialog: (dialogId) => {
+            const dialog = this.dialogs.find(x => x.dialogId === dialogId);
+            if (dialog) {
+                dialog.resolve({ buttonType: -1 });
+            }
+        },
     };
+
+    private dialogs = [];
+
+    dialogEventTarget = new EventTarget();
+
+    getDialogEventTarget() {
+        return this.dialogEventTarget;
+    }
 
     async init() {
         this.values = this.mapOldApiToNew(await this.appCall(18));

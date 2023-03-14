@@ -1,3 +1,4 @@
+import DialogHandler from '../handler/DialogHandler';
 import {
     ChaynsReactFunctions,
     ChaynsReactValues,
@@ -33,6 +34,10 @@ export class ModuleFederationWrapper implements IChaynsReact {
             // eslint-disable-next-line
             this.functions[k] = async (...args) => (fn as Function)(...args);
         });
+
+        this.functions.createDialog = (config) => {
+            return new DialogHandler(config, functions.openDialog, functions.closeDialog, functions.dispatchEventToDialogClient, functions.addDialogClientEventListener);
+        }
 
         this.functions.addWindowMetricsListener = async (callback) => {
             const { id, shouldInitialize } = addApiListener('windowMetrics', callback);

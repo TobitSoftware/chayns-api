@@ -1,6 +1,6 @@
 import {buttonText, buttonType, dialogAction} from './chaynsDialog';
 import {open} from './open';
-import { DialogButton } from "../../types/dialog";
+import { DialogButtonOld } from "../../types/dialog";
 import { getAccessToken, getUser, login } from "../index";
 
 export const fileType = {
@@ -25,7 +25,7 @@ export const fileType = {
 };
 
 type FileSelectInput = {
-    buttons?: DialogButton[],
+    buttons?: DialogButtonOld[],
     callType?: number,
     multiselect?: boolean,
     directory?: boolean,

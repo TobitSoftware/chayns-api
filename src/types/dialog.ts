@@ -24,7 +24,7 @@ export interface SelectDialogItem {
     icon?: string
 }
 
-export interface DialogButton {
+export interface DialogButtonOld {
     text: buttonText | string,
     buttonType: buttonType | number,
     collapseTime?: number,

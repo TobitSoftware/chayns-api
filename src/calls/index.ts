@@ -184,6 +184,10 @@ export const storageSetItem: ChaynsReactFunctions["storageSetItem"] = <T extends
  */
 export const vibrate = (...args: Parameters<ChaynsReactFunctions["vibrate"]>) => moduleWrapper.current.functions.vibrate(...args);
 /**
+ * This method creates a dialog
+ */
+export const createDialog = (...args: Parameters<ChaynsReactFunctions["createDialog"]>) => moduleWrapper.current.functions.createDialog(...args);
+/**
  * Displays an overlay
  */
 export const setOverlay = (...args: Parameters<ChaynsReactFunctions["setOverlay"]>) => moduleWrapper.current.functions.setOverlay(...args);

@@ -1,5 +1,59 @@
 import { Browser, OperatingSystem } from 'detect-browser';
-import { DialogButton, SelectDialogItem } from "./dialog";
+import DialogHandler from '../handler/DialogHandler';
+import { DialogButtonOld, SelectDialogItem } from './dialog';
+
+export type DialogButton = {
+    type: DialogButtonType,
+    text: string
+}
+
+export type BaseDialog = {
+    text?: string,
+    buttons?: DialogButton[],
+    dialogId: number
+}
+
+export type Dialog = BaseDialog & (DialogInput | DialogModule | DialogIFrame | DialogSelect);
+
+export type DialogModule = {
+    type: DialogType.MODULE
+    system: {
+        url: string,
+        module: string,
+        scope: string
+    },
+    dialogInput: object,
+    isClosingRequested: boolean,
+}
+
+export type DialogIFrame = {
+    type: DialogType.IFRAME
+    url: string,
+    dialogInput: object,
+    isClosingRequested: boolean,
+}
+
+export type DialogInput = {
+    type: DialogType.INPUT
+    placeholder: string
+}
+
+export type DialogSelect = {
+    type: DialogType.SELECT,
+    list: {
+        id: number,
+        name: string,
+        disabled?: boolean,
+        isSelected?: boolean
+    }[]
+}
+
+export enum DialogButtonType {
+    OK = 1,
+    CANCEL = -1,
+    NEGATIVE = 0
+}
+
 
 export type ChaynsApiUser = {
     firstName?: string;
@@ -57,6 +111,19 @@ export type ChaynsApiDevice = {
     screenSize: ScreenSize;
 }
 
+export type DialogHookResult = {
+    isClosingRequested: boolean;
+    setResult: ChaynsReactFunctions["setDialogResult"];
+    sendData: ChaynsReactFunctions["dispatchEventToDialogHost"];
+    addDataListener: ChaynsReactFunctions["addDialogHostEventListener"];
+}
+
+export type DialogDataHookResult = {
+    inputData: {
+        [key: string | symbol]: object;
+    }
+}
+
 /**
  * @ignore
  */
@@ -86,7 +153,8 @@ export interface ChaynsReactValues {
         buildEnvironment: Environment;
         runtimeEnvironment: RuntimeEnviroment | string;
     },
-    customData: any
+    customData: any,
+    dialog: { dialogInput: any, isClosingRequested: boolean }
 }
 
 /**
@@ -139,6 +207,25 @@ export interface ChaynsReactFunctions {
     // findSite: () => Promise<void>; // TODO: Maybe unused
     // findPerson: () => Promise<void>; // TODO: Maybe unused
     setOverlay: (value: ShowOverlay, callback: () => void) => Promise<void>;
+    // public interface to create dialogs
+    createDialog: (config: Dialog) => DialogHandler;
+    // used internally by createDialog
+    openDialog: (value, callback: (data: any) => any) => Promise<any>;
+    // used internally by createDialog
+    closeDialog: (dialogId: number) => Promise<void>;
+    // used internally by dialogs only
+    setDialogResult: (result: any) => Promise<void>;
+    dispatchEventToDialogClient: (dialogId: number, data: object) => Promise<void>;
+    addDialogClientEventListener: (dialogId: number, callback: (data: object) => void) => Promise<number>;
+    removeDialogClientEventListener: (dialogId: number, id: number) => Promise<void>;
+    dispatchEventToDialogHost: (data: object) => Promise<void>;
+    addDialogHostEventListener: (callback: (data: object) => void) => Promise<number>;
+    removeDialogHostEventListener: (id: number) => Promise<void>;
+}
+
+export type DialogResult = {
+    open: () => Promise<any>,
+    close: (buttonType: DialogButtonType, data) => Promise<void>
 }
 
 export type SelectPage = {
@@ -233,7 +320,7 @@ enum IOSFeedbackVibration {
 
 export interface Vibrate {
     pattern: number[];
-    iOSFeedbackVibration?: IOSFeedbackVibration
+    iOSFeedbackVibration?: IOSFeedbackVibration;
 }
 
 export interface ShowOverlay {
@@ -459,7 +546,7 @@ export interface FloatingButton {
         onClick?: () => Promise<void>;
         text: string;
         icon: string;
-    }[]
+    }[];
 }
 
 export enum SharingApp {
@@ -508,7 +595,7 @@ export type DataChangeValue = {
     value: ChaynsApiSite;
 } | {
     type: 'isAdminModeActive',
-    value: ChaynsReactValues["isAdminModeActive"]
+    value: ChaynsReactValues['isAdminModeActive']
 }
 
 
@@ -534,8 +621,8 @@ export enum TappEvent {
 }
 
 export interface VisibilityChangeListenerResult {
-    isVisible: boolean
-    tappEvent: TappEvent
+    isVisible: boolean;
+    tappEvent: TappEvent;
 }
 
 export interface ScrollListenerResult { // ?
@@ -686,8 +773,8 @@ export interface SelectInput {
     quickfind?: boolean;
     type?: selectType;
     preventCloseOnClick?: boolean;
-    buttons?: DialogButton[];
-    links?: DialogButton[];
+    buttons?: DialogButtonOld[];
+    links?: DialogButtonOld[];
     selectAllButton?: string;
 }
 
@@ -696,4 +783,15 @@ enum selectType {
     ICON = 1
 }
 
+export enum DialogType {
+    ALERT = 'alert',
+    CONFIRM = 'confirm',
+    DATE = 'date',
+    FILE_SELECT = 'fileSelect',
+    IFRAME = 'iframe',
+    MODULE = 'module',
+    INPUT = 'input',
+    SELECT = 'select',
+    TOAST = 'toast'
+}
 
