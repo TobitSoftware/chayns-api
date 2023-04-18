@@ -8,7 +8,7 @@ export * from './components/WaitUntil';
 export * from './types/IChaynsReact';
 export * from './components/withCompatMode';
 
-export * from './handler/DialogHandler';
+export { default as DialogHandler } from './handler/DialogHandler';
 
 export * as dialog from './calls/dialogs/index';
 
