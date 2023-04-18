@@ -7,7 +7,6 @@ export default class DialogHandler {
     private readonly _config;
     private readonly _dispatchEvent;
     private readonly _addDataListener;
-    private readonly _removeDataListener;
     private readonly listeners: ((data: object) => void)[] = [];
 
     constructor(config, open, close, dispatchEvent, addDataListener) {

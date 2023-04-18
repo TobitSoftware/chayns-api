@@ -8,6 +8,8 @@ export * from './components/WaitUntil';
 export * from './types/IChaynsReact';
 export * from './components/withCompatMode';
 
+export * from './handler/DialogHandler';
+
 export * as dialog from './calls/dialogs/index';
 
 export * from './types/IChaynsReact';
