@@ -14,7 +14,8 @@ import { replaceStagingUrl } from "../../util/url";
 export type TypeSystem = {
     scope: string,
     url: string,
-    module: string
+    module: string,
+    preventSingleton?: boolean
 }
 
 type SystemPropTypes = {
@@ -60,7 +61,7 @@ const System: FC<SystemPropTypes> = ({
             return null;
         }
 
-        return React.lazy(loadComponent(system.scope, system.module, system.url));
+        return React.lazy(loadComponent(system.scope, system.module, system.url, undefined, system.preventSingleton));
 
         /* eslint-disable react-hooks/exhaustive-deps */
     }, [system?.scope, ready, system?.url]);
@@ -118,7 +119,8 @@ const ModuleHost: FC<ModulePropTypes> = ({
                 system={{
                     scope: system.scope,
                     url: replaceStagingUrl(preventStagingReplacement, system.url, environment.buildEnvironment),
-                    module: system.module
+                    module: system.module,
+                    preventSingleton: system.preventSingleton
                 }}
                 data={initialData}
                 functions={functions}

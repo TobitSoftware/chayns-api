@@ -7,7 +7,7 @@ import { semaphore } from './useDynamicScript';
 
 let instances = {};
 
-export default function loadComponent(scope, module, url, skipCompatMode = false) {
+export default function loadComponent(scope, module, url, skipCompatMode = false, preventSingleton = false) {
     return async () => {
         // Initializes the shared scope. Fills it with known provided modules from this build and all remotes
         // eslint-disable-next-line no-undef
@@ -35,6 +35,11 @@ export default function loadComponent(scope, module, url, skipCompatMode = false
         } else {
             Module = factory();
             ModuleMap[`${Module.default.buildEnv}__${Module.default.appVersion}`] = Module;
+        }
+
+        if(preventSingleton) {
+            // Intercom :)
+            window[scope + "_list"] = null;
         }
 
         if(skipCompatMode) return Module;
