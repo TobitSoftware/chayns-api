@@ -147,7 +147,7 @@ export interface ChaynsReactValues {
      * keys are in lower case
      */
     parameters: {
-        [key: string | symbol]: string;
+        [key: string | symbol]: string | string[];
     },
     environment: {
         buildEnvironment: Environment;
