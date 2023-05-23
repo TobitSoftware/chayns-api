@@ -37,6 +37,8 @@ export class AppWrapper implements IChaynsReact {
     mapOldApiToNew(retVal) {
         const { AppInfo, AppUser } = retVal;
         this.accessToken = AppUser.TobitAccessToken;
+        const urlParams = new URLSearchParams(location.search);
+        const urlParamsLowerCase = new URLSearchParams(location.search.toLowerCase());
         return {
             device: getDeviceInfo(navigator.userAgent, 'image/webp'),
             environment: {
@@ -63,7 +65,7 @@ export class AppWrapper implements IChaynsReact {
                     docked: false,
                 },
                 title: AppInfo.Title,
-                colorMode: AppInfo.colorMode,
+                colorMode: urlParamsLowerCase.get('colormode') ?? AppInfo.colorMode,
                 color: AppInfo.color,
                 domain: AppInfo.domain,
                 font: {
@@ -75,7 +77,7 @@ export class AppWrapper implements IChaynsReact {
                 locationPersonId: AppInfo.LocationPersonId,
                 urlHash: window?.location.hash.replace('#', ''),
             },
-            parameters: Object.fromEntries(new URLSearchParams(location.search)),
+            parameters: Object.fromEntries(urlParams),
             user: {
                 firstName: AppUser.FirstName,
                 lastName: AppUser.LastName,
