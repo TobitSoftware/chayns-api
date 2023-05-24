@@ -39,6 +39,14 @@ export class AppWrapper implements IChaynsReact {
         this.accessToken = AppUser.TobitAccessToken;
         const urlParams = new URLSearchParams(location.search);
         const urlParamsLowerCase = new URLSearchParams(location.search.toLowerCase());
+        let colorMode = urlParamsLowerCase.get('colormode');
+        if(colorMode) {
+            try {
+                colorMode = int.parseInt(colorMode, 10);
+            } catch {
+
+            }
+        }
         return {
             device: getDeviceInfo(navigator.userAgent, 'image/webp'),
             environment: {
@@ -65,7 +73,7 @@ export class AppWrapper implements IChaynsReact {
                     docked: false,
                 },
                 title: AppInfo.Title,
-                colorMode: urlParamsLowerCase.get('colormode') ?? AppInfo.colorMode,
+                colorMode: colorMode ?? AppInfo.colorMode,
                 color: AppInfo.color,
                 domain: AppInfo.domain,
                 font: {
