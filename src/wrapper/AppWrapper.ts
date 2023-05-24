@@ -42,7 +42,7 @@ export class AppWrapper implements IChaynsReact {
         let colorMode = urlParamsLowerCase.get('colormode');
         if(colorMode) {
             try {
-                colorMode = int.parseInt(colorMode, 10);
+                colorMode = Number.parseInt(colorMode, 10);
             } catch {
 
             }
