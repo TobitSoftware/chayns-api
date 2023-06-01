@@ -19,7 +19,11 @@ export default function loadComponent(scope, module, url, skipCompatMode = false
             return p;
         }, {});
 
-        await container.init(shareScopes);
+        try {
+            await container.init(shareScopes);
+        } catch {
+            // ignore
+        }
         const factory = await container.get(module);
         semaphore[scope!].release();
 
