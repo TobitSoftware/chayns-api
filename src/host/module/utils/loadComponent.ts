@@ -10,12 +10,16 @@ let instances = {};
 export default function loadComponent(scope, module, url, skipCompatMode = false, preventSingleton = false) {
     return async () => {
         // Initializes the shared scope. Fills it with known provided modules from this build and all remotes
-        // eslint-disable-next-line no-undef
         await __webpack_init_sharing__('default');
         const { container } = window[scope + "_list"].find(x => x.url === url); // or get the container somewhere else
         // Initialize the container, it may provide shared modules
-        // eslint-disable-next-line no-undef
-        await container.init(__webpack_share_scopes__.default);
+        const shareScopes = { ...__webpack_share_scopes__.default };
+        shareScopes.react = Object.entries(shareScopes.react).filter(([k]) => k === React.version).reduce((p, [k, v]) => {
+            p[k] = v;
+            return p;
+        }, {});
+
+        await container.init(shareScopes);
         const factory = await container.get(module);
         semaphore[scope!].release();
 
