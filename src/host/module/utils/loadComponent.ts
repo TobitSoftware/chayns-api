@@ -13,17 +13,7 @@ export default function loadComponent(scope, module, url, skipCompatMode = false
         await __webpack_init_sharing__('default');
         const { container } = window[scope + "_list"].find(x => x.url === url); // or get the container somewhere else
         // Initialize the container, it may provide shared modules
-        const shareScopes = { ...__webpack_share_scopes__.default };
-        shareScopes.react = Object.entries(shareScopes.react).filter(([k]) => k === React.version).reduce((p, [k, v]) => {
-            p[k] = v;
-            return p;
-        }, {});
-
-        try {
-            await container.init(shareScopes);
-        } catch {
-            // ignore
-        }
+        await container.init(__webpack_share_scopes__.default);
         const factory = await container.get(module);
         semaphore[scope!].release();
 
@@ -53,7 +43,9 @@ export default function loadComponent(scope, module, url, skipCompatMode = false
         if(skipCompatMode) return Module;
         const hostVersion = semver.minVersion(React.version);
         const { requiredVersion, environment } = Module.default;
-        const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion);
+        const matchReactVersion = requiredVersion && Object.keys(__webpack_share_scopes__.default.react).every((version) => {
+            return (hostVersion === version && semver.satisfies(version, requiredVersion)) || !(semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion));
+        });
 
         if (!matchReactVersion || environment !== 'production') {
             return { default: Module.default.CompatComponent };
