@@ -43,8 +43,8 @@ export default function loadComponent(scope, module, url, skipCompatMode = false
         if(skipCompatMode) return Module;
         const hostVersion = semver.minVersion(React.version);
         const { requiredVersion, environment } = Module.default;
-        const matchReactVersion = requiredVersion && Object.keys(__webpack_share_scopes__.default.react).every((version) => {
-            return (React.version === version && semver.satisfies(version, requiredVersion)) || !(semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion));
+        const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !Object.keys(__webpack_share_scopes__.default.react).some((version) => {
+            return semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion);
         });
 
         if (!matchReactVersion || environment !== 'production') {
