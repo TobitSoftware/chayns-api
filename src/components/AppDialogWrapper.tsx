@@ -20,7 +20,7 @@ const AppDialogWrapper = ({ dialogEventTarget }) => {
             type="client-module"
             system={{
                 module: './AppWrapper',
-                url: 'https://tapp-staging.chayns-static.space/api/dialog-v2/v1/remoteEntry.js',
+                url: 'https://tapp.chayns-static.space/api/dialog-v2/v1/remoteEntry.js',
                 scope: 'dialog_v2',
             }}
             {...data}

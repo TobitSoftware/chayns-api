@@ -7,15 +7,33 @@ export type DialogButton = {
     text: string
 }
 
-export type BaseDialog = {
+export enum DateType {
+    DATE,
+    TIME,
+    DATE_TIME
+}
+export interface DialogDate {
+    type: DialogType.DATE;
+    minDate: Date;
+    maxDate: Date;
+    minDuration?: number;
+    minuteInterval?: number;
+    preselect?: Date;
+    dateType?: DateType;
+    multiselect?: boolean;
+    monthSelect?: boolean;
+    yearSelect?: boolean;
+}
+
+export interface BaseDialog {
     text?: string,
     buttons?: DialogButton[],
     dialogId: number
 }
 
-export type Dialog = BaseDialog & (DialogInput | DialogModule | DialogIFrame | DialogSelect);
+export type Dialog = BaseDialog & (DialogInput | DialogModule | DialogIFrame | DialogSelect | DialogDate);
 
-export type DialogModule = {
+export interface DialogModule {
     type: DialogType.MODULE
     system: {
         url: string,
@@ -23,22 +41,20 @@ export type DialogModule = {
         scope: string
     },
     dialogInput: object,
-    isClosingRequested: boolean,
 }
 
-export type DialogIFrame = {
+export interface DialogIFrame {
     type: DialogType.IFRAME
     url: string,
     dialogInput: object,
-    isClosingRequested: boolean,
 }
 
-export type DialogInput = {
+export interface DialogInput {
     type: DialogType.INPUT
     placeholder: string
 }
 
-export type DialogSelect = {
+export interface DialogSelect {
     type: DialogType.SELECT,
     list: {
         id: number,
