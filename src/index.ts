@@ -1,5 +1,5 @@
 export { default as ChaynsProvider } from './components/ChaynsProvider';
-export { default as getDeviceInfo, getScreenSize } from './util/deviceHelper';
+export { default as getDeviceInfo, getScreenSize, getClientDeviceInfo } from './util/deviceHelper';
 export { default as ChaynsHost } from './host/ChaynsHost';
 export { withCompatMode } from './components/withCompatMode';
 export * from './calls';

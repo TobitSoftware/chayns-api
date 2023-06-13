@@ -32,6 +32,7 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
     result.os = parsedUA?.os;
     if (typeof window !== 'undefined') {
         result.screenSize = getScreenSize(window.innerWidth);
+        result.isTouch = getClientDeviceInfo().isTouch;
     } else {
         // estimate size over user agent, very inaccurate, could be improved by setting a cookie with the screensize
         const screenSizeByUA = /mobi/i.test(userAgent) ? ScreenSize.SM : ScreenSize.XL;
@@ -43,7 +44,7 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
 
 // Infos that are only available on client or iframe side
 export const getClientDeviceInfo = () => ({
-        isTouch: navigator.maxTouchPoints > 0 && window.matchMedia('(pointer: coarse)')
+        isTouch: !!(navigator.maxTouchPoints > 0 && window.matchMedia('(pointer: coarse)'))
     })
 
 export const getScreenSize = (width): ScreenSize => {
