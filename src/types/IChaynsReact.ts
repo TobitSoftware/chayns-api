@@ -25,13 +25,33 @@ export interface DialogDate {
     yearSelect?: boolean;
 }
 
+
+export enum ToastType {
+    NEUTRAL = 1,
+    SUCCESS = 2,
+    WARNING = 3,
+    ERROR = 4,
+}
+
+export interface DialogToast {
+    type: DialogType.TOAST;
+    icon?: string;
+    showDurationBar?: boolean;
+    duration?: number;
+    linkText?: string;
+    onLinkClick?: () => void;
+    permanent?: boolean;
+    showCloseIcon?: boolean;
+    toastType?: ToastType;
+}
+
 export interface BaseDialog {
     text?: string,
     buttons?: DialogButton[],
     dialogId: number
 }
 
-export type Dialog = BaseDialog & (DialogInput | DialogModule | DialogIFrame | DialogSelect | DialogDate);
+export type Dialog = BaseDialog & (DialogInput | DialogModule | DialogIFrame | DialogSelect | DialogDate | DialogToast);
 
 export interface DialogModule {
     type: DialogType.MODULE
@@ -49,19 +69,42 @@ export interface DialogIFrame {
     dialogInput: object,
 }
 
+export enum DialogInputType {
+    NUMBER = 'number',
+    PASSWORD = 'password',
+    TELEPHONE = 'tel',
+    TEXT = 'text',
+    // TEXTAREA = 'textarea', TODO Add this type when textarea is implemented in new chayns-components in dialog-v2
+}
 export interface DialogInput {
     type: DialogType.INPUT
-    placeholder: string
+    placeholder: string,
+    inputType: DialogInputType,
+    defaultValue?: string,
+    formatter?: (input: string) => string
+}
+
+export enum DialogSelectType {
+    DEFAULT = 0,
+    ICON = 1,
+}
+
+export type DialogSelectListItemType = {
+    id: number;
+    name: string;
+    disabled?: boolean;
+    isSelected?: boolean;
+    url?: string;
 }
 
 export interface DialogSelect {
     type: DialogType.SELECT,
-    list: {
-        id: number,
-        name: string,
-        disabled?: boolean,
-        isSelected?: boolean
-    }[]
+    list: DialogSelectListItemType[];
+    multiselect?: boolean;
+    quickfind?: boolean;
+    selectType?: DialogSelectType;
+    preventCloseOnClick?: boolean;
+    selectAllCheckbox?: string;
 }
 
 export enum DialogButtonType {
