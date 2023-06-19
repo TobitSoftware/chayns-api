@@ -47,7 +47,7 @@ export default function loadComponent(scope, module, url, skipCompatMode = false
             return semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion);
         });
 
-        if (!matchReactVersion || environment !== 'production') {
+        if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development') {
             return { default: Module.default.CompatComponent };
         }
         return { default: Module.default.Component };
