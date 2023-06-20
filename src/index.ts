@@ -1,3 +1,5 @@
+import './util/transferNestedFunctions';
+
 export { default as ChaynsProvider } from './components/ChaynsProvider';
 export { default as getDeviceInfo, getScreenSize, getClientDeviceInfo } from './util/deviceHelper';
 export { default as ChaynsHost } from './host/ChaynsHost';
