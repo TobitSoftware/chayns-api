@@ -3,7 +3,7 @@ import * as Comlink from 'comlink';
 
 Comlink.transferHandlers.set("FUNCTION", {
     canHandle: obj => {
-        return typeof obj === "object" && Object.values(obj).some(x => typeof x === 'function');
+        return obj && typeof obj === "object" && Object.values(obj).some(x => typeof x === 'function');
     },
     serialize(obj) {
         obj._functionKeys = [];
