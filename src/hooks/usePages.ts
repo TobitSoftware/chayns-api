@@ -1,7 +1,7 @@
 import { useContextSelector } from 'use-context-selector';
 import { ChaynsContext } from '../components/ChaynsContext';
 import { ChaynsReactValues, Page } from '../types/IChaynsReact';
-import { moduleWrapper } from "../components/ChaynsProvider";
+import { moduleWrapper } from '../components/moduleWrapper';
 /**
  * @category Hooks
  */

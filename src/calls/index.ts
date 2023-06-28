@@ -1,4 +1,4 @@
-import { moduleWrapper } from '../components/ChaynsProvider';
+import { moduleWrapper } from '../components/moduleWrapper';
 import {
     ChaynsApiDevice,
     ChaynsApiSite,
