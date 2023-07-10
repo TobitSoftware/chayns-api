@@ -45,13 +45,21 @@ export interface DialogToast {
     toastType?: ToastType;
 }
 
+export interface DialogConfirm {
+    type: DialogType.CONFIRM;
+}
+
+export interface DialogAlert {
+    type: DialogType.ALERT;
+}
+
 export interface BaseDialog {
     text?: string,
     buttons?: DialogButton[],
     dialogId: number
 }
 
-export type Dialog = BaseDialog & (DialogInput | DialogModule | DialogIFrame | DialogSelect | DialogDate | DialogToast);
+export type Dialog = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule | DialogIFrame | DialogSelect | DialogDate | DialogToast);
 
 export interface DialogModule {
     type: DialogType.MODULE
