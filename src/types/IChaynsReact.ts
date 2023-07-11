@@ -186,9 +186,7 @@ export type DialogHookResult = {
 }
 
 export type DialogDataHookResult = {
-    inputData: {
-        [key: string | symbol]: object;
-    }
+    [key: string | symbol]: object;
 }
 
 /**
