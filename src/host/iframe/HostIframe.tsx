@@ -65,7 +65,7 @@ const HostIframe: FC<HostIframeProps> = ({
 
     const setHeight = (value: number) => {
         if (ref.current) {
-            ref.current.height = `${value}px`;
+            ref.current.style.height = `${value}px`;
         }
     };
 
