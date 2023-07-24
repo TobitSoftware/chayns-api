@@ -56,7 +56,6 @@ export interface DialogAlert {
 export interface BaseDialog {
     text?: string,
     buttons?: DialogButton[],
-    dialogId: number
 }
 
 export type Dialog = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule | DialogIFrame | DialogSelect | DialogDate | DialogToast);
