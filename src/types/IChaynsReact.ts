@@ -284,7 +284,7 @@ export interface ChaynsReactFunctions {
     addDialogClientEventListener: (dialogId: number, callback: (data: object) => void) => Promise<number>;
     removeDialogClientEventListener: (dialogId: number, id: number) => Promise<void>;
     dispatchEventToDialogHost: (data: object) => Promise<void>;
-    addDialogHostEventListener: (callback: (data: object) => void) => Promise<number>;
+    addDialogHostEventListener: (callback: (data: object) => void) => Promise<void>;
     removeDialogHostEventListener: (id: number) => Promise<void>;
 }
 
