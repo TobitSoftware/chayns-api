@@ -82,7 +82,7 @@ const FloatingButton = async () => {
 
 Add this to your index html file:
 ```html
-<script src="https://api.chayns-static.space/api/v5.0/chayns-api.js">
+<script src="https://api.chayns-static.space/api/production/v5.0/chayns-api.js">
 ```
 
 
