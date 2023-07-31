@@ -12,6 +12,7 @@
     ],
     "scripts": {
         "start": "npm run dev",
+        "build:umd": "chayns-toolkit build",
         "build:cjs": "cross-env NODE_ENV=cjs babel src --out-dir dist/cjs --extensions=.ts,.tsx",
         "build:esm": "cross-env NODE_ENV=esm babel src --out-dir dist/esm --extensions=.ts,.tsx",
         "build-docs": "npm i && cd website && npm i && npm run build",
@@ -60,6 +61,7 @@
         "@types/react": "^18.0.28",
         "@types/react-dom": "^18.0.10",
         "@typescript-eslint/parser": "^5.50.0",
+        "chayns-toolkit": "^2.0.8",
         "concurrently": "^7.6.0",
         "cross-env": "^7.0.3",
         "postcss-prefix-selector": "^1.13.0",
