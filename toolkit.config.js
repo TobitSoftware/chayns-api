@@ -7,7 +7,8 @@ module.exports = {
     },
     output: {
         singleBundle: true,
-        filename: 'chayns-api.js'
+        filename: 'chayns-api.js',
+        path: path.resolve(__dirname, 'dist'),
     },
     webpack(config) {
         config.output.library = {
