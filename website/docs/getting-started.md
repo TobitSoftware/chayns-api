@@ -77,3 +77,25 @@ const FloatingButton = async () => {
     return <div>Float</div>
 }
 ```
+
+## Usage without react
+
+Add this to your index html file:
+```html
+<script src="https://api.chayns-static.space/api/v5.0/chayns-api.js">
+```
+
+
+```js
+// Init chayns-api once
+window.chaynsApi = new window.ChaynsApi.StaticChaynsApi();
+
+await chaynsApi.ready();
+
+// Example usage
+var { id } = chaynsApi.getSite();
+chaynsApi.createDialog({type: 'alert', text: `SiteId: ${id}`}).open();
+```
+
+
+
