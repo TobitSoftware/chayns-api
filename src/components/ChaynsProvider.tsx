@@ -7,11 +7,11 @@ import { FrameWrapper } from '../wrapper/FrameWrapper';
 import { ModuleFederationWrapper } from '../wrapper/ModuleFederationWrapper';
 import { SsrWrapper } from '../wrapper/SsrWrapper';
 import { ChaynsContext, ChaynsFunctionsContext } from './ChaynsContext';
-import ChaynsHost from "../host/ChaynsHost";
-import AppDialogWrapper from "./AppDialogWrapper";
+import AppDialogWrapper from './AppDialogWrapper';
+import { moduleWrapper } from './moduleWrapper';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-export const moduleWrapper: { current: IChaynsReact } = { current: undefined! }
+
 const isServer = typeof window === 'undefined';
 
 const InitialDataProvider = React.memo<{ data?: ChaynsReactValues, renderedByServer?: boolean }>(({ data, renderedByServer }) => {
