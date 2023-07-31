@@ -12,7 +12,7 @@ module.exports = {
     },
     webpack(config) {
         config.output.library = {
-            name: 'chaynsApi',
+            name: 'ChaynsApi',
             type: 'umd',
         }
         return config;
