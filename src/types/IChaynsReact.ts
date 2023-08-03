@@ -82,7 +82,7 @@ export enum DialogInputType {
     PASSWORD = 'password',
     TELEPHONE = 'tel',
     TEXT = 'text',
-    // TEXTAREA = 'textarea', TODO Add this type when textarea is implemented in new chayns-components in dialog-v2
+    TEXTAREA = 'textarea',
 }
 export interface DialogInput {
     type: DialogType.INPUT
