@@ -110,6 +110,10 @@ export class FrameWrapper implements IChaynsReact {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.openImage(value);
         },
+        openMedia: async (value) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.openMedia(value);
+        },
         openUrl: async (value) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.openUrl(value);

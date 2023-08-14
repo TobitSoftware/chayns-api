@@ -245,6 +245,7 @@ export interface ChaynsReactFunctions {
     openImage: (value: OpenImage) => Promise<void>;
     openUrl: (value: OpenUrl) => Promise<void>;
     openVideo: (value: OpenVideo) => Promise<void>;
+    openMedia: (value: OpenMedia) => Promise<void>;
     refreshData: (value: RefreshData) => Promise<void>; // TODO: Naming
     refreshAccessToken: () => Promise<void>;
     removeGeoLocationListener: (value: number) => Promise<void>;
@@ -544,7 +545,7 @@ export type UserInfoQuery = {
     userId: number;
 }
 
-type OpenImageItem = {
+export type OpenImageItem = {
     url: string;
     title?: string;
     description?: string;
@@ -860,3 +861,20 @@ export enum DialogType {
     TOAST = 'toast'
 }
 
+export enum MediaType {
+    IMAGE = 'image',
+    VIDEO = 'video',
+}
+
+export type OpenMediaItem = {
+    url: string;
+    title?: string;
+    description?: string;
+    preventCache?: boolean;
+    mediaType: MediaType;
+}
+
+export type OpenMedia = {
+    items: [OpenMediaItem, ...OpenMediaItem[]];
+    startIndex?: number;
+}

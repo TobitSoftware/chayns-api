@@ -76,6 +76,10 @@ export const navigateBack = (...args: Parameters<ChaynsReactFunctions["navigateB
  */
 export const openImage = (...args: Parameters<ChaynsReactFunctions["openImage"]>) => moduleWrapper.current.functions.openImage(...args);
 /**
+ * The images and videos specified in the items array is shown in gallery mode.
+ */
+export const openMedia = (...args: Parameters<ChaynsReactFunctions["openMedia"]>) => moduleWrapper.current.functions.openMedia(...args);
+/**
  * Opens an URL in the chayns environment.
  */
 export const openUrl = (...args: Parameters<ChaynsReactFunctions["openUrl"]>) => moduleWrapper.current.functions.openUrl(...args);
