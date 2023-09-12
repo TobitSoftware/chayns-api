@@ -23,6 +23,12 @@ export const addScrollListener = (...args: Parameters<ChaynsReactFunctions["addS
  */
 export const addVisibilityChangeListener = (...args: Parameters<ChaynsReactFunctions["addVisibilityChangeListener"]>) => moduleWrapper.current.functions.addVisibilityChangeListener(...args);
 /**
+ * This method will be executed when the toolbar gets displayed or hidden.
+ * @category Event listener
+ */
+export const addToolbarChangeListener = (...args: Parameters<ChaynsReactFunctions["addToolbarChangeListener"]>) => moduleWrapper.current.functions.addToolbarChangeListener(...args);
+
+/**
  * This adds a listener to get the actual height of the page.
  * @category Event listener
  */
@@ -100,6 +106,11 @@ export const refreshAccessToken = (...args: Parameters<ChaynsReactFunctions["ref
  * @category Event listener
  */
 export const removeGeoLocationListener = (...args: Parameters<ChaynsReactFunctions["removeGeoLocationListener"]>) => moduleWrapper.current.functions.removeGeoLocationListener(...args);
+/**
+ * This removes a listener for changing toolbar visibility
+ * @category Event listener
+ */
+export const removeToolbarChangeListener = (...args: Parameters<ChaynsReactFunctions["removeToolbarChangeListener"]>) => moduleWrapper.current.functions.removeToolbarChangeListener(...args);
 /**
  * Removes scroll listener.
  * @category Event listener

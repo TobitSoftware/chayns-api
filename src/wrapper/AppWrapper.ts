@@ -204,6 +204,21 @@ export class AppWrapper implements IChaynsReact {
             }
             return id;
         },
+        addToolbarChangeListener: async (callback) => {
+            const { id, shouldInitialize } = addApiListener('toolbarChangeListener', callback);
+
+            if (shouldInitialize) {
+                this.appCall(293, {}, {
+                    callback: (v) => {
+                        dispatchApiEvent('toolbarChangeListener', {
+                            isVisible: v.isVisible,
+                            toolbarHeight: v.toolbarHeight
+                        });
+                    },
+                });
+            }
+            return id;
+        },
         addWindowMetricsListener: async (callback) => {
             const { id, shouldInitialize } = addApiListener('windowMetricsListener', callback);
 
@@ -331,6 +346,12 @@ export class AppWrapper implements IChaynsReact {
             const { shouldRemove } = removeApiListener('visibilityChangeListener', id);
             if (shouldRemove) {
                 // App does not support removal of onActivate callback which makes this a no-op
+            }
+        },
+        removeToolbarChangeListener: async (id) => {
+            const { shouldRemove } = removeApiListener('toolbarChangeListener', id);
+            if (shouldRemove) {
+                // App does not support removal of onToolbarBarRemove callback which makes this a no-op
             }
         },
         removeWindowMetricsListener: async (id) => {

@@ -10,7 +10,7 @@ import {
     DataChangeValue, DialogButtonType,
     GeoLocation,
     IChaynsReact,
-    ScrollListenerResult,
+    ScrollListenerResult, ToolbarChangeListenerResult,
 } from '../types/IChaynsReact';
 import { addVisibilityChangeListener, removeVisibilityChangeListener } from '../calls/visibilityChangeListener';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
@@ -40,6 +40,10 @@ export class FrameWrapper implements IChaynsReact {
             return this.exposedFunctions.addScrollListener(value, callback && comlink.proxy((result: ScrollListenerResult) => callback(result)));
         },
         addVisibilityChangeListener: async (callback) => addVisibilityChangeListener(callback),
+        addToolbarChangeListener: async (callback) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.addToolbarChangeListener(callback && comlink.proxy((result: ToolbarChangeListenerResult) => callback(result)));
+        },
         addWindowMetricsListener: async (callback) => {
             if (!this.initialized) await this.ready;
 
@@ -151,6 +155,10 @@ export class FrameWrapper implements IChaynsReact {
                 if (this.resizeListener) window.removeEventListener('resize', this.resizeListener);
                 this.resizeListener = null;
             }
+        },
+        removeToolbarChangeListener: async (id) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.removeToolbarChangeListener(id);
         },
         selectPage: async(options) => {
             if (!this.initialized) await this.ready;

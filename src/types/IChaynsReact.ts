@@ -229,6 +229,7 @@ export interface ChaynsReactFunctions {
     addGeoLocationListener: (value: { timeout?: number, silent?: boolean }, callback: (geoLocation: GeoLocation) => void) => Promise<number>;
     addScrollListener: (value: { throttle?: number }, callback: (result: ScrollListenerResult) => void) => Promise<number>;
     addVisibilityChangeListener: (callback: (result: VisibilityChangeListenerResult) => void) => Promise<number>;
+    addToolbarChangeListener: (callback: (result: ToolbarChangeListenerResult) => void) => Promise<number>;
     addWindowMetricsListener: (callback: (result: WindowMetricsListenerResult) => void) => Promise<number>;
     customCallbackFunction: (type: string, data: unknown) => Promise<unknown>;
     getAvailableSharingServices: () => Promise<AvailableSharingServices>;
@@ -251,6 +252,7 @@ export interface ChaynsReactFunctions {
     removeGeoLocationListener: (value: number) => Promise<void>;
     removeScrollListener: (value: number) => Promise<void>;
     removeVisibilityChangeListener: (value: number) => Promise<void>;
+    removeToolbarChangeListener: (value: number) => Promise<void>;
     removeWindowMetricsListener: (value: number) => Promise<void>;
     selectPage: (value: SelectPage) => Promise<void>;
     scrollToY: (position: number, duration: number) => Promise<void>;
@@ -689,6 +691,11 @@ export enum TappEvent {
 export interface VisibilityChangeListenerResult {
     isVisible: boolean;
     tappEvent: TappEvent;
+}
+
+export interface ToolbarChangeListenerResult {
+    isVisible: boolean;
+    toolbarHeight: number;
 }
 
 export interface ScrollListenerResult { // ?
