@@ -86,11 +86,10 @@ useEffect(() => {
 
 ```jsx
 import { createDialog, DialogType } from 'chayns-api';
-import { DialogAnimation, DialogIconType } from "./IChaynsReact";
 
 const result = await createDialog({
     type: DialogType.ALERT,
-    text: '[span style="text-align:center;display:block;"]${DialogIconType.Success}[p]Danke für Deine Bestellung![/p][/span]',
+    text: `[span style="text-align:center;display:block;"]${DialogIconType.SuccessIcon}[p]Danke für Deine Bestellung![/p][/span]`,
     animation: {
         type: DialogAnimation.CONFETTI
     }
