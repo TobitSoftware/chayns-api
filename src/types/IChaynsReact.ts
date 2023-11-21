@@ -57,6 +57,10 @@ export interface BaseDialog {
     text?: string,
     buttons?: DialogButton[],
     width?: string | number,
+    animation: {
+        type: DialogAnimation,
+        config: any
+    }
 }
 
 export type Dialog = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule | DialogIFrame | DialogSelect | DialogDate | DialogToast);
@@ -884,4 +888,14 @@ export type OpenMediaItem = {
 export type OpenMedia = {
     items: [OpenMediaItem, ...OpenMediaItem[]];
     startIndex?: number;
+}
+
+export enum DialogAnimation {
+    CONFETTI = 'confetti'
+}
+
+export enum DialogIconType {
+    SuccessIcon = '%%DialogSuccessIcon%%',
+    WarningIcon = '%%DialogWarningIcon%%',
+    ErrorIcon = '%%DialogErrorIcon%%'
 }
