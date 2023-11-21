@@ -57,9 +57,9 @@ export interface BaseDialog {
     text?: string,
     buttons?: DialogButton[],
     width?: string | number,
-    animation: {
+    animation?: {
         type: DialogAnimation,
-        config: any
+        config?: any
     }
 }
 
