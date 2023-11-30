@@ -57,7 +57,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         } else {
             const deviceInfo = getDeviceInfo(navigator.userAgent, '');
             // load framewrapper in Chaynsweb in app (window.self === window.top)
-            if([AppName.Chayns, AppName.ChaynsLauncher].includes(deviceInfo.app?.name ?? AppName.Unknown) && window.self === window.top) {
+            if([AppName.Chayns, AppName.ChaynsLauncher, AppName.Sidekick, AppName.TobitChat].includes(deviceInfo.app?.name ?? AppName.Unknown) && window.self === window.top) {
                 customWrapper.current = new AppWrapper();
             } else {
                 customWrapper.current = new FrameWrapper();

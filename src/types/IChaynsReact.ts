@@ -794,6 +794,8 @@ export enum AppName {
     Location,
     Intercom,
     ChaynsLauncher,
+    TobitChat,
+    Sidekick
 }
 
 export enum BrowserName {

@@ -6,7 +6,11 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
 
     let appName: AppName = AppName.Unknown;
     const match = (/(?:my)?chayns\/(?<version>\d+).*(?<siteId>\d{5}-\d{5})/i).exec(userAgent);
-    if (match?.groups?.siteId === '60021-08989') {
+    if ((/\sintercom\/\d+/i).test(userAgent)) {
+        appName = AppName.TobitChat;
+    } else if ((/\ssidekick\/\d+/i).test(userAgent)) {
+        appName = AppName.Sidekick;
+    } else if (match?.groups?.siteId === '60021-08989') {
         appName = AppName.Chayns;
     } else if (match?.groups?.siteId === '77892-10814') {
         appName = AppName.David;
