@@ -367,7 +367,7 @@ export class AppWrapper implements IChaynsReact {
                 id: options.id,
                 showName: options.showName,
                 position: options.position,
-                params: options.params,
+                params: new URLSearchParams(options.params).toString() || undefined,
             }, {
                 awaitResult: false,
             });
