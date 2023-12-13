@@ -46,6 +46,7 @@ export interface DialogToast {
 }
 
 export interface DialogFileSelect {
+    type: DialogType.FILE_SELECT;
     multiselect?: boolean;
     contentType?: Array<string> | string;
     exclude?: Array<string> | string;
