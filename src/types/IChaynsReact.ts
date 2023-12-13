@@ -45,6 +45,13 @@ export interface DialogToast {
     toastType?: ToastType;
 }
 
+export interface DialogFileSelect {
+    multiselect?: boolean;
+    contentType?: Array<string> | string;
+    exclude?: Array<string> | string;
+    directory?: boolean;
+}
+
 export interface DialogConfirm {
     type: DialogType.CONFIRM;
 }
@@ -63,7 +70,7 @@ export interface BaseDialog {
     }
 }
 
-export type Dialog = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule | DialogIFrame | DialogSelect | DialogDate | DialogToast);
+export type Dialog = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule | DialogIFrame | DialogSelect | DialogDate | DialogToast | DialogFileSelect);
 
 export interface DialogModule {
     type: DialogType.MODULE
