@@ -321,7 +321,6 @@ export class FrameWrapper implements IChaynsReact {
             if (this.initialized) {
                 this.values[type] = value;
             }
-            this.values[type] = value;
 
             document.dispatchEvent(new CustomEvent('chayns_api_data', { detail: { type, value } }));
         }));
