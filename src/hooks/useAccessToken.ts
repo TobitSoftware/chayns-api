@@ -5,6 +5,7 @@ import { ChaynsFunctionsContext } from "../components/ChaynsContext";
 
 /**
  * @category Hooks
+ * @deprecated Use {@link getAccessToken} instead
  */
 export const useAccessToken = (accessToken?: AccessToken): string | undefined => {
     const [token, setToken] = useState<AccessTokenResult | null>(null);
