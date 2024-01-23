@@ -87,7 +87,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         if (isModule) {
             setState(data);
             if (data) {
-                moduleWrapper.current.values = data;
+                customWrapper.current.values = data;
             }
         }
     }, [data, isModule]);
