@@ -71,7 +71,11 @@ export interface BaseDialog {
     }
 }
 
-export type Dialog = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule | DialogIFrame | DialogSelect | DialogDate | DialogToast | DialogFileSelect);
+export type Dialog = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule | DialogIFrame | DialogSelect | DialogDate | DialogToast | DialogFileSelect | DialogSignature);
+
+export interface DialogSignature {
+    type: DialogType.SIGNATURE;
+}
 
 export interface DialogModule {
     type: DialogType.MODULE
@@ -879,7 +883,8 @@ export enum DialogType {
     MODULE = 'module',
     INPUT = 'input',
     SELECT = 'select',
-    TOAST = 'toast'
+    TOAST = 'toast',
+    SIGNATURE = 'signature'
 }
 
 export enum MediaType {
