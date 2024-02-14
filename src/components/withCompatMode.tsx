@@ -2,6 +2,7 @@
 
 import React, { PureComponent, RefObject } from 'react';
 import ReactDOM from 'react-dom';
+import ErrorBoundary from './ErrorBoundary';
 let ReactDOMClient;
 try {
     ReactDOMClient = require('react-dom/client');
@@ -26,7 +27,7 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
         componentDidMount() {
             const { innerRef } = this.props;
 
-            const component = <Component {...this.props} ref={innerRef}/>;
+            const component = <ErrorBoundary><Component {...this.props} ref={innerRef}/></ErrorBoundary>;
             if (typeof ReactDOMClient?.createRoot === 'function') {
                 this.root = ReactDOMClient.createRoot(this.ref.current);
                 this.root.render(component);
@@ -38,7 +39,7 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
         componentDidUpdate() {
             const { innerRef } = this.props;
 
-            const component = <Component {...this.props} ref={innerRef}/>
+            const component = <ErrorBoundary><Component {...this.props} ref={innerRef}/></ErrorBoundary>
             if (this.root) {
                 this.root.render(component);
             } else {
