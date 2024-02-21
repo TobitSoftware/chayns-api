@@ -510,6 +510,11 @@ export class AppWrapper implements IChaynsReact {
 
     async init() {
         this.values = this.mapOldApiToNew(await this.appCall(18));
+
+        this.appCall(66, { enabled: true }, (value) => {
+            this.mapOldApiToNew(value);
+        });
+
         return undefined;
     }
 
