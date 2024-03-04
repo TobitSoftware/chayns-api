@@ -111,6 +111,7 @@ export interface DialogInput {
 export enum DialogSelectType {
     DEFAULT = 0,
     ICON = 1,
+    IMAGE = 2
 }
 
 export type DialogSelectListItemType = {
@@ -119,6 +120,7 @@ export type DialogSelectListItemType = {
     disabled?: boolean;
     isSelected?: boolean;
     url?: string;
+    className?: string;
 }
 
 export interface DialogSelect {
