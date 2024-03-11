@@ -39,12 +39,20 @@ export class AppWrapper implements IChaynsReact {
         this.accessToken = AppUser.TobitAccessToken;
         const urlParams = new URLSearchParams(location.search);
         const urlParamsLowerCase = new URLSearchParams(location.search.toLowerCase());
+        let tappId = urlParamsLowerCase.get('tappid');
         let colorMode = urlParamsLowerCase.get('colormode');
         if(colorMode) {
             try {
                 colorMode = Number.parseInt(colorMode, 10);
             } catch {
 
+            }
+        }
+        if(tappId) {
+            try {
+                tappId = Number.parseInt(tappId, 10);
+            } catch {
+                // ignore
             }
         }
         return {
@@ -97,7 +105,7 @@ export class AppWrapper implements IChaynsReact {
             customData: null,
             isAdminModeActive: AppUser.AdminMode,
             currentPage: {
-                id: AppInfo.TappSelected?.TappID,
+                id: AppInfo.TappSelected?.TappID || tappId,
                 siteId: AppInfo.SiteID,
             },
             pages: AppInfo.Tapps.map(x => ({
