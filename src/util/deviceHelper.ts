@@ -10,6 +10,8 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
         appName = AppName.TobitChat;
     } else if ((/\ssidekick\/\d+/i).test(userAgent)) {
         appName = AppName.Sidekick;
+    } else if((/\steam\/\d+/i).test(userAgent)) {
+        appName = AppName.Team;
     } else if (match?.groups?.siteId === '60021-08989') {
         appName = AppName.Chayns;
     } else if (match?.groups?.siteId === '77892-10814') {

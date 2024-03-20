@@ -809,7 +809,8 @@ export enum AppName {
     Intercom,
     ChaynsLauncher,
     TobitChat,
-    Sidekick
+    Sidekick,
+    Team
 }
 
 export enum BrowserName {
