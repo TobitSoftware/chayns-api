@@ -306,6 +306,7 @@ export class AppWrapper implements IChaynsReact {
         },
         openImage: async (value) => {
             this.appCall(4, {
+                urls: value.items.map(x => x.url),
                 items: value.items.map(x => ({
                     url: x.url,
                     title: x.title,
