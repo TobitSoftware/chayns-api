@@ -520,8 +520,13 @@ export class AppWrapper implements IChaynsReact {
     async init() {
         this.values = this.mapOldApiToNew(await this.appCall(18));
 
-        this.appCall(66, { enabled: true }, (value) => {
+        const callbackName = `chaynsApiV5Callback_${this.counter++}`;
+        window.disablev4AccessTokenChangeListener = true;
+        window[callbackName] = ({ retVal: value }) => {
             this.mapOldApiToNew(value);
+        };
+        this.appCall(66, { enabled: true, callback: callbackName }, {
+            awaitResult: false
         });
 
         return undefined;
