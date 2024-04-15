@@ -9,6 +9,8 @@ export * from './hooks';
 export * from './components/WaitUntil';
 export * from './types/IChaynsReact';
 export * from './components/withCompatMode';
+export * from './constants';
+export { default as withHydrationBoundary } from './components/withHydrationBoundary';
 export { default as StaticChaynsApi } from './wrapper/StaticChaynsApi';
 
 export { default as DialogHandler } from './handler/DialogHandler';
