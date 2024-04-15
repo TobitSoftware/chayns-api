@@ -32,10 +32,6 @@ export default function loadComponent(scope, module, url, skipCompatMode = false
                 if (typeof Module.default === 'function') {
                     return Module;
                 }
-                // compatMode is not supported on the server, instead server uses singleton react and always the unmodified component
-                if (!global.window) {
-                    return { default: Module.default.Component };
-                }
                 const hostVersion = semver.minVersion(React.version)!;
                 const { requiredVersion, environment } = Module.default;
                 // @ts-expect-error
