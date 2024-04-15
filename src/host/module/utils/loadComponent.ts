@@ -1,55 +1,58 @@
-/* eslint-disable */
-// @ts-nocheck
-
 import semver from 'semver';
 import React from 'react';
-import { semaphore } from './useDynamicScript';
+import { loadRemote, registerRemotes } from '@module-federation/runtime';
 
-let instances = {};
+const registeredScopes = {};
+const dynamicMap = {}
 
 export default function loadComponent(scope, module, url, skipCompatMode = false, preventSingleton = false) {
-    return async () => {
-        // Initializes the shared scope. Fills it with known provided modules from this build and all remotes
-        await __webpack_init_sharing__('default');
-        const { container } = window[scope + "_list"].find(x => x.url === url); // or get the container somewhere else
-        // Initialize the container, it may provide shared modules
-        await container.init(__webpack_share_scopes__.default);
-        const factory = await container.get(module);
-        semaphore[scope!].release();
+    if (preventSingleton) {
+        console.warn('[chayns-api] preventSingleton-option is no longer supported');
+    }
+    if (skipCompatMode) {
+        console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
+    }
 
-        let ModuleMap = instances[`${scope}__${module}`];
-        let Module;
-        if (!ModuleMap) {
-            ModuleMap = {};
-            instances[`${scope}__${module}`] = ModuleMap;
-        }
-        if (Object.keys(ModuleMap).length > 0) {
-            const newModule = factory();
-            Module = ModuleMap[`${newModule.default.buildEnv}__${newModule.default.appVersion}`];
-            if (!Module) {
-                Module = newModule;
-                ModuleMap[`${newModule.default.buildEnv}__${newModule.default.appVersion}`] = newModule;
+    if (registeredScopes[scope] !== url) {
+        registerRemotes([
+            {
+                name: scope,
+                entry: url,
+                alias: scope,
             }
-        } else {
-            Module = factory();
-            ModuleMap[`${Module.default.buildEnv}__${Module.default.appVersion}`] = Module;
-        }
+        ], { force: scope in registeredScopes });
 
-        if(preventSingleton) {
-            // Intercom :)
-            window[scope + "_list"] = null;
-        }
+        registeredScopes[scope] = url;
+        dynamicMap[scope] = {};
+    }
 
-        if(skipCompatMode) return Module;
-        const hostVersion = semver.minVersion(React.version);
-        const { requiredVersion, environment } = Module.default;
-        const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !Object.keys(__webpack_share_scopes__.default.react).some((version) => {
-            return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === __webpack_share_scopes__.default.react[version].from.split('-').join('_');
+    if (!(module in dynamicMap[scope])) {
+        const path = `${scope}/${module.replace(/^\.\//, '')}`;
+
+        dynamicMap[scope][module] = React.lazy(() => {
+            return loadRemote(path).then((Module: any) => {
+                // semantically equals skipCompatMode
+                if (typeof Module.default === 'function') {
+                    return Module;
+                }
+                // compatMode is not supported on the server, instead server uses singleton react and always the unmodified component
+                if (!global.window) {
+                    return { default: Module.default.Component };
+                }
+                const hostVersion = semver.minVersion(React.version)!;
+                const { requiredVersion, environment } = Module.default;
+                // @ts-expect-error
+                const webpackShareScopes = __webpack_share_scopes__.default;
+                const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !Object.keys(webpackShareScopes.react).some((version) => {
+                    return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === webpackShareScopes.react[version].from.split('-').join('_');
+                });
+
+                if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development') {
+                    return { default: Module.default.CompatComponent };
+                }
+                return { default: Module.default.Component };
+            });
         });
-
-        if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development') {
-            return { default: Module.default.CompatComponent };
-        }
-        return { default: Module.default.Component };
-    };
+    }
+    return dynamicMap[scope][module];
 }

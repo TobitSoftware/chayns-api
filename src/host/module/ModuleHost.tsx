@@ -1,5 +1,4 @@
-import React, { useMemo, FC, ReactNode } from 'react';
-import useDynamicScript from './utils/useDynamicScript';
+import React, { FC, ReactNode } from 'react';
 import loadComponent from './utils/loadComponent';
 import {
     ChaynsApiDevice,
@@ -47,30 +46,13 @@ const System: FC<SystemPropTypes> = ({
     fallback,
     ...props
 }) => {
-    const {
-        ready,
-        failed
-    } = useDynamicScript({
-        url: system?.url,
-        scope: system?.scope
-    });
+    const Component = loadComponent(system.scope, system.module, system.url);
 
-    const Component = useMemo(() => {
-        // maybe return waitcursor instead
-        if (!system || !ready || failed) {
-            return null;
-        }
-
-        return React.lazy(loadComponent(system.scope, system.module, system.url, undefined, system.preventSingleton));
-
-        /* eslint-disable react-hooks/exhaustive-deps */
-    }, [system?.scope, ready, system?.url]);
-
-    return Component ? (
+    return (
         <React.Suspense fallback={fallback || ''}>
-            <Component {...props} />
+            <Component {...props}/>
         </React.Suspense>
-    ) : (fallback as JSX.Element);
+    );
 }
 
 const ModuleHost: FC<ModulePropTypes> = ({
