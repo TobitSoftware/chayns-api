@@ -6,14 +6,11 @@ const registeredScopes = {};
 const dynamicMap = {}
 
 export default function loadComponent(scope, module, url, skipCompatMode = false, preventSingleton = false) {
-    if (preventSingleton) {
-        console.warn('[chayns-api] preventSingleton-option is no longer supported');
-    }
     if (skipCompatMode) {
         console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
     }
 
-    if (registeredScopes[scope] !== url) {
+    if (registeredScopes[scope] !== url || preventSingleton) {
         registerRemotes([
             {
                 name: scope,

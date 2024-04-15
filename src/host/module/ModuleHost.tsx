@@ -1,4 +1,4 @@
-import React, { FC, ReactNode } from 'react';
+import React, { FC, ReactNode, useMemo } from 'react';
 import loadComponent from './utils/loadComponent';
 import {
     ChaynsApiDevice,
@@ -46,7 +46,7 @@ const System: FC<SystemPropTypes> = ({
     fallback,
     ...props
 }) => {
-    const Component = loadComponent(system.scope, system.module, system.url);
+    const Component = useMemo(() => loadComponent(system.scope, system.module, system.url, undefined, system.preventSingleton), [system.scope, system.module, system.url, system.preventSingleton]);
 
     return (
         <React.Suspense fallback={fallback || ''}>
