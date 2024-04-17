@@ -1,6 +1,7 @@
+import { Shared } from '@module-federation/runtime/dist/src/type';
 import semver from 'semver';
 import React from 'react';
-import { loadRemote, registerRemotes } from '@module-federation/runtime';
+import { loadRemote, registerRemotes, loadShareSync } from '@module-federation/runtime';
 
 const registeredScopes = {};
 const dynamicMap = {}
@@ -27,18 +28,26 @@ export default function loadComponent(scope, module, url, skipCompatMode = false
         const path = `${scope}/${module.replace(/^\.\//, '')}`;
 
         dynamicMap[scope][module] = React.lazy(() => {
-            return loadRemote(path).then((Module: any) => {
+            return loadRemote(path).then(async (Module: any) => {
                 // semantically equals skipCompatMode
                 if (typeof Module.default === 'function') {
                     return Module;
                 }
                 const hostVersion = semver.minVersion(React.version)!;
                 const { requiredVersion, environment } = Module.default;
-                // @ts-expect-error
-                const webpackShareScopes = __webpack_share_scopes__.default;
-                const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !Object.keys(webpackShareScopes.react).some((version) => {
-                    return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === webpackShareScopes.react[version].from.split('-').join('_');
+
+                const shareScopes = await new Promise<Shared[]>(resolve => {
+                    loadShareSync('react', {
+                        resolver: (shareOptions) => {
+                            resolve(shareOptions);
+                            return shareOptions[0];
+                        },
+                    });
                 });
+                const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !shareScopes.some((t) => {
+                    const {version, from } = t;
+                    return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === from.split('-').join('_');
+                })
 
                 if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development') {
                     return { default: Module.default.CompatComponent };
