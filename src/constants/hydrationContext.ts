@@ -1,6 +1,12 @@
 import React, { createContext } from 'react';
 
-export type HydrationContextValueType = { [key: string]: { getState: () => object, abort?: () => Promise<void> } };
+export type HydrationContextValueType = {
+    [key: string]: {
+        getState: () => object,
+        abort?: () => Promise<void>,
+        type?: 'raw' | 'json',
+    }
+};
 
 export let HydrationContext: React.Context<HydrationContextValueType>;
 

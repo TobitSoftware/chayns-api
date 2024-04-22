@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { HydrationContext, type HydrationContextValueType } from '../constants';
 
-type StoreLikeValue = object & { getState: () => object, abort?: () => Promise<void> };
+type StoreLikeValue = object & { getState: () => object, abort?: () => Promise<void>, type?: 'raw' | 'json' };
 type HydrationComponent = React.FC<{ value: StoreLikeValue, children?: React.ReactNode }>;
 type Initializer = (initialValue: object | undefined) => StoreLikeValue;
-type HydrationBoundary = React.FC<{ id: string, children?: React.ReactNode }>;
+type HydrationBoundary = React.FC<{ id?: string, children?: React.ReactNode }>;
 
 const withHydrationBoundary = (Component: HydrationComponent, initializer: Initializer, useHydrationId: undefined | (() => string)): HydrationBoundary => {
     return ({ id: idProp, children }) => {
@@ -32,7 +32,7 @@ const withHydrationBoundary = (Component: HydrationComponent, initializer: Initi
                 if (id in value) {
                     console.warn(`Dehydration function for id "${id}" has been defined multiple times. This can have two reasons. The children cause suspension and therefor the hydration boundary has to mount from scratch again. You can avoid this by adding a Suspense around the children. The id is not unique. This has to be fixed or might cause hydration issues.`);
                 }
-                value[id] = { getState: s.getState, abort: s.abort };
+                value[id] = { getState: s.getState, abort: s.abort, type: s.type };
             }
             return s;
         });
