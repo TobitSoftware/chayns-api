@@ -1,4 +1,6 @@
+import { init } from '@module-federation/runtime';
 import React, { FC, ReactNode, useMemo } from 'react';
+import ReactDOM from 'react-dom';
 import loadComponent from './utils/loadComponent';
 import {
     ChaynsApiDevice,
@@ -40,6 +42,25 @@ type ModulePropTypes = {
     dialog: ChaynsReactValues["dialog"],
     children?: ReactNode,
 }
+
+
+init({
+    // @ts-expect-error will be set by chayns-toolkit via DefinePlugin
+    name: process.env.__PACKAGE_NAME__,
+    remotes: [],
+    shared: {
+        react: {
+            version: React.version,
+            scope: 'default',
+            lib: () => React,
+        },
+        'react-dom': {
+            version: ReactDOM.version,
+            scope: 'default',
+            lib: () => ReactDOM,
+        },
+    },
+});
 
 const System: FC<SystemPropTypes> = ({
     system,

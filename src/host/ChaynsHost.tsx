@@ -1,6 +1,4 @@
 import React, { FC } from 'react';
-import ReactDOM from 'react-dom';
-import { init } from '@module-federation/runtime';
 import HostIframe from './iframe/HostIframe';
 import ModuleHost, { TypeSystem } from './module/ModuleHost';
 import {
@@ -35,25 +33,6 @@ type ChaynsHostType = {
     preventStagingReplacement?: boolean,
     dialog: ChaynsReactValues["dialog"],
 }
-
-
-init({
-    // @ts-expect-error will be set by chayns-toolkit via DefinePlugin
-    name: __PACKAGE_NAME__,
-    remotes: [],
-    shared: {
-        react: {
-            version: React.version,
-            scope: 'default',
-            lib: () => React,
-        },
-        'react-dom': {
-            version: ReactDOM.version,
-            scope: 'default',
-            lib: () => ReactDOM,
-        },
-    },
-});
 
 const ChaynsHost: FC<ChaynsHostType> = ({
     type,
