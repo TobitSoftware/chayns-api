@@ -79,6 +79,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     dialog={dialog}
                 />
             )
+        case 'server-module':
         case 'client-module':
             return (
                 <ModuleHost
@@ -120,27 +121,6 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     preventStagingReplacement={preventStagingReplacement}
                     dialog={dialog}
                 />
-            )
-        case 'server-module':
-            return (
-                <ModuleHost
-                    system={system!}
-                    pages={pages}
-                    isAdminModeActive={isAdminModeActive}
-                    site={site}
-                    user={user}
-                    device={device}
-                    currentPage={currentPage}
-                    functions={functions}
-                    language={language}
-                    parameters={parameters}
-                    customData={customData}
-                    environment={environment}
-                    preventStagingReplacement={preventStagingReplacement}
-                    dialog={dialog}
-                >
-                    {children}
-                </ModuleHost>
             )
         default:
             return null;
