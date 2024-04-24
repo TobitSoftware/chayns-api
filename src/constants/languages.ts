@@ -1,4 +1,4 @@
-enum Language {
+export enum DeviceLanguage {
     de = 1,
     en,
     fr,
