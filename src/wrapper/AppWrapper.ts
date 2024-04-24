@@ -25,6 +25,7 @@ import getDeviceInfo, { getScreenSize } from '../util/deviceHelper';
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
+import { DeviceLanguage } from "../constants/languages";
 
 let appWrapperDialogId = 0;
 
@@ -59,7 +60,7 @@ export class AppWrapper implements IChaynsReact {
         let language = AppInfo.Language;
 
         if (!language) {
-            language = Language[Number.parseInt(Device?.LanguageID, 10)] || 'de';
+            language = DeviceLanguage[Number.parseInt(Device?.LanguageID, 10)] || 'de';
         }
 
         return {
