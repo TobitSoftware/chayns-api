@@ -35,7 +35,7 @@ export class AppWrapper implements IChaynsReact {
     accessToken = '';
 
     mapOldApiToNew(retVal) {
-        const { AppInfo, AppUser } = retVal;
+        const { AppInfo, AppUser, Device } = retVal;
         this.accessToken = AppUser.TobitAccessToken;
         const urlParams = new URLSearchParams(location.search);
         const urlParamsLowerCase = new URLSearchParams(location.search.toLowerCase());
@@ -55,6 +55,13 @@ export class AppWrapper implements IChaynsReact {
                 // ignore
             }
         }
+
+        let language = AppInfo.Language;
+
+        if (!language) {
+            language = Language[Number.parseInt(Device?.LanguageID, 10)] || 'de';
+        }
+
         return {
             device: getDeviceInfo(navigator.userAgent, 'image/webp'),
             environment: {
@@ -62,11 +69,11 @@ export class AppWrapper implements IChaynsReact {
                 runtimeEnvironment: RuntimeEnviroment.Unknown,
             },
             language: {
-                site: AppInfo.Language,
+                site: language,
                 translation: null,
-                device: AppInfo.Language,
-                active: AppInfo.Language,
-            }, // ToDo: Find better way to detect
+                device: language,
+                active: language,
+            },
             site: {
                 id: AppInfo.SiteID,
                 locationId: AppInfo.LocationID,
