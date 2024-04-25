@@ -1,16 +1,32 @@
 import { Shared } from '@module-federation/runtime/dist/src/type';
+import ReactDOM from 'react-dom';
 import semver from 'semver';
 import React from 'react';
-import { loadRemote, registerRemotes, loadShareSync } from '@module-federation/runtime';
+import { loadRemote, registerRemotes, loadShareSync, init } from '@module-federation/runtime';
 
 const registeredScopes = {};
-const dynamicMap = {}
+const moduleMap = {};
+const componentMap = {}
 
-export default function loadComponent(scope, module, url, skipCompatMode = false, preventSingleton = false) {
-    if (skipCompatMode) {
-        console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
-    }
+init({
+    // @ts-expect-error will be set by chayns-toolkit via DefinePlugin
+    name: process.env.__PACKAGE_NAME__,
+    remotes: [],
+    shared: {
+        react: {
+            version: React.version,
+            scope: 'default',
+            lib: () => React,
+        },
+        'react-dom': {
+            version: ReactDOM.version,
+            scope: 'default',
+            lib: () => ReactDOM,
+        },
+    },
+});
 
+export const loadModule = (scope, module, url, preventSingleton = false) => {
     if (registeredScopes[scope] !== url || preventSingleton) {
         registerRemotes([
             {
@@ -21,15 +37,33 @@ export default function loadComponent(scope, module, url, skipCompatMode = false
         ], { force: scope in registeredScopes });
 
         registeredScopes[scope] = url;
-        dynamicMap[scope] = {};
+        moduleMap[scope] = {};
+        componentMap[scope] = {};
     }
 
-    if (!(module in dynamicMap[scope])) {
+    if (!(module in moduleMap[scope])) {
         const path = `${scope}/${module.replace(/^\.\//, '')}`;
 
-        dynamicMap[scope][module] = React.lazy(() => {
-            const promise =  loadRemote(path).then(async (Module: any) => {
-                // semantically equals skipCompatMode
+        const promise =  loadRemote(path);
+
+        promise.catch(() => {
+            // causes registerRemote with force = true on next attempt to load the component which tries to load the component again
+            registeredScopes[scope] = '';
+        });
+
+        return promise;
+    }
+    return moduleMap[scope][module];
+}
+
+const loadComponent = (scope, module, url, skipCompatMode = false, preventSingleton = false) => {
+    if (skipCompatMode) {
+        console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
+    }
+
+    if (!(module in componentMap[scope])) {
+        componentMap[scope][module] = React.lazy(() => {
+            return loadModule(scope, module, url, preventSingleton).then(async (Module: any) => {
                 if (typeof Module.default === 'function') {
                     return Module;
                 }
@@ -54,14 +88,9 @@ export default function loadComponent(scope, module, url, skipCompatMode = false
                 }
                 return { default: Module.default.Component };
             });
-
-            promise.catch(() => {
-                // causes registerRemote with force = true on next attempt to load the component which tries to load the component again
-                registeredScopes[scope] = '';
-            });
-
-            return promise;
-        });
+        })
     }
-    return dynamicMap[scope][module];
+    return componentMap[scope][module];
 }
+
+export default loadComponent;

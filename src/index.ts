@@ -13,7 +13,7 @@ export * from './constants';
 export { default as withHydrationBoundary } from './components/withHydrationBoundary';
 export { default as StaticChaynsApi } from './wrapper/StaticChaynsApi';
 
-export { default as loadComponent } from './host/module/utils/loadComponent';
+export { default as loadComponent, loadModule } from './host/module/utils/loadComponent';
 
 export { default as DialogHandler } from './handler/DialogHandler';
 
