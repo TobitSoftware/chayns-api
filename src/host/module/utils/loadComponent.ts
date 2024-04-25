@@ -28,7 +28,7 @@ export default function loadComponent(scope, module, url, skipCompatMode = false
         const path = `${scope}/${module.replace(/^\.\//, '')}`;
 
         dynamicMap[scope][module] = React.lazy(() => {
-            return loadRemote(path).then(async (Module: any) => {
+            const promise =  loadRemote(path).then(async (Module: any) => {
                 // semantically equals skipCompatMode
                 if (typeof Module.default === 'function') {
                     return Module;
@@ -54,6 +54,13 @@ export default function loadComponent(scope, module, url, skipCompatMode = false
                 }
                 return { default: Module.default.Component };
             });
+
+            promise.catch(() => {
+                // causes registerRemote with force = true on next attempt to load the component which tries to load the component again
+                registeredScopes[scope] = '';
+            });
+
+            return promise;
         });
     }
     return dynamicMap[scope][module];
