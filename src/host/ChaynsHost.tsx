@@ -55,7 +55,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
     preventStagingReplacement,
     dialog
 }) => {
-    const [isVisible, setIsVisible] = useState(type === 'server-module' || type === 'server-iframe' || !!globalThis.window);
+    const [isVisible, setIsVisible] = useState(type === 'server-iframe' || (type === 'server-module' && system?.serverUrl));
 
     useEffect(() => {
         if (isVisible) return;

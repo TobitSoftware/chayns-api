@@ -13,6 +13,7 @@ import { replaceStagingUrl } from "../../util/url";
 export type TypeSystem = {
     scope: string,
     url: string,
+    serverUrl?: string,
     module: string,
     preventSingleton?: boolean
 }
@@ -46,7 +47,7 @@ const System: FC<SystemPropTypes> = ({
     fallback,
     ...props
 }) => {
-    const Component = useMemo(() => loadComponent(system.scope, system.module, system.url, undefined, system.preventSingleton), [system.scope, system.module, system.url, system.preventSingleton]);
+    const Component = useMemo(() => loadComponent(system.scope, system.module, globalThis.window ? system.url : system.serverUrl, undefined, system.preventSingleton), [system.scope, system.module, system.url, system.serverUrl, system.preventSingleton]);
 
     return (
         <React.Suspense fallback={fallback || ''}>
@@ -101,6 +102,7 @@ const ModuleHost: FC<ModulePropTypes> = ({
                 system={{
                     scope: system.scope,
                     url: replaceStagingUrl(preventStagingReplacement, system.url, environment.buildEnvironment),
+                    serverUrl: replaceStagingUrl(preventStagingReplacement, system.serverUrl, environment.buildEnvironment),
                     module: system.module,
                     preventSingleton: system.preventSingleton
                 }}
