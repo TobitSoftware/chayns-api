@@ -22,7 +22,7 @@ Comlink.transferHandlers.set("FUNCTION", {
     deserialize(obj) {
         obj._functionKeys.forEach((x) => {
             // under certain conditions deserialize can be called more than once on same object
-            if (x instanceof MessagePort) {
+            if (obj[x] instanceof MessagePort) {
                 obj[x].start();
                 obj[x] = Comlink.wrap(obj[x]);
             }
