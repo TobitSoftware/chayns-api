@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, startTransition, useEffect, useState } from 'react';
 import HostIframe from './iframe/HostIframe';
 import ModuleHost, { TypeSystem } from './module/ModuleHost';
 import {
@@ -17,7 +17,6 @@ type ChaynsHostType = {
     src?: string,
     iFrameRef?: React.MutableRefObject<HTMLIFrameElement | null> | undefined,
     loadingComponent?: JSX.Element,
-    children?: JSX.Element,
     system?: TypeSystem,
     // shallow data
     pages: Page[],
@@ -41,7 +40,6 @@ const ChaynsHost: FC<ChaynsHostType> = ({
     src,
     iFrameRef = undefined,
     loadingComponent = undefined,
-    children = undefined,
     system,
     // shallow data
     pages,
@@ -57,8 +55,27 @@ const ChaynsHost: FC<ChaynsHostType> = ({
     preventStagingReplacement,
     dialog
 }) => {
+    const [isVisible, setIsVisible] = useState(type === 'server-module' || type === 'server-iframe' || !!globalThis.window);
+
+    useEffect(() => {
+        if (isVisible) return;
+
+        if (typeof startTransition === 'function') {
+            startTransition(() => {
+                setIsVisible(true);
+            });
+        } else {
+            setIsVisible(true);
+        }
+    }, []);
+
+    if (!isVisible) {
+        return null;
+    }
+
     switch (type) {
         case 'client-iframe':
+        case 'server-iframe':
             return (
                 <HostIframe
                     iFrameRef={iFrameRef}
@@ -71,6 +88,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     currentPage={currentPage}
                     functions={functions}
                     src={src!}
+                    postForm={type === 'server-iframe'}
                     language={language}
                     parameters={parameters}
                     environment={environment}
@@ -79,8 +97,8 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     dialog={dialog}
                 />
             )
-        case 'server-module':
         case 'client-module':
+        case 'server-module':
             return (
                 <ModuleHost
                     system={system!}
@@ -99,29 +117,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     preventStagingReplacement={preventStagingReplacement}
                     dialog={dialog}
                 />
-            )
-        case 'server-iframe':
-            return (
-                <HostIframe
-                    iFrameRef={iFrameRef}
-                    iFrameProps={iFrameProps!}
-                    pages={pages}
-                    isAdminModeActive={isAdminModeActive}
-                    site={site}
-                    user={user}
-                    device={device}
-                    currentPage={currentPage}
-                    functions={functions}
-                    src={src!}
-                    postForm
-                    language={language}
-                    parameters={parameters}
-                    environment={environment}
-                    customData={customData}
-                    preventStagingReplacement={preventStagingReplacement}
-                    dialog={dialog}
-                />
-            )
+            );
         default:
             return null;
     }
