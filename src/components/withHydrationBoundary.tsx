@@ -8,7 +8,10 @@ type HydrationBoundary = React.FC<{ id?: string, children?: React.ReactNode }>;
 
 const withHydrationBoundary = (Component: HydrationComponent, initializer: Initializer, useHydrationId: undefined | (() => string)): HydrationBoundary => {
     return ({ id: idProp, children }) => {
-        const value = useContext(HydrationContext);
+        let value: HydrationContextValueType;
+        if (!globalThis.window) {
+            value = useContext(HydrationContext);
+        }
         const id = useHydrationId ? useHydrationId() : idProp;
 
         if (!id) {
@@ -16,7 +19,7 @@ const withHydrationBoundary = (Component: HydrationComponent, initializer: Initi
         }
 
         const [store] = useState(() => {
-            if (id in value) {
+            if (!globalThis.window && (id in value)) {
                 return value[id];
             }
             let initialValue = undefined;
