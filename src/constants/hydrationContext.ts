@@ -1,8 +1,11 @@
 import React, { createContext } from 'react';
-import type { StoreLikeValue } from '../components/withHydrationBoundary';
 
 export type HydrationContextValueType = {
-    [key: string]: StoreLikeValue
+    [key: string]: {
+        getState: () => object,
+        abort?: () => Promise<void>,
+        type?: 'raw' | 'json',
+    }
 };
 
 export let HydrationContext: React.Context<HydrationContextValueType>;

@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { HydrationContext } from '../constants';
+import { HydrationContext, type HydrationContextValueType } from '../constants';
 
-export type StoreLikeValue = object & { getState: () => object, abort?: () => Promise<void>, type?: 'raw' | 'json', usageCount: number };
+type StoreLikeValue = object & { getState: () => object, abort?: () => Promise<void>, type?: 'raw' | 'json' };
 type HydrationComponent = React.FC<{ value: StoreLikeValue, children?: React.ReactNode }>;
-type Initializer = (initialValue: object | undefined) => Omit<StoreLikeValue, 'usageCount'>;
+type Initializer = (initialValue: object | undefined) => StoreLikeValue;
 type HydrationBoundary = React.FC<{ id?: string, children?: React.ReactNode }>;
 
 const withHydrationBoundary = (Component: HydrationComponent, initializer: Initializer, useHydrationId: undefined | (() => string)): HydrationBoundary => {
@@ -27,10 +27,7 @@ const withHydrationBoundary = (Component: HydrationComponent, initializer: Initi
                     initialValue = JSON.parse($elem.innerHTML);
                 }
             }
-            const store = initializer(initialValue) as StoreLikeValue;
-            store.usageCount = 0;
-            value[id] = store;
-            return store;
+            return value[id] = initializer(initialValue);
         });
 
         useEffect(() => {
@@ -38,14 +35,6 @@ const withHydrationBoundary = (Component: HydrationComponent, initializer: Initi
             const $elem = document.getElementById(htmlId);
             if ($elem) {
                 $elem.remove();
-            }
-            value[id].usageCount!++;
-
-            return () => {
-                value[id].usageCount!--;
-                if (value[id].usageCount! <= 0) {
-                    delete value[id];
-                }
             }
         }, []);
 
