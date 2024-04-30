@@ -30,7 +30,11 @@ const withHydrationBoundary = (Component: HydrationComponent, initializer: Initi
                     initialValue = JSON.parse($elem.innerHTML);
                 }
             }
-            return value[id] = initializer(initialValue);
+            const s = initializer(initialValue);
+            if (!globalThis.window) {
+                value[id] = s;
+            }
+            return s;
         });
 
         useEffect(() => {
