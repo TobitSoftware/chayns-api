@@ -61,7 +61,7 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
         console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
     }
 
-    if (!(module in componentMap[scope])) {
+    if (!componentMap[scope] || !(module in componentMap[scope])) {
         componentMap[scope][module] = React.lazy(() => {
             return loadModule(scope, module, url, preventSingleton).then(async (Module: any) => {
                 if (typeof Module.default === 'function') {
