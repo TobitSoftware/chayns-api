@@ -28,6 +28,9 @@ init({
 
 export const loadModule = (scope, module, url, preventSingleton = false) => {
     if (registeredScopes[scope] !== url || preventSingleton) {
+        if (scope in registeredScopes) {
+            console.warn(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${url}`);
+        }
         registerRemotes([
             {
                 name: scope,
