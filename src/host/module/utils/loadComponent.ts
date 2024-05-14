@@ -96,6 +96,11 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
             return { default: Module.default.Component };
         });
 
+        promise.catch((e) => {
+            console.error("[chayns-api] Failed to load component", scope, url, e);
+            delete componentMap[scope][module]
+        });
+
         componentMap[scope][module] = React.lazy(() => promise);
     }
     return componentMap[scope][module];
