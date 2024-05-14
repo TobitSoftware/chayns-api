@@ -29,7 +29,7 @@ init({
 export const loadModule = (scope, module, url, preventSingleton = false) => {
     if (registeredScopes[scope] !== url || preventSingleton) {
         if (scope in registeredScopes) {
-            console.warn(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${url}`);
+            console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${url}`);
         }
         registerRemotes([
             {
@@ -49,7 +49,8 @@ export const loadModule = (scope, module, url, preventSingleton = false) => {
 
         const promise =  loadRemote(path);
 
-        promise.catch(() => {
+        promise.catch((e) => {
+            console.error("[chayns-api] Failed to load module", scope, url, e);
             // causes registerRemote with force = true on next attempt to load the component which tries to load the component again
             registeredScopes[scope] = '';
         });
