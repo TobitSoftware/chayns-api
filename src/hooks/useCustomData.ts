@@ -4,4 +4,4 @@ import { ChaynsContext } from '../components/ChaynsContext';
 /**
  * @category Hooks
  */
-export const useCustomData = (): any => useContextSelector(ChaynsContext, v => v?.customData!)
+export const useCustomData = <T extends any>(): T => useContextSelector(ChaynsContext, v => v?.customData!)
