@@ -9,8 +9,8 @@ const moduleMap = {};
 const componentMap = {}
 
 init({
-    // @ts-expect-error will be set by chayns-toolkit via DefinePlugin
-    name: process.env.__PACKAGE_NAME__,
+    // will be set by chayns-toolkit via DefinePlugin
+    name: process.env.__PACKAGE_NAME__ ?? '',
     remotes: [],
     shared: {
         react: {
@@ -85,8 +85,7 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                     },
                 });
             });
-            const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !shareScopes.some((t) => {
-                const {version, from } = t;
+            const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !shareScopes.some(({ version, from }) => {
                 return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === from.split('-').join('_');
             })
 
