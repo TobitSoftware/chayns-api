@@ -1,4 +1,3 @@
-import { Shared } from '@module-federation/runtime/dist/src/type';
 import ReactDOM from 'react-dom';
 import semver from 'semver';
 import React from 'react';
@@ -26,7 +25,12 @@ init({
     },
 });
 
-export const loadModule = (scope, module, url, preventSingleton = false) => {
+export const loadModule = async (scope, module, url, preventSingleton = false) => {
+    // @ts-expect-error
+    if (typeof __webpack_init_sharing__ === 'function') {
+        // @ts-expect-error
+        await __webpack_init_sharing__('default');
+    }
     if (registeredScopes[scope] !== url || preventSingleton) {
         if (scope in registeredScopes) {
             console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${url}`);
