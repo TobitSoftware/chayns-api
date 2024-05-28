@@ -47,7 +47,7 @@ export const loadModule = async (scope, module, url, preventSingleton = false) =
     if (!(module in moduleMap[scope])) {
         const path = `${scope}/${module.replace(/^\.\//, '')}`;
 
-        const promise =  loadRemote(path);
+        const promise =  loadRemote(path, { from: 'runtime'});
 
         promise.catch((e) => {
             console.error("[chayns-api] Failed to load module", scope, url, e);
