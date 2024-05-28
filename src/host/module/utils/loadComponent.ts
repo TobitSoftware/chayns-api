@@ -35,6 +35,7 @@ export const loadModule = async (scope, module, url, preventSingleton = false) =
                 name: scope,
                 entry: url,
                 alias: scope,
+                shareScope: 'defaultV2',
             }
         ], { force: scope in registeredScopes });
 
