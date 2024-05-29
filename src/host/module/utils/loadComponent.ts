@@ -37,7 +37,7 @@ export const loadModule = (scope, module, url, preventSingleton = false) => {
                 entry: url,
                 alias: scope,
             }
-        ], { force: scope in registeredScopes });
+        ], { force: (scope in registeredScopes) || preventSingleton });
 
         registeredScopes[scope] = url;
         moduleMap[scope] = {};
