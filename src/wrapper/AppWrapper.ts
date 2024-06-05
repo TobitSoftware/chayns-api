@@ -113,7 +113,7 @@ export class AppWrapper implements IChaynsReact {
             customData: null,
             isAdminModeActive: AppUser.AdminMode,
             currentPage: {
-                id: AppInfo.TappSelected?.TappID || tappId,
+                id: tappId || AppInfo.TappSelected?.TappID,
                 siteId: AppInfo.SiteID,
             },
             pages: AppInfo.Tapps.map(x => ({
