@@ -21,7 +21,14 @@ class StaticChaynsApi {
         });
     }
 
+    getUser = () => this._wrapper.values.user;
     getSite = () => this._wrapper.values.site;
+    getCurrentPage = () => this._wrapper.values.currentPage;
+    getDevice = () => this._wrapper.values.device;
+    getLanguage = () => this._wrapper.values.language;
+    getParameters = () => this._wrapper.values.parameters;
+    getPages = () => this._wrapper.values.pages;
+    getEnvironment = () => this._wrapper.values.environment;
 }
 
 export default StaticChaynsApi;
