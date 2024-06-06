@@ -90,7 +90,7 @@ Add this to your index html file:
 // Init chayns-api once
 window.chaynsApi = new window.ChaynsApi.StaticChaynsApi();
 
-await chaynsApi.ready();
+await chaynsApi.ready;
 
 // Example usage
 var { id } = chaynsApi.getSite();
