@@ -55,6 +55,16 @@ export class AppWrapper implements IChaynsReact {
                 // ignore
             }
         }
+        let userId = AppUser.TobitUserID;
+
+        if (typeof userId === 'string') {
+            try {
+                userId = Number.parseInt(userId, 10);
+            } catch {
+                // ignore
+            }
+        }
+
         return {
             device: getDeviceInfo(navigator.userAgent, 'image/webp'),
             environment: {
@@ -98,7 +108,7 @@ export class AppWrapper implements IChaynsReact {
                 firstName: AppUser.FirstName,
                 lastName: AppUser.LastName,
                 gender: Gender.Unknown,
-                userId: AppUser.TobitUserID,
+                userId: userId,
                 personId: AppUser.PersonID,
                 uacGroups: [],
             },
