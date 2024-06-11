@@ -41,6 +41,7 @@ export class AppWrapper implements IChaynsReact {
         const urlParamsLowerCase = new URLSearchParams(location.search.toLowerCase());
         let tappId = urlParamsLowerCase.get('tappid');
         let colorMode = urlParamsLowerCase.get('colormode');
+        let color = AppInfo.color;
         if(colorMode) {
             try {
                 colorMode = Number.parseInt(colorMode, 10);
@@ -53,6 +54,12 @@ export class AppWrapper implements IChaynsReact {
                 tappId = Number.parseInt(tappId, 10);
             } catch {
                 // ignore
+            }
+        }
+        if (!color && urlParamsLowerCase.has('color')) {
+            color = urlParamsLowerCase.get('color');
+            if (!color.startsWith('#')) {
+                color = `#${color}`;
             }
         }
         let userId = AppUser.TobitUserID;
@@ -92,7 +99,7 @@ export class AppWrapper implements IChaynsReact {
                 },
                 title: AppInfo.Title,
                 colorMode: colorMode ?? AppInfo.colorMode,
-                color: AppInfo.color,
+                color,
                 domain: AppInfo.domain,
                 font: {
                     id: Font.Roboto,
