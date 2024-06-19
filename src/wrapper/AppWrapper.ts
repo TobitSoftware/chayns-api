@@ -540,7 +540,11 @@ export class AppWrapper implements IChaynsReact {
         const callbackName = `chaynsApiV5Callback_${this.counter++}`;
         window.disablev4AccessTokenChangeListener = true;
         window[callbackName] = ({ retVal: value }) => {
-            this.mapOldApiToNew(value);
+            if ('tobitAccessToken' in value) {
+                this.accessToken = value.tobitAccessToken;
+            } else {
+                this.mapOldApiToNew(value);
+            }
         };
         this.appCall(66, { enabled: true, callback: callbackName }, {
             awaitResult: false
