@@ -308,7 +308,7 @@ export class AppWrapper implements IChaynsReact {
             invokeAppCall(callObj);
         },
         login: async (value, callback, closeCallback) => {
-            const res = await this.appCall({}, callback);
+            const res = await this.appCall(54, value);
             return { loginState: res?.loginState };
         },
         logout: async () => {
