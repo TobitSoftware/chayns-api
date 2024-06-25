@@ -524,6 +524,9 @@ export class AppWrapper implements IChaynsReact {
                 dialog.resolve({ buttonType: -1 });
             }
         },
+        addAnonymousAccount: async () => {
+            return this.appCall(302);
+        }
     };
 
     private dialogs = [];
@@ -537,17 +540,15 @@ export class AppWrapper implements IChaynsReact {
     async init() {
         this.values = this.mapOldApiToNew(await this.appCall(18));
 
-        const callbackName = `chaynsApiV5Callback_${this.counter++}`;
-        window.disablev4AccessTokenChangeListener = true;
-        window[callbackName] = ({ retVal: value }) => {
-            if ('tobitAccessToken' in value) {
-                this.accessToken = value.tobitAccessToken;
-            } else {
-                this.mapOldApiToNew(value);
+        this.appCall(66, {
+            enabled: true,
+            callback: (value) => {
+                if ('tobitAccessToken' in value) {
+                    this.accessToken = value.tobitAccessToken;
+                } else {
+                    this.mapOldApiToNew(value);
+                }
             }
-        };
-        this.appCall(66, { enabled: true, callback: callbackName }, {
-            awaitResult: false
         });
 
         return undefined;

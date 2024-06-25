@@ -920,7 +920,5 @@ export enum DialogIconType {
 }
 
 export type AnonymousAccountResult = {
-    expires: string;
-    jti: string;
     token: string;
 }
