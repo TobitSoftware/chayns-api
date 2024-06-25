@@ -307,6 +307,7 @@ export interface ChaynsReactFunctions {
     dispatchEventToDialogHost: (data: object) => Promise<void>;
     addDialogHostEventListener: (callback: (data: object) => void) => Promise<number>;
     removeDialogHostEventListener: (id: number) => Promise<void>;
+    addAnonymousAccount: () => Promise<AnonymousAccountResult>;
 }
 
 export type DialogResult = {
@@ -916,4 +917,8 @@ export enum DialogIconType {
     SuccessIcon = '%%DialogSuccessIcon%%',
     WarningIcon = '%%DialogWarningIcon%%',
     ErrorIcon = '%%DialogErrorIcon%%'
+}
+
+export type AnonymousAccountResult = {
+    token: string;
 }

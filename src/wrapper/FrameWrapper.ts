@@ -301,6 +301,10 @@ export class FrameWrapper implements IChaynsReact {
         },
         removeDialogClientEventListener: async () => {
 
+        },
+        addAnonymousAccount: async () => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.addAnonymousAccount();
         }
     };
 

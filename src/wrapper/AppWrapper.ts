@@ -42,6 +42,7 @@ export class AppWrapper implements IChaynsReact {
         const urlParamsLowerCase = new URLSearchParams(location.search.toLowerCase());
         let tappId = urlParamsLowerCase.get('tappid');
         let colorMode = urlParamsLowerCase.get('colormode');
+        let color = AppInfo.color;
         if(colorMode) {
             try {
                 colorMode = Number.parseInt(colorMode, 10);
@@ -61,6 +62,22 @@ export class AppWrapper implements IChaynsReact {
 
         if (!language) {
             language = DeviceLanguage[Number.parseInt(Device?.LanguageID, 10)] || 'de';
+        }
+
+        if (!color && urlParamsLowerCase.has('color')) {
+            color = urlParamsLowerCase.get('color');
+            if (!color.startsWith('#')) {
+                color = `#${color}`;
+            }
+        }
+        let userId = AppUser.TobitUserID;
+
+        if (typeof userId === 'string') {
+            try {
+                userId = Number.parseInt(userId, 10);
+            } catch {
+                // ignore
+            }
         }
 
         return {
@@ -90,7 +107,7 @@ export class AppWrapper implements IChaynsReact {
                 },
                 title: AppInfo.Title,
                 colorMode: colorMode ?? AppInfo.colorMode,
-                color: AppInfo.color,
+                color,
                 domain: AppInfo.domain,
                 font: {
                     id: Font.Roboto,
@@ -106,7 +123,7 @@ export class AppWrapper implements IChaynsReact {
                 firstName: AppUser.FirstName,
                 lastName: AppUser.LastName,
                 gender: Gender.Unknown,
-                userId: AppUser.TobitUserID,
+                userId: userId,
                 personId: AppUser.PersonID,
                 uacGroups: [],
             },
@@ -299,7 +316,7 @@ export class AppWrapper implements IChaynsReact {
             invokeAppCall(callObj);
         },
         login: async (value, callback, closeCallback) => {
-            const res = await this.appCall({}, callback);
+            const res = await this.appCall(54, value);
             return { loginState: res?.loginState };
         },
         logout: async () => {
@@ -515,6 +532,9 @@ export class AppWrapper implements IChaynsReact {
                 dialog.resolve({ buttonType: -1 });
             }
         },
+        addAnonymousAccount: async () => {
+            return this.appCall(302);
+        }
     };
 
     private dialogs = [];
@@ -528,13 +548,15 @@ export class AppWrapper implements IChaynsReact {
     async init() {
         this.values = this.mapOldApiToNew(await this.appCall(18));
 
-        const callbackName = `chaynsApiV5Callback_${this.counter++}`;
-        window.disablev4AccessTokenChangeListener = true;
-        window[callbackName] = ({ retVal: value }) => {
-            this.mapOldApiToNew(value);
-        };
-        this.appCall(66, { enabled: true, callback: callbackName }, {
-            awaitResult: false
+        this.appCall(66, {
+            enabled: true,
+            callback: (value) => {
+                if ('tobitAccessToken' in value) {
+                    this.accessToken = value.tobitAccessToken;
+                } else {
+                    this.mapOldApiToNew(value);
+                }
+            }
         });
 
         return undefined;
