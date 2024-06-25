@@ -206,6 +206,11 @@ export const createDialog = (...args: Parameters<ChaynsReactFunctions["createDia
  * Displays an overlay
  */
 export const setOverlay = (...args: Parameters<ChaynsReactFunctions["setOverlay"]>) => moduleWrapper.current.functions.setOverlay(...args);
+
+/**
+ * Generates a temp accesstoken, only valid for short period of time (~3 days), works only when no user is logged in
+ */
+export const addAnonymousAccount = () => moduleWrapper.current.functions.addAnonymousAccount();
 /**
  * Returns user information, only when user is logged in
  * @category User functions
