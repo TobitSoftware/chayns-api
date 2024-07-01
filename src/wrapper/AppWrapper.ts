@@ -79,10 +79,10 @@ export class AppWrapper implements IChaynsReact {
                 runtimeEnvironment: RuntimeEnviroment.Unknown,
             },
             language: {
-                site: urlParamsLowerCase.get('lang') || AppInfo.Language,
+                site: AppInfo.Language,
                 translation: null,
-                device: urlParamsLowerCase.get('lang') || AppInfo.Language,
-                active: urlParamsLowerCase.get('lang') || AppInfo.Language,
+                device: AppInfo.Language,
+                active: AppInfo.Language,
             }, // ToDo: Find better way to detect
             site: {
                 id: AppInfo.SiteID,
