@@ -1,3 +1,6 @@
+import { createDialog } from './calls';
+import DialogHandler from './handler/DialogHandler';
+import { DialogType } from './types/IChaynsReact';
 import './util/transferNestedFunctions';
 
 export { default as ChaynsProvider } from './components/ChaynsProvider';
@@ -21,3 +24,16 @@ export default {
     buildEnv: process.env.BUILD_ENV,
     appVersion: process.env.VERSION
 }
+
+const dialog: DialogHandler<number> = createDialog({
+    type: DialogType.MODULE,
+    system: {
+        url: '',
+        scope: '',
+        module: ''
+    },
+    dialogInput: { x: '123' }
+});
+
+const res = dialog.open();
+dialog.getResult()

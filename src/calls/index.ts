@@ -3,8 +3,8 @@ import {
     ChaynsApiDevice,
     ChaynsApiSite,
     ChaynsReactFunctions,
-    ChaynsReactValues,
-    UserInfo
+    ChaynsReactValues, Dialog,
+    UserInfo,
 } from '../types/IChaynsReact';
 
 /**
@@ -201,7 +201,7 @@ export const vibrate = (...args: Parameters<ChaynsReactFunctions["vibrate"]>) =>
 /**
  * This method creates a dialog
  */
-export const createDialog = (...args: Parameters<ChaynsReactFunctions["createDialog"]>) => moduleWrapper.current.functions.createDialog(...args);
+export const createDialog = <R extends any = void, S extends object = object>(config: Dialog<S>) => moduleWrapper.current.functions.createDialog<R, S>(config);
 /**
  * Displays an overlay
  */

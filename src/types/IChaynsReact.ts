@@ -1,4 +1,5 @@
 import { Browser, OperatingSystem } from 'detect-browser';
+import { createDialog } from '../calls';
 import DialogHandler from '../handler/DialogHandler';
 import { DialogButtonOld, SelectDialogItem } from './dialog';
 
@@ -71,26 +72,26 @@ export interface BaseDialog {
     }
 }
 
-export type Dialog = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule | DialogIFrame | DialogSelect | DialogDate | DialogToast | DialogFileSelect | DialogSignature);
+export type Dialog<T extends any = object> = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule<T> | DialogIFrame<T> | DialogSelect | DialogDate | DialogToast);
 
 export interface DialogSignature {
     type: DialogType.SIGNATURE;
 }
 
-export interface DialogModule {
+export interface DialogModule<T extends any = object> {
     type: DialogType.MODULE
     system: {
         url: string,
         module: string,
         scope: string
     },
-    dialogInput: object,
+    dialogInput: T,
 }
 
-export interface DialogIFrame {
+export interface DialogIFrame<T extends any = object> {
     type: DialogType.IFRAME
     url: string,
-    dialogInput: object,
+    dialogInput: T,
 }
 
 export enum DialogInputType {
@@ -294,7 +295,7 @@ export interface ChaynsReactFunctions {
     // findPerson: () => Promise<void>; // TODO: Maybe unused
     setOverlay: (value: ShowOverlay, callback: () => void) => Promise<void>;
     // public interface to create dialogs
-    createDialog: (config: Dialog) => DialogHandler;
+    createDialog: <R extends any = void, T extends any = object>(config: Dialog<T>) => DialogHandler<R>;
     // used internally by createDialog
     openDialog: (value, callback: (data: any) => any) => Promise<any>;
     // used internally by createDialog
