@@ -241,15 +241,15 @@ export interface ChaynsReactValues {
     dialog: { dialogInput: any, isClosingRequested: boolean }
 }
 
-type DialogResultValue<R extends any = void> = {
+type DialogResultValue<T> = {
     [DialogType.INPUT]: string,
     [DialogType.SELECT]: number[],
     [DialogType.CONFIRM]: void,
     [DialogType.ALERT]: void,
     [DialogType.DATE]: Date,
     [DialogType.FILE_SELECT]: string[],
-    [DialogType.IFRAME]: R,
-    [DialogType.MODULE]: R,
+    [DialogType.IFRAME]: T,
+    [DialogType.MODULE]: T,
     [DialogType.SIGNATURE]: string,
     [DialogType.TOAST]: void
 }
@@ -308,7 +308,7 @@ export interface ChaynsReactFunctions {
     // findPerson: () => Promise<void>; // TODO: Maybe unused
     setOverlay: (value: ShowOverlay, callback: () => void) => Promise<void>;
     // public interface to create dialogs
-    createDialog: <Z extends Dialog, Y extends keyof DialogResultValue = Z["type"], R extends any = void, T extends any = object>(config: Z) => DialogHandler<DialogResultValue[Y]>;
+    createDialog: <I extends any = undefined, T extends any = undefined, Z extends Dialog<I> = Dialog<I>>(config: Z) => DialogHandler<DialogResultValue<T>[Z["type"]], T>;
     // used internally by createDialog
     openDialog: (value, callback: (data: any) => any) => Promise<any>;
     // used internally by createDialog
