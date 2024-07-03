@@ -85,13 +85,13 @@ export interface DialogModule<T extends any = object> {
         module: string,
         scope: string
     },
-    dialogInput: T,
+    dialogInput?: T,
 }
 
 export interface DialogIFrame<T extends any = object> {
     type: DialogType.IFRAME
     url: string,
-    dialogInput: T,
+    dialogInput?: T,
 }
 
 export enum DialogInputType {
@@ -103,8 +103,8 @@ export enum DialogInputType {
 }
 export interface DialogInput {
     type: DialogType.INPUT
-    placeholder: string,
-    inputType: DialogInputType,
+    placeholder?: string,
+    inputType?: DialogInputType,
     defaultValue?: string,
     formatter?: (input: string) => string
 }
@@ -241,6 +241,19 @@ export interface ChaynsReactValues {
     dialog: { dialogInput: any, isClosingRequested: boolean }
 }
 
+type DialogResultValue<R extends any = void> = {
+    [DialogType.INPUT]: string,
+    [DialogType.SELECT]: number[],
+    [DialogType.CONFIRM]: void,
+    [DialogType.ALERT]: void,
+    [DialogType.DATE]: Date,
+    [DialogType.FILE_SELECT]: string[],
+    [DialogType.IFRAME]: R,
+    [DialogType.MODULE]: R,
+    [DialogType.SIGNATURE]: string,
+    [DialogType.TOAST]: void
+}
+
 /**
  * @ignore
  */
@@ -295,7 +308,7 @@ export interface ChaynsReactFunctions {
     // findPerson: () => Promise<void>; // TODO: Maybe unused
     setOverlay: (value: ShowOverlay, callback: () => void) => Promise<void>;
     // public interface to create dialogs
-    createDialog: <R extends any = void, T extends any = object>(config: Dialog<T>) => DialogHandler<R>;
+    createDialog: <Z extends Dialog, Y extends keyof DialogResultValue = Z["type"], R extends any = void, T extends any = object>(config: Z) => DialogHandler<DialogResultValue[Y]>;
     // used internally by createDialog
     openDialog: (value, callback: (data: any) => any) => Promise<any>;
     // used internally by createDialog

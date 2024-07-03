@@ -36,7 +36,7 @@ export default class DialogHandler<T extends any = void> {
                 this.listeners.forEach((cb) => cb(data));
             });
         });
-        return this.result = res;
+        return this.result = res as { buttonType: number, value: T }
     }
 
     close(buttonType, data) {
