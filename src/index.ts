@@ -24,16 +24,3 @@ export default {
     buildEnv: process.env.BUILD_ENV,
     appVersion: process.env.VERSION
 }
-
-const dialog: DialogHandler<number> = createDialog({
-    type: DialogType.MODULE,
-    system: {
-        url: '',
-        scope: '',
-        module: ''
-    },
-    dialogInput: { x: '123' }
-});
-
-const res = dialog.open();
-dialog.getResult()
