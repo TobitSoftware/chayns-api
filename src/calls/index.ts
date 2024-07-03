@@ -198,9 +198,11 @@ export const storageSetItem: ChaynsReactFunctions["storageSetItem"] = <T extends
  * This method lets a smartphone vibrate for the given time.
  */
 export const vibrate = (...args: Parameters<ChaynsReactFunctions["vibrate"]>) => moduleWrapper.current.functions.vibrate(...args);
+
 /**
  * This method creates a dialog
  */
+// @ts-ignore
 export const createDialog: ChaynsReactFunctions["createDialog"] = (config) => moduleWrapper.current.functions.createDialog(config);
 /**
  * Displays an overlay
