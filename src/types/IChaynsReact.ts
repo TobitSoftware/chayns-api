@@ -241,13 +241,26 @@ export interface ChaynsReactValues {
     dialog: { dialogInput: any, isClosingRequested: boolean }
 }
 
+export interface DialogResultFile {
+    blockDownload?: boolean;
+    contentType: string;
+    filename: string;
+    id: number;
+    key: string;
+    modifyTime: string;
+    personId: string;
+    protected?: boolean;
+    size: number;
+    url: string;
+}
+
 type DialogResultValue<T> = {
     [DialogType.INPUT]: string,
     [DialogType.SELECT]: number[],
     [DialogType.CONFIRM]: void,
     [DialogType.ALERT]: void,
     [DialogType.DATE]: Date,
-    [DialogType.FILE_SELECT]: string[],
+    [DialogType.FILE_SELECT]: DialogResultFile[],
     [DialogType.IFRAME]: T,
     [DialogType.MODULE]: T,
     [DialogType.SIGNATURE]: string,
