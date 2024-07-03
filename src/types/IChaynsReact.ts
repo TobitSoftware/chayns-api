@@ -1,4 +1,5 @@
 import { Browser, OperatingSystem } from 'detect-browser';
+import { createDialog } from '../calls';
 import DialogHandler from '../handler/DialogHandler';
 import { DialogButtonOld, SelectDialogItem } from './dialog';
 
@@ -71,26 +72,26 @@ export interface BaseDialog {
     }
 }
 
-export type Dialog = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule | DialogIFrame | DialogSelect | DialogDate | DialogToast | DialogFileSelect | DialogSignature);
+export type Dialog<T extends any = object> = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule<T> | DialogIFrame<T> | DialogSelect | DialogDate | DialogToast);
 
 export interface DialogSignature {
     type: DialogType.SIGNATURE;
 }
 
-export interface DialogModule {
+export interface DialogModule<T extends any = object> {
     type: DialogType.MODULE
     system: {
         url: string,
         module: string,
         scope: string
     },
-    dialogInput: object,
+    dialogInput?: T,
 }
 
-export interface DialogIFrame {
+export interface DialogIFrame<T extends any = object> {
     type: DialogType.IFRAME
     url: string,
-    dialogInput: object,
+    dialogInput?: T,
 }
 
 export enum DialogInputType {
@@ -102,8 +103,8 @@ export enum DialogInputType {
 }
 export interface DialogInput {
     type: DialogType.INPUT
-    placeholder: string,
-    inputType: DialogInputType,
+    placeholder?: string,
+    inputType?: DialogInputType,
     defaultValue?: string,
     formatter?: (input: string) => string
 }
@@ -240,6 +241,32 @@ export interface ChaynsReactValues {
     dialog: { dialogInput: any, isClosingRequested: boolean }
 }
 
+export interface DialogResultFile {
+    blockDownload?: boolean;
+    contentType: string;
+    filename: string;
+    id: number;
+    key: string;
+    modifyTime: string;
+    personId: string;
+    protected?: boolean;
+    size: number;
+    url: string;
+}
+
+type DialogResultValue<T> = {
+    [DialogType.INPUT]: string,
+    [DialogType.SELECT]: number[],
+    [DialogType.CONFIRM]: void,
+    [DialogType.ALERT]: void,
+    [DialogType.DATE]: Date,
+    [DialogType.FILE_SELECT]: DialogResultFile[],
+    [DialogType.IFRAME]: T,
+    [DialogType.MODULE]: T,
+    [DialogType.SIGNATURE]: string,
+    [DialogType.TOAST]: void
+}
+
 /**
  * @ignore
  */
@@ -294,7 +321,7 @@ export interface ChaynsReactFunctions {
     // findPerson: () => Promise<void>; // TODO: Maybe unused
     setOverlay: (value: ShowOverlay, callback: () => void) => Promise<void>;
     // public interface to create dialogs
-    createDialog: (config: Dialog) => DialogHandler;
+    createDialog: <I extends any = undefined, T extends any = undefined, Z extends Dialog<I> = Dialog<I>>(config: Z) => DialogHandler<DialogResultValue<T>[Z["type"]], T>;
     // used internally by createDialog
     openDialog: (value, callback: (data: any) => any) => Promise<any>;
     // used internally by createDialog

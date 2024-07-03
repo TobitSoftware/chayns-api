@@ -1,3 +1,6 @@
+import { createDialog } from './calls';
+import DialogHandler from './handler/DialogHandler';
+import { DialogType } from './types/IChaynsReact';
 import './util/transferNestedFunctions';
 
 export { default as ChaynsProvider } from './components/ChaynsProvider';
