@@ -86,12 +86,14 @@ export interface DialogModule<T extends any = object> {
         scope: string
     },
     dialogInput?: T,
+    backgroundColor?: string;
 }
 
 export interface DialogIFrame<T extends any = object> {
     type: DialogType.IFRAME
     url: string,
     dialogInput?: T,
+    backgroundColor?: string;
 }
 
 export enum DialogInputType {
