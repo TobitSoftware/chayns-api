@@ -1,7 +1,7 @@
 export default class DialogHandler<S = void, T extends any = void> {
     private dialogId;
     private isOpen = false;
-    private result: any = undefined;
+    private result: { buttonType: number; result: T extends undefined ? S : T } | undefined;
     private readonly _open;
     private readonly _close;
     private readonly _config;
@@ -17,11 +17,11 @@ export default class DialogHandler<S = void, T extends any = void> {
         this._addDataListener = addDataListener;
     }
 
-    async open(): Promise<{ buttonType: number, value: T extends undefined ? S : T }> {
+    async open() {
         if (this.isOpen) {
             throw new Error('cannot open a dialog which is already open');
         }
-        const res = await new Promise<T>(async (resolve) => {
+        const res = await new Promise<{ buttonType: number, result: T extends undefined ? S : T }>(async (resolve) => {
             const callback = (data) => {
                 this.isOpen = false;
                 resolve(data);
@@ -36,7 +36,7 @@ export default class DialogHandler<S = void, T extends any = void> {
                 this.listeners.forEach((cb) => cb(data));
             });
         });
-        return this.result = res as { buttonType: number, value: T extends undefined ? S : T }
+        return this.result = res;
     }
 
     close(buttonType, data) {
@@ -65,7 +65,7 @@ export default class DialogHandler<S = void, T extends any = void> {
         }
     }
 
-    getResult(): T {
+    getResult() {
         return this.result;
     }
 }
