@@ -123,7 +123,11 @@ export type DialogSelectListItemType = {
     disabled?: boolean;
     isSelected?: boolean;
     url?: string;
+    /**
+     * @deprecated Use {@link icon} instead
+     */
     className?: string;
+    icon?: string
 }
 
 export interface DialogSelect {
