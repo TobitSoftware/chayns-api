@@ -72,7 +72,7 @@ export interface BaseDialog {
     }
 }
 
-export type Dialog<T extends any = object> = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule<T> | DialogIFrame<T> | DialogSelect | DialogDate | DialogToast);
+export type Dialog<T extends any = object> = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule<T> | DialogIFrame<T> | DialogSelect | DialogDate | DialogToast | DialogSignature | DialogFileSelect);
 
 export interface DialogSignature {
     type: DialogType.SIGNATURE;
