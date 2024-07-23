@@ -44,7 +44,7 @@ export default class DialogHandler<S = void, T extends any = void> {
             return;
         }
         this.isOpen = false;
-        this._close(this.dialogId, data);
+        this._close(this.dialogId, data, buttonType);
     }
 
     dispatchEvent(data: object) {
