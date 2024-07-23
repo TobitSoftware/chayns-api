@@ -80,13 +80,6 @@ export class AppWrapper implements IChaynsReact {
             }
         }
 
-
-        let language = AppInfo.Language;
-
-        if (!language) {
-            language = DeviceLanguage[Number.parseInt(Device?.LanguageID, 10)] || 'de';
-        }
-
         return {
             device: getDeviceInfo(navigator.userAgent, 'image/webp'),
             environment: {
