@@ -4,7 +4,7 @@
 import throttle from 'lodash.throttle';
 import DialogHandler from '../handler/DialogHandler';
 import {
-    AvailableSharingServices,
+    AvailableSharingServices, ChaynsApiUser,
     ChaynsReactFunctions,
     ChaynsReactValues,
     CleanupCallback,
@@ -78,6 +78,13 @@ export class AppWrapper implements IChaynsReact {
             } catch {
                 // ignore
             }
+        }
+
+
+        let language = AppInfo.Language;
+
+        if (!language) {
+            language = DeviceLanguage[Number.parseInt(Device?.LanguageID, 10)] || 'de';
         }
 
         return {
@@ -550,12 +557,9 @@ export class AppWrapper implements IChaynsReact {
 
         this.appCall(66, {
             enabled: true,
-            callback: (value) => {
-                if ('tobitAccessToken' in value) {
-                    this.accessToken = value.tobitAccessToken;
-                } else {
-                    this.mapOldApiToNew(value);
-                }
+            callback: async() => {
+                this.values = this.mapOldApiToNew(await this.appCall(18));
+                document.dispatchEvent(new CustomEvent('chayns_api_data', { detail: { type: 'user', value: this.values.user } }));
             }
         });
 
