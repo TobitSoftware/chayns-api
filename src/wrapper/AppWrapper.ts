@@ -558,6 +558,16 @@ export class AppWrapper implements IChaynsReact {
             awaitResult: true
         });
 
+        this.appCall(254, {
+            enabled: true,
+        }, {
+            callback: ({ colorMode }) => {
+                this.values.site.colorMode = colorMode;
+                document.dispatchEvent(new CustomEvent('chayns_api_data', { detail: { type: 'site', value: this.values.site } }));
+            },
+            awaitResult: true
+        });
+
         return undefined;
     }
 
