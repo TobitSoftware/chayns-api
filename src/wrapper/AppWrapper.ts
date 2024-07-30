@@ -561,7 +561,7 @@ export class AppWrapper implements IChaynsReact {
         this.appCall(254, {
             enabled: true,
         }, {
-            callback: async({ colorMode }) => {
+            callback: ({ colorMode }) => {
                 this.values.site.colorMode = colorMode;
                 document.dispatchEvent(new CustomEvent('chayns_api_data', { detail: { type: 'site', value: this.values.site } }));
             },
