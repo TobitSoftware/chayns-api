@@ -558,6 +558,8 @@ export class AppWrapper implements IChaynsReact {
             awaitResult: true
         });
 
+        window.disablev4DesignSettingsChangeListener = true;
+
         this.appCall(254, {
             enabled: true,
         }, {
