@@ -3,7 +3,7 @@ import { HydrationContext, type HydrationContextValueType } from '../constants';
 
 type StoreLikeValue = object & { getState: () => object, abort?: () => Promise<void>, type?: 'raw' | 'json' };
 type HydrationComponent = React.FC<{ value: StoreLikeValue, children?: React.ReactNode }>;
-type Initializer = (initialValue: object | undefined) => StoreLikeValue;
+type Initializer = (initialValue: object | undefined, id: string) => StoreLikeValue;
 type HydrationBoundary = React.FC<{ id?: string, children?: React.ReactNode }>;
 
 const withHydrationBoundary = (Component: HydrationComponent, initializer: Initializer, useHydrationId: undefined | (() => string)): HydrationBoundary => {
@@ -30,7 +30,7 @@ const withHydrationBoundary = (Component: HydrationComponent, initializer: Initi
                     initialValue = JSON.parse($elem.innerHTML);
                 }
             }
-            const s = initializer(initialValue);
+            const s = initializer(initialValue, id);
             if (!globalThis.window) {
                 value[id] = s;
             }
