@@ -511,6 +511,8 @@ export class AppWrapper implements IChaynsReact {
                     apiVersion: 5,
                     config,
                 },
+                // TODO: change to production url
+                externalDialogUrl: 'https://tapp-dev.chayns-static.space/api/dialog-v2/v1/index.html',
             }, { awaitResult: true }).then((result) => {
                 callback(result);
             });
