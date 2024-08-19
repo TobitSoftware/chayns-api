@@ -4,7 +4,7 @@
 import throttle from 'lodash.throttle';
 import DialogHandler from '../handler/DialogHandler';
 import {
-    AvailableSharingServices, ChaynsApiUser,
+    AvailableSharingServices,
     ChaynsReactFunctions,
     ChaynsReactValues,
     CleanupCallback,
@@ -25,7 +25,7 @@ import getDeviceInfo, { getScreenSize } from '../util/deviceHelper';
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
-import { DeviceLanguage } from "../constants/languages";
+import { DeviceLanguage } from '../constants/languages';
 
 let appWrapperDialogId = 0;
 
@@ -43,14 +43,14 @@ export class AppWrapper implements IChaynsReact {
         let tappId = urlParamsLowerCase.get('tappid');
         let colorMode = urlParamsLowerCase.get('colormode');
         let color = AppInfo.color;
-        if(colorMode) {
+        if (colorMode) {
             try {
                 colorMode = Number.parseInt(colorMode, 10);
             } catch {
 
             }
         }
-        if(tappId) {
+        if (tappId) {
             try {
                 tappId = Number.parseInt(tappId, 10);
             } catch {
@@ -154,11 +154,6 @@ export class AppWrapper implements IChaynsReact {
         console.warn(`call ${call} not implement in app`);
     }
 
-    private dispatchDialogChange(detail) {
-        this.dialogs = detail;
-        this.dialogEventTarget.dispatchEvent(new CustomEvent('change', { detail }));
-    }
-
     counter: number = 0;
 
     appCall(action, value: unknown = {}, { callback, awaitResult = true } = {}) {
@@ -245,7 +240,7 @@ export class AppWrapper implements IChaynsReact {
                     callback: (v) => {
                         dispatchApiEvent('toolbarChangeListener', {
                             isVisible: v.isVisible,
-                            toolbarHeight: v.toolbarHeight
+                            toolbarHeight: v.toolbarHeight,
                         });
                     },
                 });
@@ -365,7 +360,8 @@ export class AppWrapper implements IChaynsReact {
             const { shouldRemove } = removeApiListener('geoLocationListener', id);
 
             if (shouldRemove) {
-                // App does not support removal of request geo location call with permanent true which makes this a no-op
+                // App does not support removal of request geo location call with permanent true which makes this a
+                // no-op
             }
         },
         removeScrollListener: async (id) => {
@@ -505,45 +501,37 @@ export class AppWrapper implements IChaynsReact {
             void this.appCall(19, value, { awaitResult: false });
         },
         createDialog: (config) => {
-            return new DialogHandler(config, this.functions.openDialog, this.functions.closeDialog);
+            return new DialogHandler(config, this.functions.openDialog, this.functions.closeDialog, this.functions.dispatchEventToDialogClient, this.functions.addDialogClientEventListener);
         },
         openDialog: async (config, callback) => {
             const currentDialogId = appWrapperDialogId++;
 
-            const eventTarget = new EventTarget();
-
-            const resolve = (result) => {
+            this.appCall(184, {
+                dialogContent: {
+                    apiVersion: 5,
+                    config,
+                },
+                externalDialogUrl: 'https://tapp.chayns-static.space/api/dialog-v2/v1/index.html',
+            }, { awaitResult: true }).then((result) => {
                 callback(result);
-                this.dispatchDialogChange(this.dialogs.filter(x => x.dialogId !== currentDialogId));
-            };
-
-            this.dispatchDialogChange([...this.dialogs, {
-                config,
-                resolve,
-                dialogId: currentDialogId,
-                eventTarget,
-            }]);
+            });
 
             return currentDialogId;
         },
-        closeDialog: (dialogId) => {
+        closeDialog: (dialogId, result, buttonType = -1) => {
             const dialog = this.dialogs.find(x => x.dialogId === dialogId);
             if (dialog) {
-                dialog.resolve({ buttonType: -1 });
+                dialog.resolve({ buttonType, result });
             }
         },
+        dispatchEventToDialogClient: () => this.notImplemented('dispatchEventToDialogClient'),
+        addDialogClientEventListener: () => this.notImplemented('addDialogClientEventListener'),
         addAnonymousAccount: async () => {
             return this.appCall(302);
-        }
+        },
     };
 
     private dialogs = [];
-
-    dialogEventTarget = new EventTarget();
-
-    getDialogEventTarget() {
-        return this.dialogEventTarget;
-    }
 
     async init() {
         this.values = this.mapOldApiToNew(await this.appCall(18));
