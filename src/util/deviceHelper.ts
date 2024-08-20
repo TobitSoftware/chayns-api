@@ -6,6 +6,8 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
 
     let appName: AppName = AppName.Unknown;
     const match = (/(?:my)?chayns\/(?<version>\d+).*(?<siteId>\d{5}-\d{5})/i).exec(userAgent);
+    const customMatch = (/\s(?<name>intercom|sidekick|team)\/(?<version>\d+)/i).exec(userAgent);
+
     if ((/\sintercom\/\d+/i).test(userAgent)) {
         appName = AppName.TobitChat;
     } else if ((/\ssidekick\/\d+/i).test(userAgent)) {
@@ -22,6 +24,11 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
         appName = AppName.ChaynsLauncher;
     }
 
+    let appVersion = match?.groups ? Number.parseInt(match.groups.version, 10) : NaN;
+    if (customMatch?.groups?.version) {
+        appVersion = Number.parseInt(customMatch.groups.version, 10)
+    }
+
     const result = {} as ChaynsApiDevice;
     result.browser = {
         name: parsedUA?.name,
@@ -31,7 +38,8 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
     };
     result.app = {
         name: appName,
-        version: match?.groups ? Number.parseInt(match.groups.version, 10) : NaN,
+        version: appVersion,
+        callVersion: match?.groups ? Number.parseInt(match.groups.version, 10) : NaN,
     }
     result.imei = undefined; // TODO
     result.accessToken = undefined; // TODO
