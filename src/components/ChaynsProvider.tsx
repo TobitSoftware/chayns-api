@@ -7,7 +7,6 @@ import { FrameWrapper } from '../wrapper/FrameWrapper';
 import { ModuleFederationWrapper } from '../wrapper/ModuleFederationWrapper';
 import { SsrWrapper } from '../wrapper/SsrWrapper';
 import { ChaynsContext, ChaynsFunctionsContext } from './ChaynsContext';
-import AppDialogWrapper from './AppDialogWrapper';
 import { moduleWrapper } from './moduleWrapper';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -98,7 +97,6 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
                 <ChaynsContext.Provider value={state}>
                     <ChaynsFunctionsContext.Provider value={customWrapper.current?.functions}>
                         {children}
-                        {customWrapper.current instanceof AppWrapper ? <AppDialogWrapper dialogEventTarget={customWrapper.current?.getDialogEventTarget()}/> : false}
                     </ChaynsFunctionsContext.Provider>
                 </ChaynsContext.Provider>
             )}
