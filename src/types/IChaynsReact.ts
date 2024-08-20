@@ -133,6 +133,7 @@ export type DialogSelectListItemType = {
 export interface DialogSelect {
     type: DialogType.SELECT,
     list: DialogSelectListItemType[];
+    fixedItem?: DialogSelectListItemType & { position?: 'top' | 'bottom' };
     multiselect?: boolean;
     quickfind?: boolean;
     selectType?: DialogSelectType;
