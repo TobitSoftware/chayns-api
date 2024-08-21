@@ -15,7 +15,7 @@ export const isAppCallSupported = ({ minAndroidVersion = 1, minIOSVersion = 1 })
         return device.app.callVersion >= minIOSVersion;
     }
 
-    if (device.os === 'Android') {
+    if (device.os === 'Android OS') {
         return device.app.callVersion >= minAndroidVersion;
     }
 
