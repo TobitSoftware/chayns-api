@@ -114,7 +114,8 @@ export interface DialogInput {
 export enum DialogSelectType {
     DEFAULT = 0,
     ICON = 1,
-    IMAGE = 2
+    IMAGE = 2,
+    SIMPLE = 3,
 }
 
 export type DialogSelectListItemType = {
