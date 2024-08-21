@@ -1,8 +1,8 @@
-import { parseUserAgent } from 'detect-browser';
+import { UAParser } from 'ua-parser-js';
 import { AppName, ChaynsApiDevice, ScreenSize } from '../types/IChaynsReact';
 
 const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
-    const parsedUA = parseUserAgent(userAgent);
+    const uaParser = new UAParser(userAgent);
 
     let appName: AppName = AppName.Unknown;
     const match = (/(?:my)?chayns\/(?<version>\d+).*(?<siteId>\d{5}-\d{5})/i).exec(userAgent);
@@ -30,10 +30,11 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
     }
 
     const result = {} as ChaynsApiDevice;
+    const browser = uaParser.getBrowser();
     result.browser = {
-        name: parsedUA?.name,
-        version: parsedUA?.version,
-        majorVersion: Number.parseInt(parsedUA?.version?.split('.')[0] ?? '0', 10) || 0,
+        name: browser?.name,
+        version: browser?.version,
+        majorVersion: Number.parseInt(browser?.version?.split('.')[0] ?? '0', 10) || 0,
         isWebPSupported: acceptHeader.includes('image/webp'),
     };
     result.app = {
@@ -44,7 +45,7 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
     }
     result.imei = undefined; // TODO
     result.accessToken = undefined; // TODO
-    result.os = parsedUA?.os;
+    result.os = uaParser.getOS()?.name as ChaynsApiDevice["os"];
     if (typeof window !== 'undefined') {
         result.screenSize = getScreenSize(window.innerWidth);
         result.isTouch = getClientDeviceInfo().isTouch;

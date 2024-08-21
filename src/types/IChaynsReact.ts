@@ -1,5 +1,4 @@
-import { Browser, OperatingSystem } from 'detect-browser';
-import { createDialog } from '../calls';
+import { IBrowser } from 'ua-parser-js';
 import DialogHandler from '../handler/DialogHandler';
 import { DialogButtonOld, SelectDialogItem } from './dialog';
 
@@ -198,14 +197,14 @@ export type ChaynsApiDevice = {
         storePackageName?: string; // maybe unused
     },
     browser?: { //  von host
-        name?: Browser | 'bot' | null; // https://www.npmjs.com/package/detect-browser
+        name?: IBrowser["name"] | 'bot' | null; // https://www.npmjs.com/package/detect-browser
         version?: string | null; // https://www.npmjs.com/package/detect-browser
         majorVersion: number;
         isWebPSupported: boolean;
     },
     imei?: string;
     accessToken?: string;
-    os?: OperatingSystem | null;
+    os?: 'AIX' | 'Amiga OS' | 'Android' | 'Arch' | 'Bada' | 'BeOS' | 'BlackBerry' | 'CentOS' | 'Chromium OS' | 'Contiki' | 'Fedora' | 'Firefox OS' | 'FreeBSD' | 'Debian' | 'DragonFly' | 'Gentoo' | 'GNU' | 'Haiku' | 'Hurd' | 'iOS' | 'Joli' | 'Linpus' | 'Linux' | 'Mac OS' | 'Mageia' | 'Mandriva' | 'MeeGo' | 'Minix' | 'Mint' | 'Morph OS' | 'NetBSD' | 'Nintendo' | 'OpenBSD' | 'OpenVMS' | 'OS/2' | 'Palm' | 'PCLinuxOS' | 'Plan9' | 'Playstation' | 'QNX' | 'RedHat' | 'RIM Tablet OS' | 'RISC OS' | 'Sailfish' | 'Series40' | 'Slackware' | 'Solaris' | 'SUSE' | 'Symbian' | 'Tizen' | 'Ubuntu' | 'UNIX' | 'VectorLinux' | 'WebOS' | 'Windows [Phone/Mobile]' | 'Zenwalk' | null;
     isTouch: boolean;
     screenSize: ScreenSize;
 }
