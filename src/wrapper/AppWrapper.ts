@@ -26,6 +26,7 @@ import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
 import { DeviceLanguage } from '../constants/languages';
+import { isAppCallSupported } from '../util/is';
 
 let appWrapperDialogId = 0;
 
@@ -506,12 +507,14 @@ export class AppWrapper implements IChaynsReact {
         openDialog: async (config, callback) => {
             const currentDialogId = appWrapperDialogId++;
 
+            const isSupported = isAppCallSupported({ minAndroidVersion: 7137, minIOSVersion: 6934 });
+
             this.appCall(184, {
                 dialogContent: {
                     apiVersion: 5,
                     config,
                 },
-                externalDialogUrl: 'https://tapp.chayns-static.space/api/dialog-v2/v1/index.html',
+                externalDialogUrl: isSupported ? undefined : 'https://tapp.chayns-static.space/api/dialog-v2/v1/index.html',
             }, { awaitResult: true }).then((result) => {
                 callback(result);
             });
