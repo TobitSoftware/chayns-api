@@ -38,7 +38,8 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
     };
     result.app = {
         name: appName,
-        version: appVersion,
+        version: match?.groups ? Number.parseInt(match.groups.version, 10) : NaN,
+        appVersion,
         callVersion: match?.groups ? Number.parseInt(match.groups.version, 10) : NaN,
     }
     result.imei = undefined; // TODO

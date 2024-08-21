@@ -189,8 +189,10 @@ export enum ScreenSize {
 export type ChaynsApiDevice = {
     app?: { //  von host
         name: AppName; // user agent
-        /** the actual app version according to the app name */
+        /** @deprecated same value as callVersion */
         version: number; // user agent
+        /** the actual app version according to the app name */
+        appVersion: number;
         /** the version of the chayns call interface */
         callVersion: number;
         storePackageName?: string; // maybe unused
