@@ -57,14 +57,17 @@ const System: FC<SystemPropTypes> = ({
 
     const Component = useMemo(() => {
         // maybe return waitcursor instead
-        if (!system || !ready || failed) {
+        if (failed) {
+            throw new Error('failed to load component');
+        }
+        if (!system || !ready) {
             return null;
         }
 
         return React.lazy(loadComponent(system.scope, system.module, system.url, undefined, system.preventSingleton));
 
         /* eslint-disable react-hooks/exhaustive-deps */
-    }, [system?.scope, ready, system?.url]);
+    }, [system?.scope, ready, failed, system?.url]);
 
     return Component ? (
         <React.Suspense fallback={fallback || ''}>
