@@ -394,6 +394,24 @@ export class AppWrapper implements IChaynsReact {
             }
         },
         selectPage: async (options) => {
+            if (this.values?.site?.id && options.siteId && options.siteId !== this.values?.site?.id) {
+                const url = new URL(`https://chayns.site/${options.siteId}`);
+                if (options.id) {
+                    url.pathname += `/tapp/${options.id}`;
+                } else if (options.path) {
+                    url.pathname += `/${options.path}`;
+                }
+                if (options.params) {
+                    Object.entries(options.params).forEach(([k, v]) => {
+                        url.searchParams.set(k, v);
+                    });
+                }
+                void this.appCall(9, {
+                    url: url.toString(),
+                    checkForChaynsSite : true,
+                });
+                return;
+            }
             void this.appCall(2, {
                 id: options.id,
                 showName: options.showName,
