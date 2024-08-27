@@ -8,6 +8,7 @@ export * from './calls';
 export * from './hooks';
 export * from './components/WaitUntil';
 export * from './types/IChaynsReact';
+export * from './util/is';
 export * from './components/withCompatMode';
 export * from './constants';
 export { default as withHydrationBoundary } from './components/withHydrationBoundary';

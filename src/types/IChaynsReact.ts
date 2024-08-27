@@ -1,5 +1,4 @@
-import { Browser, OperatingSystem } from 'detect-browser';
-import { createDialog } from '../calls';
+import { IBrowser, IEngine } from 'ua-parser-js';
 import DialogHandler from '../handler/DialogHandler';
 import { DialogButtonOld, SelectDialogItem } from './dialog';
 
@@ -114,7 +113,8 @@ export interface DialogInput {
 export enum DialogSelectType {
     DEFAULT = 0,
     ICON = 1,
-    IMAGE = 2
+    IMAGE = 2,
+    SIMPLE = 3,
 }
 
 export type DialogSelectListItemType = {
@@ -133,6 +133,7 @@ export type DialogSelectListItemType = {
 export interface DialogSelect {
     type: DialogType.SELECT,
     list: DialogSelectListItemType[];
+    fixedItem?: DialogSelectListItemType & { position?: 'top' | 'bottom' };
     multiselect?: boolean;
     quickfind?: boolean;
     selectType?: DialogSelectType;
@@ -187,18 +188,24 @@ export enum ScreenSize {
 export type ChaynsApiDevice = {
     app?: { //  von host
         name: AppName; // user agent
+        /** @deprecated same value as callVersion */
         version: number; // user agent
+        /** the actual app version according to the app name */
+        appVersion: number;
+        /** the version of the chayns call interface */
+        callVersion: number;
         storePackageName?: string; // maybe unused
     },
     browser?: { //  von host
-        name?: Browser | 'bot' | null; // https://www.npmjs.com/package/detect-browser
+        name?: IBrowser["name"] | 'bot' | null; // https://www.npmjs.com/package/detect-browser
         version?: string | null; // https://www.npmjs.com/package/detect-browser
         majorVersion: number;
         isWebPSupported: boolean;
     },
+    engine?: IEngine;
     imei?: string;
     accessToken?: string;
-    os?: OperatingSystem | null;
+    os?: 'AIX' | 'Amiga OS' | 'Android OS' | 'Arch' | 'Bada' | 'BeOS' | 'BlackBerry' | 'CentOS' | 'Chromium OS' | 'Contiki' | 'Fedora' | 'Firefox OS' | 'FreeBSD' | 'Debian' | 'DragonFly' | 'Gentoo' | 'GNU' | 'Haiku' | 'Hurd' | 'iOS' | 'Joli' | 'Linpus' | 'Linux' | 'Mac OS' | 'Mageia' | 'Mandriva' | 'MeeGo' | 'Minix' | 'Mint' | 'Morph OS' | 'NetBSD' | 'Nintendo' | 'OpenBSD' | 'OpenVMS' | 'OS/2' | 'Palm' | 'PCLinuxOS' | 'Plan9' | 'Playstation' | 'QNX' | 'RedHat' | 'RIM Tablet OS' | 'RISC OS' | 'Sailfish' | 'Series40' | 'Slackware' | 'Solaris' | 'SUSE' | 'Symbian' | 'Tizen' | 'Ubuntu' | 'UNIX' | 'VectorLinux' | 'WebOS' | 'Windows' | 'Windows Phone' | 'Windows Mobile' | 'Zenwalk' | null;
     isTouch: boolean;
     screenSize: ScreenSize;
 }
