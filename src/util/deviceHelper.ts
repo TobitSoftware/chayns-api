@@ -45,7 +45,9 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
     }
     result.imei = undefined; // TODO
     result.engine = uaParser.getEngine();
+    // TODO: breaking change on next minor and use object with name and version
     result.os = uaParser.getOS()?.name === 'Android' ? 'Android OS' : uaParser.getOS()?.name as ChaynsApiDevice["os"];
+    result.osVersion = uaParser.getOS()?.version;
     if (typeof window !== 'undefined') {
         result.screenSize = getScreenSize(window.innerWidth);
         result.isTouch = getClientDeviceInfo().isTouch;
