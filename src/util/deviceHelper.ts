@@ -1,7 +1,7 @@
 import { UAParser } from 'ua-parser-js';
 import { AppName, ChaynsApiDevice, ScreenSize } from '../types/IChaynsReact';
 
-const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
+const getDeviceInfo = (userAgent: string, acceptHeader: string, { imei }: { imei?: string } = {}) => {
     const uaParser = new UAParser(userAgent);
 
     let appName: AppName = AppName.Unknown;
@@ -43,7 +43,7 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string) => {
         appVersion,
         callVersion: match?.groups ? Number.parseInt(match.groups.version, 10) : NaN,
     }
-    result.imei = undefined; // TODO
+    result.imei = imei;
     result.engine = uaParser.getEngine();
     // TODO: breaking change on next minor and use object with name and version
     result.os = uaParser.getOS()?.name === 'Android' ? 'Android OS' : uaParser.getOS()?.name as ChaynsApiDevice["os"];

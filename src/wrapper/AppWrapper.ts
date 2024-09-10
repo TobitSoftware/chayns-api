@@ -82,7 +82,7 @@ export class AppWrapper implements IChaynsReact {
         }
 
         return {
-            device: getDeviceInfo(navigator.userAgent, 'image/webp'),
+            device: getDeviceInfo(navigator.userAgent, 'image/webp', { imei: Device.IMEI }),
             environment: {
                 buildEnvironment: Environment.Production,
                 runtimeEnvironment: RuntimeEnviroment.Unknown,
