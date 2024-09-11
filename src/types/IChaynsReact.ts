@@ -23,6 +23,20 @@ export interface DialogDate {
     multiselect?: boolean;
     monthSelect?: boolean;
     yearSelect?: boolean;
+    interval?: boolean;
+    disabledDates?: Date[];
+    disabledIntervals?: { start: Date; end: Date }[];
+    disabledWeekDayIntervals?: { weekDay: WeekDayType ; interval?: {start: Date; end: Date }}[]
+}
+
+export enum WeekDayType {
+    SUNDAY,
+    MONDAY,
+    TUESDAY,
+    WEDNESDAY,
+    THURSDAY,
+    FRIDAY,
+    SATURDAY,
 }
 
 
