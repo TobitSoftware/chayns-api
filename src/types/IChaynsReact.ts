@@ -850,7 +850,8 @@ export enum RuntimeEnviroment {
     ChaynsWeb, // ?
     ChaynsRuntime,
     IntercomPlugin,
-    PagemakerPlugin
+    PagemakerPlugin,
+    Dialog,
 }
 
 export enum DeviceOs {
