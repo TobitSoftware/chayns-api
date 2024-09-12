@@ -192,10 +192,15 @@ export type ChaynsApiSite = {
 }
 
 export enum ScreenSize {
+    /** screen width smaller than or equal 556px */
     XS,
+    /** screen width between 557px and 769px */
     SM,
+    /** screen width between 770px and 993px */
     MD,
+    /** screen width between 994px and 1200px */
     LG,
+    /** screen width larger than 1200px */
     XL
 }
 
