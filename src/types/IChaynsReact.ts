@@ -165,6 +165,7 @@ export enum DialogButtonType {
 export type ChaynsApiUser = {
     firstName?: string;
     lastName?: string;
+    nickName?: string;
     gender?: Gender;
     uacGroups?: UacGroup[];
     userId?: number;
