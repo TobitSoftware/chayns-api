@@ -42,7 +42,7 @@
         "extends": "@chayns-toolkit"
     },
     "dependencies": {
-        "@module-federation/runtime": "^0.1.13",
+        "@module-federation/runtime": "^0.6.9",
         "@types/semver": "^7.5.8",
         "comlink": "4.3.1",
         "htmlescape": "^1.1.1",
