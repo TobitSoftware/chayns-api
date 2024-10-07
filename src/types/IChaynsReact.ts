@@ -23,6 +23,20 @@ export interface DialogDate {
     multiselect?: boolean;
     monthSelect?: boolean;
     yearSelect?: boolean;
+    interval?: boolean;
+    disabledDates?: Date[];
+    disabledIntervals?: { start: Date; end: Date }[];
+    disabledWeekDayIntervals?: { weekDay: WeekDayType ; interval?: {start: Date; end: Date }}[]
+}
+
+export enum WeekDayType {
+    SUNDAY,
+    MONDAY,
+    TUESDAY,
+    WEDNESDAY,
+    THURSDAY,
+    FRIDAY,
+    SATURDAY,
 }
 
 
@@ -151,6 +165,7 @@ export enum DialogButtonType {
 export type ChaynsApiUser = {
     firstName?: string;
     lastName?: string;
+    nickName?: string;
     gender?: Gender;
     uacGroups?: UacGroup[];
     userId?: number;
@@ -178,10 +193,15 @@ export type ChaynsApiSite = {
 }
 
 export enum ScreenSize {
+    /** screen width smaller than or equal 556px */
     XS,
+    /** screen width between 557px and 769px */
     SM,
+    /** screen width between 770px and 993px */
     MD,
+    /** screen width between 994px and 1200px */
     LG,
+    /** screen width larger than 1200px */
     XL
 }
 
@@ -206,6 +226,7 @@ export type ChaynsApiDevice = {
     imei?: string;
     accessToken?: string;
     os?: 'AIX' | 'Amiga OS' | 'Android OS' | 'Arch' | 'Bada' | 'BeOS' | 'BlackBerry' | 'CentOS' | 'Chromium OS' | 'Contiki' | 'Fedora' | 'Firefox OS' | 'FreeBSD' | 'Debian' | 'DragonFly' | 'Gentoo' | 'GNU' | 'Haiku' | 'Hurd' | 'iOS' | 'Joli' | 'Linpus' | 'Linux' | 'Mac OS' | 'Mageia' | 'Mandriva' | 'MeeGo' | 'Minix' | 'Mint' | 'Morph OS' | 'NetBSD' | 'Nintendo' | 'OpenBSD' | 'OpenVMS' | 'OS/2' | 'Palm' | 'PCLinuxOS' | 'Plan9' | 'Playstation' | 'QNX' | 'RedHat' | 'RIM Tablet OS' | 'RISC OS' | 'Sailfish' | 'Series40' | 'Slackware' | 'Solaris' | 'SUSE' | 'Symbian' | 'Tizen' | 'Ubuntu' | 'UNIX' | 'VectorLinux' | 'WebOS' | 'Windows' | 'Windows Phone' | 'Windows Mobile' | 'Zenwalk' | null;
+    osVersion?: string;
     isTouch: boolean;
     screenSize: ScreenSize;
 }
@@ -830,7 +851,8 @@ export enum RuntimeEnviroment {
     ChaynsWeb, // ?
     ChaynsRuntime,
     IntercomPlugin,
-    PagemakerPlugin
+    PagemakerPlugin,
+    Dialog,
 }
 
 export enum DeviceOs {

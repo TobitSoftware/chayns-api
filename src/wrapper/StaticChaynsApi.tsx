@@ -1,5 +1,7 @@
 import { moduleWrapper } from '../components/moduleWrapper';
-import { DataChangeCallback } from '../types/IChaynsReact';
+import { AppName, DataChangeCallback } from '../types/IChaynsReact';
+import getDeviceInfo from '../util/deviceHelper';
+import { AppWrapper } from './AppWrapper';
 import { FrameWrapper } from './FrameWrapper';
 
 
@@ -10,7 +12,13 @@ class StaticChaynsApi {
     private _wrapper;
 
     constructor() {
-        const wrapper = new FrameWrapper();
+        let wrapper;
+        const deviceInfo = getDeviceInfo(navigator.userAgent, '');
+        if([AppName.Chayns, AppName.ChaynsLauncher, AppName.Sidekick, AppName.TobitChat].includes(deviceInfo.app?.name ?? AppName.Unknown) && window.self === window.top) {
+            wrapper = new AppWrapper();
+        } else {
+            wrapper = new FrameWrapper();
+        }
         moduleWrapper.current = wrapper;
         this._wrapper = wrapper;
         this.ready = wrapper.init();

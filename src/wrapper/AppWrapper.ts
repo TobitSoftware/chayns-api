@@ -82,7 +82,7 @@ export class AppWrapper implements IChaynsReact {
         }
 
         return {
-            device: getDeviceInfo(navigator.userAgent, 'image/webp'),
+            device: getDeviceInfo(navigator.userAgent, 'image/webp', { imei: Device.IMEI }),
             environment: {
                 buildEnvironment: Environment.Production,
                 runtimeEnvironment: RuntimeEnviroment.Unknown,
@@ -421,14 +421,16 @@ export class AppWrapper implements IChaynsReact {
                 awaitResult: false,
             });
         },
-        scrollToY: async (position) => {
+        scrollToY: async (position, duration) => {
             window.scrollTo({
                 top: position,
+                behavior: duration ? 'smooth' : 'auto',
             });
         },
         scrollByY: (value, duration) => {
             window.scrollBy({
                 top: value,
+                behavior: duration ? 'smooth' : 'auto',
             });
         },
         sendMessageToGroup: async (groupId, message) => {
