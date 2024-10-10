@@ -679,6 +679,12 @@ export enum FloatingButtonPosition {
     Left
 }
 
+export enum FloatingButtonAnimation {
+    None = 'none',
+    FadeIn = 'fade-in',
+    Pulse = 'pulse'
+}
+
 export interface FloatingButton {
     isEnabled: boolean;
     position: FloatingButtonPosition;
@@ -695,6 +701,7 @@ export interface FloatingButton {
         text: string;
         icon: string;
     }[];
+    animation?: FloatingButtonAnimation;
 }
 
 export enum SharingApp {
