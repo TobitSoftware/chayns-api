@@ -6,6 +6,11 @@ import React from 'react';
 // forces single instance of module federation runtime
 if (!globalThis.moduleFederationRuntime) {
     globalThis.moduleFederationRuntime = require('@module-federation/runtime');
+    globalThis.moduleFederationScopes = {
+        registeredScopes: {},
+        moduleMap: {},
+        componentMap: {},
+    }
 
     const { init } = globalThis.moduleFederationRuntime;
 
@@ -29,10 +34,7 @@ if (!globalThis.moduleFederationRuntime) {
     });
 }
 const { loadRemote, registerRemotes, loadShareSync } = globalThis.moduleFederationRuntime;
-
-const registeredScopes = {};
-const moduleMap = {};
-const componentMap = {}
+const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
 
 export const loadModule = (scope, module, url, preventSingleton = false) => {
     if (registeredScopes[scope] !== url || preventSingleton) {
