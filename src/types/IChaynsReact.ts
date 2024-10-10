@@ -687,16 +687,16 @@ export enum FloatingButtonAnimation {
 
 export interface FloatingButton {
     isEnabled: boolean;
-    position: FloatingButtonPosition;
-    zIndex: number;
-    badge: string;
-    textSize: number;
-    color: string;
-    colorText: string;
-    icon: string;
-    text: string;
-    rotateIcon: boolean;
-    items: {
+    position?: FloatingButtonPosition;
+    zIndex?: number;
+    badge?: string;
+    textSize?: number;
+    color?: string;
+    colorText?: string;
+    icon?: string;
+    text?: string;
+    rotateIcon?: boolean;
+    items?: {
         onClick?: () => Promise<void>;
         text: string;
         icon: string;
