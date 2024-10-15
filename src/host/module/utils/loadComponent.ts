@@ -5,7 +5,7 @@ import React from 'react';
 
 // forces single instance of module federation runtime
 if (!globalThis.moduleFederationRuntime) {
-    globalThis.moduleFederationRuntime = require('@module-federation/runtime');
+    globalThis.moduleFederationRuntime = require('@module-federation/enhanced/runtime');
     globalThis.moduleFederationScopes = {
         registeredScopes: {},
         moduleMap: {},
