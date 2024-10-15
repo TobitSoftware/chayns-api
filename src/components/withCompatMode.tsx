@@ -72,6 +72,7 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
         environment: process.env.NODE_ENV,
         buildEnv: process.env.BUILD_ENV || process.env.NODE_ENV,
         appVersion: process.env.VERSION,
+        version: 2,
     };
 };
 
