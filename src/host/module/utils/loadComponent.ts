@@ -73,8 +73,10 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
             })
 
             if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development' || Module.default.version !== 2) {
+                console.log("use compat mode for", scope, module);
                 return { default: Module.default.CompatComponent };
             }
+            console.log("use direct component for", scope, module);
             return { default: Module.default.Component };
         });
 
