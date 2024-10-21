@@ -1,38 +1,7 @@
 import { Shared } from '@module-federation/runtime/dist/src/type';
-import ReactDOM from 'react-dom';
 import semver from 'semver';
-import React from 'react';
+import React from "react";
 
-// forces single instance of module federation runtime
-if (!globalThis.moduleFederationRuntime) {
-    globalThis.moduleFederationRuntime = require('@module-federation/enhanced/runtime');
-    globalThis.moduleFederationScopes = {
-        registeredScopes: {},
-        moduleMap: {},
-        componentMap: {},
-    }
-
-    const { init } = globalThis.moduleFederationRuntime;
-
-    // init also should only be called once
-    init({
-        // will be set by chayns-toolkit via DefinePlugin
-        name: process.env.__PACKAGE_NAME__ ?? '',
-        remotes: [],
-        shared: {
-            react: {
-                version: React.version,
-                scope: 'default',
-                lib: () => React,
-            },
-            'react-dom': {
-                version: ReactDOM.version,
-                scope: 'default',
-                lib: () => ReactDOM,
-            },
-        },
-    });
-}
 const { loadRemote, registerRemotes, loadShareSync } = globalThis.moduleFederationRuntime;
 const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
 

@@ -22,7 +22,4 @@ export * as dialog from './calls/dialogs/index';
 
 export * from './types/IChaynsReact';
 
-export default {
-    buildEnv: process.env.BUILD_ENV,
-    appVersion: process.env.VERSION
-}
+export * from './util/initModuleFederationSharing';
