@@ -21,12 +21,12 @@ export const initModuleFederationSharing = () => {
             shared: {
                 react: {
                     version: React.version,
-                    scope: 'default',
+                    scope: 'chayns-api2',
                     lib: () => React,
                 },
                 'react-dom': {
                     version: ReactDOM.version,
-                    scope: 'default',
+                    scope: 'chayns-api2',
                     lib: () => ReactDOM,
                 },
             },

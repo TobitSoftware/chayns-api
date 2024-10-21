@@ -11,6 +11,7 @@ export const loadModule = (scope, module, url, preventSingleton = false) => {
         }
         registerRemotes([
             {
+                shareScope: 'chayns-api2',
                 name: scope,
                 entry: url,
                 alias: scope,
@@ -62,6 +63,7 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                 loadShareSync('react', {
                     resolver: (shareOptions) => {
                         resolve(shareOptions);
+                        console.log("shareOptions", shareOptions);
                         return shareOptions[0];
                     },
                 });
