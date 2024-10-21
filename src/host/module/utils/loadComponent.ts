@@ -2,10 +2,9 @@ import { Shared } from '@module-federation/runtime/dist/src/type';
 import semver from 'semver';
 import React from "react";
 
-const { loadRemote, registerRemotes, loadShareSync } = globalThis.moduleFederationRuntime;
-const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
-
 export const loadModule = (scope, module, url, preventSingleton = false) => {
+    const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
+    const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
     if (registeredScopes[scope] !== url || preventSingleton) {
         if (scope in registeredScopes) {
             console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${url}`);
@@ -43,6 +42,9 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
     if (skipCompatMode) {
         console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
     }
+
+    const { loadShareSync } = globalThis.moduleFederationRuntime;
+    const { componentMap } = globalThis.moduleFederationScopes;
 
     if (!componentMap[scope]) {
         componentMap[scope] = {};
