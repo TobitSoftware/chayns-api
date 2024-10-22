@@ -41,6 +41,7 @@ type ModulePropTypes = {
     preventStagingReplacement?: boolean,
     dialog: ChaynsReactValues["dialog"],
     children?: ReactNode,
+    shareScope?: string
 }
 
 const System: FC<SystemPropTypes> = ({

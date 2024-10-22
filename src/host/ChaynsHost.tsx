@@ -31,6 +31,7 @@ type ChaynsHostType = {
     environment: ChaynsReactValues["environment"],
     preventStagingReplacement?: boolean,
     dialog: ChaynsReactValues["dialog"],
+    shareScope?: string
 }
 
 const ChaynsHost: FC<ChaynsHostType> = ({
@@ -53,7 +54,8 @@ const ChaynsHost: FC<ChaynsHostType> = ({
     customData,
     environment,
     preventStagingReplacement,
-    dialog
+    dialog,
+    shareScope
 }) => {
     const [isVisible, setIsVisible] = useState(type !== 'client-module' && (type !== 'server-module' || !!system?.serverUrl));
 
@@ -116,6 +118,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     environment={environment}
                     preventStagingReplacement={preventStagingReplacement}
                     dialog={dialog}
+                    shareScope={shareScope}
                 />
             );
         default:
