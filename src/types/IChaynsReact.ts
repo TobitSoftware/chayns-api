@@ -26,7 +26,7 @@ export interface DialogDate {
     interval?: boolean;
     disabledDates?: Date[];
     disabledIntervals?: { start: Date; end: Date }[];
-    disabledWeekDayIntervals?: { weekDay: WeekDayType ; interval?: {start: Date; end: Date }}[]
+    disabledWeekDayIntervals?: { weekDay: WeekDayType ; interval?: {start: string; end: string }}[]
 }
 
 export enum WeekDayType {
