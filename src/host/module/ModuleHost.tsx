@@ -15,7 +15,8 @@ export type TypeSystem = {
     url: string,
     serverUrl?: string,
     module: string,
-    preventSingleton?: boolean
+    preventSingleton?: boolean,
+    shareScope?: string,
 }
 
 type SystemPropTypes = {
@@ -47,7 +48,7 @@ const System: FC<SystemPropTypes> = ({
     fallback,
     ...props
 }) => {
-    const Component = useMemo(() => loadComponent(system.scope, system.module, globalThis.window ? system.url : system.serverUrl, undefined, system.preventSingleton), [system.scope, system.module, system.url, system.serverUrl, system.preventSingleton]);
+    const Component = useMemo(() => loadComponent(system.scope, system.module, globalThis.window ? system.url : system.serverUrl, undefined, system.preventSingleton, system.shareScope), [system.scope, system.module, system.url, system.serverUrl, system.preventSingleton]);
 
     return (
         <React.Suspense fallback={fallback || ''}>

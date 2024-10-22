@@ -39,7 +39,7 @@ export const loadModule = (scope, module, url, preventSingleton = false, shareSc
     return moduleMap[scope][module];
 }
 
-const loadComponent = (scope, module, url, skipCompatMode = false, preventSingleton = false) => {
+const loadComponent = (scope, module, url, skipCompatMode = false, preventSingleton = false, shareScope) => {
     if (skipCompatMode) {
         console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
     }
@@ -52,7 +52,7 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
     }
 
     if (!(module in componentMap[scope])) {
-        const promise = loadModule(scope, module, url, preventSingleton).then(async (Module: any) => {
+        const promise = loadModule(scope, module, url, preventSingleton, shareScope).then(async (Module: any) => {
             if (typeof Module.default === 'function') {
                 return Module;
             }
