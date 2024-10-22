@@ -9,6 +9,12 @@ export const loadModule = (scope, module, url, preventSingleton = false, shareSc
         if (scope in registeredScopes) {
             console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${url}`);
         }
+        console.log("register remote ", {
+            shareScope,
+            name: scope,
+            entry: url,
+            alias: scope,
+        })
         registerRemotes([
             {
                 shareScope,
