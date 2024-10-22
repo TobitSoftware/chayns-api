@@ -3,6 +3,7 @@ import semver from 'semver';
 import React from "react";
 
 export const loadModule = (scope, module, url, preventSingleton = false, shareScope = 'chayns-api2') => {
+    console.log("share2", shareScope);
     const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
     const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
     if (registeredScopes[scope] !== url || preventSingleton) {
@@ -46,6 +47,7 @@ export const loadModule = (scope, module, url, preventSingleton = false, shareSc
 }
 
 const loadComponent = (scope, module, url, skipCompatMode = false, preventSingleton = false, shareScope) => {
+    console.log("share1", shareScope);
     if (skipCompatMode) {
         console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
     }

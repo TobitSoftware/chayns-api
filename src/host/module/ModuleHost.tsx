@@ -40,8 +40,7 @@ type ModulePropTypes = {
     environment: ChaynsReactValues["environment"],
     preventStagingReplacement?: boolean,
     dialog: ChaynsReactValues["dialog"],
-    children?: ReactNode,
-    shareScope?: string
+    children?: ReactNode
 }
 
 const System: FC<SystemPropTypes> = ({
@@ -49,6 +48,7 @@ const System: FC<SystemPropTypes> = ({
     fallback,
     ...props
 }) => {
+    console.log("share3", system, system.shareScope);
     const Component = useMemo(() => loadComponent(system.scope, system.module, globalThis.window ? system.url : system.serverUrl, undefined, system.preventSingleton, system.shareScope), [system.scope, system.module, system.url, system.serverUrl, system.preventSingleton]);
 
     return (
@@ -106,7 +106,8 @@ const ModuleHost: FC<ModulePropTypes> = ({
                     url: replaceStagingUrl(preventStagingReplacement, system.url, environment.buildEnvironment),
                     serverUrl: replaceStagingUrl(preventStagingReplacement, system.serverUrl, environment.buildEnvironment),
                     module: system.module,
-                    preventSingleton: system.preventSingleton
+                    preventSingleton: system.preventSingleton,
+                    shareScope: system.shareScope
                 }}
                 data={initialData}
                 functions={functions}
