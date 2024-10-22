@@ -2,7 +2,7 @@ import { Shared } from '@module-federation/runtime/dist/src/type';
 import semver from 'semver';
 import React from "react";
 
-export const loadModule = (scope, module, url, preventSingleton = false) => {
+export const loadModule = (scope, module, url, preventSingleton = false, shareScope = 'chayns-api2') => {
     const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
     const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
     if (registeredScopes[scope] !== url || preventSingleton) {
@@ -11,7 +11,7 @@ export const loadModule = (scope, module, url, preventSingleton = false) => {
         }
         registerRemotes([
             {
-                shareScope: 'chayns-api2',
+                shareScope,
                 name: scope,
                 entry: url,
                 alias: scope,
