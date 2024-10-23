@@ -2,23 +2,16 @@ import { Shared } from '@module-federation/runtime/dist/src/type';
 import semver from 'semver';
 import React from "react";
 
-export const loadModule = (scope, module, url, preventSingleton = false, shareScope = 'chayns-api2') => {
-    console.log("share2", shareScope);
+export const loadModule = (scope, module, url, preventSingleton = false) => {
     const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
     const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
     if (registeredScopes[scope] !== url || preventSingleton) {
         if (scope in registeredScopes) {
             console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${url}`);
         }
-        console.log("register remote ", {
-            shareScope,
-            name: scope,
-            entry: url,
-            alias: scope,
-        })
         registerRemotes([
             {
-                shareScope,
+                shareScope: url.endsWith('v2.remoteEntry.js') ? 'chayns-api' : 'default',
                 name: scope,
                 entry: url,
                 alias: scope,
@@ -46,8 +39,7 @@ export const loadModule = (scope, module, url, preventSingleton = false, shareSc
     return moduleMap[scope][module];
 }
 
-const loadComponent = (scope, module, url, skipCompatMode = false, preventSingleton = false, shareScope) => {
-    console.log("share1", shareScope);
+const loadComponent = (scope, module, url, skipCompatMode = false, preventSingleton = false) => {
     if (skipCompatMode) {
         console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
     }
@@ -60,7 +52,7 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
     }
 
     if (!(module in componentMap[scope])) {
-        const promise = loadModule(scope, module, url, preventSingleton, shareScope).then(async (Module: any) => {
+        const promise = loadModule(scope, module, url, preventSingleton).then(async (Module: any) => {
             if (typeof Module.default === 'function') {
                 return Module;
             }
@@ -71,7 +63,6 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                 loadShareSync('react', {
                     resolver: (shareOptions) => {
                         resolve(shareOptions);
-                        console.log("shareOptions", shareOptions);
                         return shareOptions[0];
                     },
                 });
@@ -80,11 +71,9 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                 return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === from.split('-').join('_');
             })
 
-            if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development' || Module.default.version !== 2) {
-                console.log("use compat mode for", scope, module);
+            if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development') {
                 return { default: Module.default.CompatComponent };
             }
-            console.log("use direct component for", scope, module);
             return { default: Module.default.Component };
         });
 
