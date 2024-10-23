@@ -9,6 +9,7 @@ export const loadModule = (scope, module, url, preventSingleton = false) => {
         if (scope in registeredScopes) {
             console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${url}`);
         }
+        console.log("load module", scope, module, url);
         registerRemotes([
             {
                 shareScope: url.endsWith('v2.remoteEntry.js') ? 'chayns-api' : 'default',
@@ -71,7 +72,7 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                 return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === from.split('-').join('_');
             })
 
-            if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development') {
+            if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development' || Module.default.version !== 2) {
                 return { default: Module.default.CompatComponent };
             }
             return { default: Module.default.Component };
