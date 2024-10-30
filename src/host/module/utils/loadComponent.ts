@@ -9,7 +9,6 @@ export const loadModule = (scope, module, url, preventSingleton = false) => {
         if (scope in registeredScopes) {
             console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${url}`);
         }
-        console.log("load module", scope, module, url);
         registerRemotes([
             {
                 shareScope: url.endsWith('v2.remoteEntry.js') ? 'chayns-api' : 'default',
