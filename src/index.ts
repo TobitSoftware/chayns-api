@@ -23,3 +23,5 @@ export * as dialog from './calls/dialogs/index';
 export * from './types/IChaynsReact';
 
 export * from './util/initModuleFederationSharing';
+
+export * from './util/bindChaynsApi';
