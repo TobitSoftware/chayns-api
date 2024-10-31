@@ -22,3 +22,5 @@ export default {
     buildEnv: process.env.BUILD_ENV,
     appVersion: process.env.VERSION
 }
+
+export * from './util/bindChaynsApi';

@@ -3,6 +3,7 @@ import { AppName, DataChangeCallback } from '../types/IChaynsReact';
 import getDeviceInfo from '../util/deviceHelper';
 import { AppWrapper } from './AppWrapper';
 import { FrameWrapper } from './FrameWrapper';
+import {ModuleFederationWrapper} from "./ModuleFederationWrapper";
 
 
 class StaticChaynsApi {
@@ -11,10 +12,12 @@ class StaticChaynsApi {
 
     private _wrapper;
 
-    constructor() {
+    constructor(values, functions) {
         let wrapper;
         const deviceInfo = getDeviceInfo(navigator.userAgent, '');
-        if([AppName.Chayns, AppName.ChaynsLauncher, AppName.Sidekick, AppName.TobitChat].includes(deviceInfo.app?.name ?? AppName.Unknown) && window.self === window.top) {
+        if(values && functions) {
+            wrapper = new ModuleFederationWrapper(values, functions);
+        } else if([AppName.Chayns, AppName.ChaynsLauncher, AppName.Sidekick, AppName.TobitChat].includes(deviceInfo.app?.name ?? AppName.Unknown) && window.self === window.top) {
             wrapper = new AppWrapper();
         } else {
             wrapper = new FrameWrapper();
