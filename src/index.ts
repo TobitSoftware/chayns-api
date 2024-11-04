@@ -10,7 +10,11 @@ export * from './components/WaitUntil';
 export * from './types/IChaynsReact';
 export * from './util/is';
 export * from './components/withCompatMode';
+export * from './constants';
+export { default as withHydrationBoundary } from './components/withHydrationBoundary';
 export { default as StaticChaynsApi } from './wrapper/StaticChaynsApi';
+
+export { default as loadComponent, loadModule } from './host/module/utils/loadComponent';
 
 export { default as DialogHandler } from './handler/DialogHandler';
 
@@ -18,9 +22,6 @@ export * as dialog from './calls/dialogs/index';
 
 export * from './types/IChaynsReact';
 
-export default {
-    buildEnv: process.env.BUILD_ENV,
-    appVersion: process.env.VERSION
-}
+export * from './util/initModuleFederationSharing';
 
 export * from './util/bindChaynsApi';

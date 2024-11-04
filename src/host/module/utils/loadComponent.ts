@@ -1,55 +1,90 @@
-/* eslint-disable */
-// @ts-nocheck
-
+import { Shared } from '@module-federation/runtime/dist/src/type';
 import semver from 'semver';
-import React from 'react';
-import { semaphore } from './useDynamicScript';
+import React from "react";
 
-let instances = {};
-
-export default function loadComponent(scope, module, url, skipCompatMode = false, preventSingleton = false) {
-    return async () => {
-        // Initializes the shared scope. Fills it with known provided modules from this build and all remotes
-        await __webpack_init_sharing__('default');
-        const { container } = window[scope + "_list"].find(x => x.url === url); // or get the container somewhere else
-        // Initialize the container, it may provide shared modules
-        await container.init(__webpack_share_scopes__.default);
-        const factory = await container.get(module);
-        semaphore[scope!].release();
-
-        let ModuleMap = instances[`${scope}__${module}`];
-        let Module;
-        if (!ModuleMap) {
-            ModuleMap = {};
-            instances[`${scope}__${module}`] = ModuleMap;
+export const loadModule = (scope, module, url, preventSingleton = false) => {
+    const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
+    const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
+    if (registeredScopes[scope] !== url || preventSingleton) {
+        if (scope in registeredScopes) {
+            console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${url}`);
         }
-        if (Object.keys(ModuleMap).length > 0) {
-            const newModule = factory();
-            Module = ModuleMap[`${newModule.default.buildEnv}__${newModule.default.appVersion}`];
-            if (!Module) {
-                Module = newModule;
-                ModuleMap[`${newModule.default.buildEnv}__${newModule.default.appVersion}`] = newModule;
+        registerRemotes([
+            {
+                shareScope: url.endsWith('v2.remoteEntry.js') ? 'chayns-api' : 'default',
+                name: scope,
+                entry: url,
+                alias: scope,
             }
-        } else {
-            Module = factory();
-            ModuleMap[`${Module.default.buildEnv}__${Module.default.appVersion}`] = Module;
-        }
+        ], { force: (scope in registeredScopes) || preventSingleton });
 
-        if(preventSingleton) {
-            // Intercom :)
-            window[scope + "_list"] = null;
-        }
+        registeredScopes[scope] = url;
+        moduleMap[scope] = {};
+        componentMap[scope] = {};
+    }
 
-        if(skipCompatMode) return Module;
-        const hostVersion = semver.minVersion(React.version);
-        const { requiredVersion, environment } = Module.default;
-        const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !Object.keys(__webpack_share_scopes__.default.react).some((version) => {
-            return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === __webpack_share_scopes__.default.react[version].from.split('-').join('_');
+    if (!(module in moduleMap[scope])) {
+        const path = `${scope}/${module.replace(/^\.\//, '')}`;
+
+        const promise =  loadRemote(path);
+
+        promise.catch((e) => {
+            console.error("[chayns-api] Failed to load module", scope, url, e);
+            // causes registerRemote with force = true on next attempt to load the component which tries to load the component again
+            registeredScopes[scope] = '';
         });
 
-        if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development') {
-            return { default: Module.default.CompatComponent };
-        }
-        return { default: Module.default.Component };
-    };
+        return promise;
+    }
+    return moduleMap[scope][module];
 }
+
+const loadComponent = (scope, module, url, skipCompatMode = false, preventSingleton = false) => {
+    if (skipCompatMode) {
+        console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
+    }
+
+    const { loadShareSync } = globalThis.moduleFederationRuntime;
+    const { componentMap } = globalThis.moduleFederationScopes;
+
+    if (!componentMap[scope]) {
+        componentMap[scope] = {};
+    }
+
+    if (!(module in componentMap[scope])) {
+        const promise = loadModule(scope, module, url, preventSingleton).then(async (Module: any) => {
+            if (typeof Module.default === 'function') {
+                return Module;
+            }
+            const hostVersion = semver.minVersion(React.version)!;
+            const { requiredVersion, environment } = Module.default;
+
+            const shareScopes = await new Promise<Shared[]>(resolve => {
+                loadShareSync('react', {
+                    resolver: (shareOptions) => {
+                        resolve(shareOptions);
+                        return shareOptions[0];
+                    },
+                });
+            });
+            const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !shareScopes.some(({ version, from }) => {
+                return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === from.split('-').join('_');
+            })
+
+            if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development' || Module.default.version !== 2) {
+                return { default: Module.default.CompatComponent };
+            }
+            return { default: Module.default.Component };
+        });
+
+        promise.catch((e) => {
+            console.error("[chayns-api] Failed to load component", scope, url, e);
+            delete componentMap[scope][module]
+        });
+
+        componentMap[scope][module] = React.lazy(() => promise);
+    }
+    return componentMap[scope][module];
+}
+
+export default loadComponent;

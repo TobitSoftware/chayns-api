@@ -18,6 +18,7 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
     class CompatComponent extends PureComponent<P> {
         ref: RefObject<HTMLDivElement>;
         root;
+        timeout?: ReturnType<typeof setTimeout>;
 
         constructor(props: P) {
             super(props);
@@ -39,12 +40,15 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
         componentDidUpdate() {
             const { innerRef } = this.props;
 
-            const component = <ErrorBoundary><Component {...this.props} ref={innerRef}/></ErrorBoundary>
-            if (this.root) {
-                this.root.render(component);
-            } else {
-                ReactDOM.render(component, this.ref.current);
-            }
+            const component = <ErrorBoundary><Component {...this.props} ref={innerRef}/></ErrorBoundary>;
+            clearTimeout(this.timeout);
+            this.timeout = setTimeout(() => {
+                if (this.root) {
+                    this.root.render(component);
+                } else {
+                    ReactDOM.render(component, this.ref.current);
+                }
+            }, 0);
         }
 
         componentWillUnmount() {
@@ -68,6 +72,7 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
         environment: process.env.NODE_ENV,
         buildEnv: process.env.BUILD_ENV || process.env.NODE_ENV,
         appVersion: process.env.VERSION,
+        version: 2,
     };
 };
 

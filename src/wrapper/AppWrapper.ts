@@ -58,6 +58,13 @@ export class AppWrapper implements IChaynsReact {
                 // ignore
             }
         }
+
+        let language = AppInfo.Language;
+
+        if (!language) {
+            language = DeviceLanguage[Number.parseInt(Device?.LanguageID, 10)] || 'de';
+        }
+
         if (!color && urlParamsLowerCase.has('color')) {
             color = urlParamsLowerCase.get('color');
             if (!color.startsWith('#')) {
@@ -72,13 +79,6 @@ export class AppWrapper implements IChaynsReact {
             } catch {
                 // ignore
             }
-        }
-
-
-        let language = AppInfo.Language;
-
-        if (!language) {
-            language = DeviceLanguage[Number.parseInt(Device?.LanguageID, 10)] || 'de';
         }
 
         return {
@@ -131,7 +131,7 @@ export class AppWrapper implements IChaynsReact {
             customData: null,
             isAdminModeActive: AppUser.AdminMode,
             currentPage: {
-                id: AppInfo.TappSelected?.TappID || tappId,
+                id: tappId || AppInfo.TappSelected?.TappID,
                 siteId: AppInfo.SiteID,
             },
             pages: AppInfo.Tapps.map(x => ({
