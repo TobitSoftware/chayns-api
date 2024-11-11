@@ -39,6 +39,19 @@ const FirstName = () => {
 }
 ```
 
+## Migrate v1 to v2
+
+When updating to chayns-api@2 you should also update chayns-toolkit to 3.0.1 or higher (check migration guide [here](https://github.com/TobitSoftware/chayns-toolkit/tree/main?tab=readme-ov-file#-migration-v2-to-v3)).
+
+Check urls referencing **remoteEntry.js**. The filename has been changed to **v2.remoteEntry.js**.
+
+When your application uses ChaynsHost with module-type you might have to add a call of **initModuleFederationSharing** as early as possible in your application (e.g. index/bootstrap). Unless your application is already embedded as module somewhere else (e.g. in a dialog).
+
+```
+initModuleFederationSharing({ name: 'project_name' });
+```
+
+
 ## Getting started
 
 More information to setup chayns-api can be found in the [documentation](https://tobitsoftware.github.io/chayns-api/docs).
