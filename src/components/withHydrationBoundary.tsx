@@ -3,16 +3,17 @@ import { HydrationContext, type HydrationContextValueType } from '../constants';
 
 type StoreLikeValue = object & { getState: () => object, abort?: () => Promise<void>, type?: 'raw' | 'json' };
 type HydrationComponent = React.FC<{ value: StoreLikeValue, children?: React.ReactNode }>;
-type Initializer = (initialValue: object | undefined, id: string) => StoreLikeValue;
+type Initializer = (initialValue: object | undefined, id: string, props: any) => StoreLikeValue;
 type HydrationBoundary = React.FC<{ id?: string, children?: React.ReactNode }>;
 
-const withHydrationBoundary = (Component: HydrationComponent, initializer: Initializer, useHydrationId: undefined | (() => string)): HydrationBoundary => {
-    return ({ id: idProp, children }) => {
+const withHydrationBoundary = (Component: HydrationComponent, initializer: Initializer, useHydrationId: undefined | (() => string), useProps: undefined | ((props) => any)): HydrationBoundary => {
+    return ({ id: idProp, children, ...rest }) => {
         let value: HydrationContextValueType;
         if (!globalThis.window) {
             value = useContext(HydrationContext);
         }
         const id = useHydrationId ? useHydrationId() : idProp;
+        const props = useProps ? useProps(rest) : undefined;
 
         if (!id) {
             throw new Error('hydration boundary was not given a id which is required');
@@ -30,7 +31,7 @@ const withHydrationBoundary = (Component: HydrationComponent, initializer: Initi
                     initialValue = JSON.parse($elem.innerHTML);
                 }
             }
-            const s = initializer(initialValue, id);
+            const s = initializer(initialValue, id, props);
             if (!globalThis.window) {
                 value[id] = s;
             }
@@ -46,7 +47,7 @@ const withHydrationBoundary = (Component: HydrationComponent, initializer: Initi
         }, []);
 
         return (
-            <Component value={store}>
+            <Component {...rest} value={store}>
                 {children}
             </Component>
         );
