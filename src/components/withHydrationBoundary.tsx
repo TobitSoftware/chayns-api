@@ -9,8 +9,20 @@ type HydrationBoundary<T> = React.FC<T & { id?: string, children?: React.ReactNo
 function withHydrationBoundary<P extends object>(
     Component: HydrationComponent<P>,
     initializer: Initializer<undefined>,
+): HydrationBoundary<P & { id: string }>;
+
+function withHydrationBoundary<P extends object>(
+    Component: HydrationComponent<P>,
+    initializer: Initializer<undefined>,
     useHydrationId?: () => string,
 ): HydrationBoundary<P>;
+
+function withHydrationBoundary<P extends object, T>(
+    Component: HydrationComponent<P>,
+    initializer: Initializer<T>,
+    useHydrationId: undefined,
+    useProps: (props: P) => T,
+): HydrationBoundary<P & { id }>;
 
 function withHydrationBoundary<P extends object, T>(
     Component: HydrationComponent<P>,
