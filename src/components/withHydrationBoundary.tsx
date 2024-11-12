@@ -2,18 +2,36 @@ import React, { useContext, useEffect, useState } from 'react';
 import { HydrationContext, type HydrationContextValueType } from '../constants';
 
 type StoreLikeValue = object & { getState: () => object, abort?: () => Promise<void>, type?: 'raw' | 'json' };
-type HydrationComponent = React.FC<{ value: StoreLikeValue, children?: React.ReactNode }>;
-type Initializer = (initialValue: object | undefined, id: string, props: any) => StoreLikeValue;
-type HydrationBoundary = React.FC<{ id?: string, children?: React.ReactNode }>;
+type HydrationComponent<T> = React.FC<T & { value: StoreLikeValue, children?: React.ReactNode }>;
+type Initializer<T> = (initialValue: object | undefined, id: string, props: T) => StoreLikeValue;
+type HydrationBoundary<T> = React.FC<T & { id?: string, children?: React.ReactNode }>;
 
-const withHydrationBoundary = (Component: HydrationComponent, initializer: Initializer, useHydrationId: undefined | (() => string), useProps: undefined | ((props) => any)): HydrationBoundary => {
+function withHydrationBoundary<P extends object>(
+    Component: HydrationComponent<P>,
+    initializer: Initializer<undefined>,
+    useHydrationId?: () => string,
+): HydrationBoundary<P>;
+
+function withHydrationBoundary<P extends object, T>(
+    Component: HydrationComponent<P>,
+    initializer: Initializer<T>,
+    useHydrationId: undefined | (() => string),
+    useProps: (props: P) => T,
+): HydrationBoundary<P>;
+
+function withHydrationBoundary<P extends object, T>(
+    Component: HydrationComponent<P>,
+    initializer: Initializer<T>,
+    useHydrationId?: () => string,
+    useProps?: (props: P) => T,
+): HydrationBoundary<P> {
     return ({ id: idProp, children, ...rest }) => {
         let value: HydrationContextValueType;
         if (!globalThis.window) {
             value = useContext(HydrationContext);
         }
         const id = useHydrationId ? useHydrationId() : idProp;
-        const props = useProps ? useProps(rest) : undefined;
+        const props = useProps ? useProps(rest as P) : undefined;
 
         if (!id) {
             throw new Error('hydration boundary was not given a id which is required');
@@ -31,7 +49,7 @@ const withHydrationBoundary = (Component: HydrationComponent, initializer: Initi
                     initialValue = JSON.parse($elem.innerHTML);
                 }
             }
-            const s = initializer(initialValue, id, props);
+            const s = initializer(initialValue, id, props!);
             if (!globalThis.window) {
                 value[id] = s;
             }
@@ -47,11 +65,11 @@ const withHydrationBoundary = (Component: HydrationComponent, initializer: Initi
         }, []);
 
         return (
-            <Component {...rest} value={store}>
+            <Component {...rest as P} value={store}>
                 {children}
             </Component>
         );
     };
-};
+}
 
 export default withHydrationBoundary;
