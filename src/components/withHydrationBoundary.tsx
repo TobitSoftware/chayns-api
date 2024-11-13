@@ -1,46 +1,51 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { HydrationContext, type HydrationContextValueType } from '../constants';
 
-type StoreLikeValue = object & { getState: () => object, abort?: () => Promise<void>, type?: 'raw' | 'json' };
-type HydrationComponent<T> = React.FC<T & { value: StoreLikeValue, children?: React.ReactNode }>;
-type Initializer<T> = (initialValue: object | undefined, id: string, props: T) => StoreLikeValue;
+export interface StoreLikeValue<T> {
+    getState: () => T;
+    abort?: () => Promise<void>;
+    type?: 'raw' | 'json';
+}
+
+type HydrationComponent<T, S, U> = React.FC<T & { value: U & StoreLikeValue<S>, children?: React.ReactNode }>;
+type Initializer<T, S, U> = (initialValue: S | undefined, id: string, props: T) => U & StoreLikeValue<S>;
 type HydrationBoundary<T> = React.FC<T & { id?: string, children?: React.ReactNode }>;
 
-function withHydrationBoundary<P extends object>(
-    Component: HydrationComponent<P>,
-    initializer: Initializer<undefined>,
+function withHydrationBoundary<P extends object, T, S>(
+    Component: HydrationComponent<P, T, S>,
+    initializer: Initializer<undefined, T, S>,
 ): HydrationBoundary<P & { id: string }>;
 
-function withHydrationBoundary<P extends object>(
-    Component: HydrationComponent<P>,
-    initializer: Initializer<undefined>,
-    useHydrationId?: () => string,
+function withHydrationBoundary<P extends object, T, S>(
+    Component: HydrationComponent<P, T, S>,
+    initializer: Initializer<undefined, T, S>,
+    useHydrationId: () => string,
 ): HydrationBoundary<P>;
 
-function withHydrationBoundary<P extends object, T>(
-    Component: HydrationComponent<P>,
-    initializer: Initializer<T>,
+function withHydrationBoundary<P extends object, T, S, U>(
+    Component: HydrationComponent<P, T, S>,
+    initializer: Initializer<U, T, S>,
     useHydrationId: undefined,
-    useProps: (props: P) => T,
+    useProps: (props: P) => U,
 ): HydrationBoundary<P & { id }>;
 
-function withHydrationBoundary<P extends object, T>(
-    Component: HydrationComponent<P>,
-    initializer: Initializer<T>,
-    useHydrationId: undefined | (() => string),
-    useProps: (props: P) => T,
+function withHydrationBoundary<P extends object, T, S, U>(
+    Component: HydrationComponent<P, T, S>,
+    initializer: Initializer<U, T, S>,
+    useHydrationId: (() => string),
+    useProps: (props: P) => U,
 ): HydrationBoundary<P>;
 
-function withHydrationBoundary<P extends object, T>(
-    Component: HydrationComponent<P>,
-    initializer: Initializer<T>,
+function withHydrationBoundary<P extends object, T, S, U>(
+    Component: HydrationComponent<P, T, S>,
+    initializer: Initializer<U, T, S>,
     useHydrationId?: () => string,
-    useProps?: (props: P) => T,
+    useProps?: (props: P) => U,
 ): HydrationBoundary<P> {
     return ({ id: idProp, children, ...rest }) => {
-        let value: HydrationContextValueType;
+        let value: HydrationContextValueType<T>;
         if (!globalThis.window) {
-            value = useContext(HydrationContext);
+            value = useContext(HydrationContext) as HydrationContextValueType<T>;
         }
         const id = useHydrationId ? useHydrationId() : idProp;
         const props = useProps ? useProps(rest as P) : undefined;
@@ -51,7 +56,7 @@ function withHydrationBoundary<P extends object, T>(
 
         const [store] = useState(() => {
             if (!globalThis.window && (id in value)) {
-                return value[id];
+                return value[id] as S & StoreLikeValue<T>;
             }
             let initialValue = undefined;
             if (globalThis.window) {
