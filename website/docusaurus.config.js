@@ -44,8 +44,8 @@ module.exports = {
 			copyright: `Copyright © ${new Date().getFullYear()} Tobit Software Laboratories AG. Built with Docusaurus.`,
 		},
 		prism: {
-			theme: require("prism-react-renderer/themes/github"),
-			darkTheme: require("prism-react-renderer/themes/oceanicNext"),
+			theme: require("prism-react-renderer").themes.github,
+			darkTheme: require("prism-react-renderer").themes.oceanicNext,
 		}
 	},
     plugins: [
