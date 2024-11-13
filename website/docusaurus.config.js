@@ -4,7 +4,7 @@ const path = require('path');
 module.exports = {
 	title: "chayns-api",
 	tagline: "",
-	url: "https://tobitsoftware.github.io/chayns-api",
+	url: "https://tobitsoftware.github.io",
 	baseUrl: "/chayns-api/",
 	onBrokenLinks: "warn",
 	onBrokenMarkdownLinks: "warn",
@@ -14,10 +14,10 @@ module.exports = {
 	themeConfig: {
 		colorMode: {
 			respectPrefersColorScheme: true,
-			switchConfig: {
-				darkIcon: "🌑",
-				lightIcon: "💡",
-			},
+			// switchConfig: {
+			// 	darkIcon: "🌑",
+			// 	lightIcon: "💡",
+			// },
 		},
 		navbar: {
             title: 'chayns-api',
@@ -44,8 +44,8 @@ module.exports = {
 			copyright: `Copyright © ${new Date().getFullYear()} Tobit Software Laboratories AG. Built with Docusaurus.`,
 		},
 		prism: {
-			theme: require("prism-react-renderer/themes/github"),
-			darkTheme: require("prism-react-renderer/themes/oceanicNext"),
+			theme: require("prism-react-renderer").themes.github,
+			darkTheme: require("prism-react-renderer").themes.oceanicNext,
 		}
 	},
     plugins: [
