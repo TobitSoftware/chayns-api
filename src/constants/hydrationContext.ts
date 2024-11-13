@@ -1,14 +1,11 @@
 import React, { createContext } from 'react';
+import { type StoreLikeValue } from '../components/withHydrationBoundary';
 
-export type HydrationContextValueType = {
-    [key: string]: {
-        getState: () => object,
-        abort?: () => Promise<void>,
-        type?: 'raw' | 'json',
-    }
+export type HydrationContextValueType<T> = {
+    [key: string]: StoreLikeValue<T>
 };
 
-export let HydrationContext: React.Context<HydrationContextValueType>;
+export let HydrationContext: React.Context<HydrationContextValueType<object>>;
 
 // force single context on server-side (fake sharing)
 if (!globalThis.window && globalThis._hydrationContext) {
