@@ -27,7 +27,7 @@ function withHydrationBoundary<P extends object, T, S, U>(
     initializer: Initializer<U, T, S>,
     useHydrationId: undefined,
     useProps: (props: P) => U,
-): HydrationBoundary<P & { id }>;
+): HydrationBoundary<P & { id: string }>;
 
 function withHydrationBoundary<P extends object, T, S, U>(
     Component: HydrationComponent<P, T, S>,
