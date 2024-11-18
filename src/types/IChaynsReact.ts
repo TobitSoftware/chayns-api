@@ -14,11 +14,11 @@ export enum DateType {
 }
 export interface DialogDate {
     type: DialogType.DATE;
-    minDate: Date;
-    maxDate: Date;
+    minDate?: Date;
+    maxDate?: Date;
     minDuration?: number;
     minuteInterval?: number;
-    preselect?: Date;
+    preselect?: Date | [Date, Date];
     dateType?: DateType;
     multiselect?: boolean;
     monthSelect?: boolean;
