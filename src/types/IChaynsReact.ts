@@ -82,6 +82,9 @@ export interface BaseDialog {
     animation?: {
         type: DialogAnimation,
         config?: any
+    },
+    fadeAnimation?: {
+        type: DialogFadeAnimation,
     }
 }
 
@@ -980,6 +983,11 @@ export type OpenMedia = {
 
 export enum DialogAnimation {
     CONFETTI = 'confetti'
+}
+
+export enum DialogFadeAnimation {
+    FADE = 'fade',
+    SCALE = 'scale',
 }
 
 export enum DialogIconType {
