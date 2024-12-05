@@ -121,7 +121,8 @@ export interface DialogInput {
     placeholder?: string,
     inputType?: DialogInputType,
     defaultValue?: string,
-    formatter?: (input: string) => string
+    formatter?: (input: string) => string,
+    regex?: RegExp
 }
 
 export enum DialogSelectType {
