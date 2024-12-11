@@ -1,13 +1,13 @@
-import { useContextSelector } from 'use-context-selector';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChaynsFunctionsContext } from '../components/ChaynsContext';
 import { GeoLocation } from '../types/IChaynsReact';
+import { useInternalContextSelector } from "./context";
 /**
  * @category Hooks
  */
 export const useGeoLocationListener = () => {
-    const addListener = useContextSelector(ChaynsFunctionsContext, v => v.addGeoLocationListener);
-    const removeListener = useContextSelector(ChaynsFunctionsContext, v => v.removeGeoLocationListener);
+    const addListener = useInternalContextSelector(ChaynsFunctionsContext, v => v.addGeoLocationListener);
+    const removeListener = useInternalContextSelector(ChaynsFunctionsContext, v => v.removeGeoLocationListener);
     const promiseRef = useRef<Promise<number>>();
 
     return useCallback(((value: { timeout?: number, silent?: boolean }, callback: (result: GeoLocation) => void) => {

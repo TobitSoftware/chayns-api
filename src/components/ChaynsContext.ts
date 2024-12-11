@@ -1,4 +1,4 @@
-import { createContext } from 'use-context-selector';
+import { createContext } from 'react';
 import { ChaynsReactFunctions, ChaynsReactValues } from '../types/IChaynsReact';
 
 export const ChaynsContext = createContext<ChaynsReactValues | null>(null);

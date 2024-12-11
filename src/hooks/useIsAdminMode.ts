@@ -1,6 +1,6 @@
-import { useContextSelector } from 'use-context-selector';
 import { ChaynsContext } from '../components/ChaynsContext';
+import { useInternalContextSelector } from "./context";
 /**
  * @category Hooks
  */
-export const useIsAdminMode = (): boolean => useContextSelector(ChaynsContext, v => v?.isAdminModeActive) ?? false
+export const useIsAdminMode = (): boolean => useInternalContextSelector(ChaynsContext, v => v?.isAdminModeActive) ?? false

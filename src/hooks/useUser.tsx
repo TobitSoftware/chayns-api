@@ -1,10 +1,9 @@
-import { useContextSelector } from 'use-context-selector';
 import { ChaynsContext } from '../components/ChaynsContext';
-import { ChaynsApiUser } from '../types/IChaynsReact';
-
+import { ChaynsApiUser, ChaynsReactValues } from '../types/IChaynsReact';
+import { useInternalContextSelector } from "./context";
 
 const empty = {}
 /**
  * @category Hooks
  */
-export const useUser = (): ChaynsApiUser => useContextSelector(ChaynsContext, v => v?.user || empty)
+export const useUser = () => useInternalContextSelector<ChaynsReactValues | null, ChaynsApiUser>(ChaynsContext, (value) => value?.user || empty);

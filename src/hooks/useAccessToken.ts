@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useContextSelector } from "use-context-selector";
 import { AccessToken, AccessTokenResult } from "../types/IChaynsReact";
 import { ChaynsFunctionsContext } from "../components/ChaynsContext";
+import { useInternalContextSelector } from "./context";
 
 /**
  * @category Hooks
@@ -11,7 +11,7 @@ export const useAccessToken = (accessToken?: AccessToken): string | undefined =>
     const [token, setToken] = useState<AccessTokenResult | null>(null);
     const [externalToken, setExternalToken] = useState<AccessTokenResult | null>(null);
 
-    const getAccessToken = useContextSelector(ChaynsFunctionsContext, s => s.getAccessToken);
+    const getAccessToken = useInternalContextSelector(ChaynsFunctionsContext, s => s.getAccessToken);
 
     useEffect(() => {
         if(accessToken?.external) {

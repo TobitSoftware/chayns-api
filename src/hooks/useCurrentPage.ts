@@ -1,7 +1,7 @@
-import { useContextSelector } from 'use-context-selector';
 import { ChaynsContext } from '../components/ChaynsContext';
+import { useInternalContextSelector } from "./context";
 
 /**
  * @category Hooks
  */
-export const useCurrentPage = () => useContextSelector(ChaynsContext, v => v?.currentPage!)
+export const useCurrentPage = () => useInternalContextSelector(ChaynsContext, v => v?.currentPage!)

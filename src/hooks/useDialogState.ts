@@ -1,15 +1,15 @@
 import { DialogDataHookResult, DialogHookResult } from '../types/IChaynsReact';
-import { useContextSelector } from 'use-context-selector';
 import { ChaynsContext, ChaynsFunctionsContext } from '../components/ChaynsContext';
+import { useInternalContextSelector } from "./context";
 
 /**
  * @category Hooks
  */
 export const useDialogState = (): DialogHookResult => {
-    const setResult = useContextSelector(ChaynsFunctionsContext, v => v?.setDialogResult);
-    const sendData = useContextSelector(ChaynsFunctionsContext, v => v?.dispatchEventToDialogHost);
-    const addDataListener = useContextSelector(ChaynsFunctionsContext, v => v?.addDialogHostEventListener);
-    const isClosingRequested = useContextSelector(ChaynsContext, v => (v?.dialog)?.isClosingRequested!);
+    const setResult = useInternalContextSelector(ChaynsFunctionsContext, v => v?.setDialogResult);
+    const sendData = useInternalContextSelector(ChaynsFunctionsContext, v => v?.dispatchEventToDialogHost);
+    const addDataListener = useInternalContextSelector(ChaynsFunctionsContext, v => v?.addDialogHostEventListener);
+    const isClosingRequested = useInternalContextSelector(ChaynsContext, v => (v?.dialog)?.isClosingRequested!);
 
     return {
         setResult,
@@ -23,7 +23,6 @@ export const useDialogState = (): DialogHookResult => {
  * @category Hooks
  */
 export const useDialogData = (): DialogDataHookResult => {
-    const inputData = useContextSelector(ChaynsContext, v => (v?.dialog)?.dialogInput);
-    return inputData;
+    return useInternalContextSelector(ChaynsContext, v => (v?.dialog)?.dialogInput);
 };
 
