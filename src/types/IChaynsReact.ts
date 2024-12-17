@@ -122,7 +122,7 @@ export interface DialogInput {
     inputType?: DialogInputType,
     defaultValue?: string,
     formatter?: (input: string) => string,
-    regex?: RegExp
+    regex?: string
 }
 
 export enum DialogSelectType {
