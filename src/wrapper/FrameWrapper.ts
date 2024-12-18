@@ -30,6 +30,8 @@ export class FrameWrapper implements IChaynsReact {
 
     values: ChaynsReactValues = null!;
 
+    listeners: (() => void)[] =  [];
+
     functions: ChaynsReactFunctions = {
         addGeoLocationListener: async (value , callback) => {
             if (!this.initialized) await this.ready;
@@ -357,6 +359,17 @@ export class FrameWrapper implements IChaynsReact {
         const listener = (ev: CustomEventInit<DataChangeValue>) => ev.detail && cb(ev.detail);
         document.addEventListener('chayns_api_data', listener)
         return () => {document.removeEventListener('chayns_api_data', listener)}
+    }
+
+    subscribe = (listener: () => void) => {
+        this.listeners.push(listener);
+        return () => {
+            this.listeners = this.listeners.filter(l => l !== listener);
+        }
+    }
+
+    emitChange = () => {
+        this.listeners.forEach((l) => l());
     }
 
     getSSRData() {

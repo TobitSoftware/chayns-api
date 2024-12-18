@@ -1,7 +1,6 @@
-import { ChaynsContext } from '../components/ChaynsContext';
 import { ChaynsReactValues } from '../types/IChaynsReact';
-import { useInternalContextSelector } from "./context";
+import { useValuesSelector } from './context';
 /**
  * @category Hooks
  */
-export const useLanguage = (): ChaynsReactValues["language"] => useInternalContextSelector(ChaynsContext, v => v?.language!)
+export const useLanguage = (): ChaynsReactValues["language"] => useValuesSelector(v => v.language)

@@ -36,6 +36,8 @@ export class AppWrapper implements IChaynsReact {
 
     accessToken = '';
 
+    listeners: (() => void)[] =  [];
+
     mapOldApiToNew(retVal) {
         const { AppInfo, AppUser, Device } = retVal;
         this.accessToken = AppUser.TobitAccessToken;
@@ -594,6 +596,17 @@ export class AppWrapper implements IChaynsReact {
         return () => {
             document.removeEventListener('chayns_api_data', listener);
         };
+    }
+
+    subscribe = (listener: () => void) => {
+        this.listeners.push(listener);
+        return () => {
+            this.listeners = this.listeners.filter(l => l !== listener);
+        }
+    }
+
+    emitChange = () => {
+        this.listeners.forEach((l) => l());
     }
 
     getInitialData() {

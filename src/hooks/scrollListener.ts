@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ChaynsFunctionsContext } from '../components/ChaynsContext';
 import { ScrollListenerResult } from '../types/IChaynsReact';
 import { useWindowMetrics } from './windowMetricsListener';
-import { useInternalContextSelector } from "./context";
+import { useFunctionsSelector } from './context';
 /**
  * @category Hooks
  */
 export const useScrollListener  = () => {
-    const addListener = useInternalContextSelector(ChaynsFunctionsContext, v => v.addScrollListener);
-    const removeListener = useInternalContextSelector(ChaynsFunctionsContext, v => v.removeScrollListener);
+    const addListener = useFunctionsSelector(f => f.addScrollListener);
+    const removeListener = useFunctionsSelector(f => f.removeScrollListener);
     const promiseRef = useRef<Promise<number>>();
 
     return useCallback(((value: { throttle?: number }, callback: (result: ScrollListenerResult) => void) => {
@@ -26,7 +25,7 @@ export const useScrollListener  = () => {
 export const useScrollPosition = ({ enabled = true, throttle = 200 } = {}) => {
     const [value, setValue] = useState<ScrollListenerResult>({ scrollY: null, scrollX: null });
     const addListener = useScrollListener();
-    const getScrollPosition = useInternalContextSelector(ChaynsFunctionsContext, v => v.getScrollPosition);
+    const getScrollPosition = useFunctionsSelector(f => f.getScrollPosition);
 
     useEffect(() => {
         if (enabled) {

@@ -603,6 +603,8 @@ export interface IChaynsReact {
     getSSRData: () => ChaynsReactValues | null;
     init: () => Promise<void>;
     getInitialData: () => ChaynsReactValues;
+    subscribe: (listener: () => void) => () => void;
+    emitChange: () => void;
 }
 
 export interface OpenUrl {

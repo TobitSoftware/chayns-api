@@ -1,7 +1,6 @@
-import { ChaynsContext } from '../components/ChaynsContext';
-import { useInternalContextSelector } from "./context";
+import { useValuesSelector } from './context';
 
 /**
  * @category Hooks
  */
-export const useCustomData = <T extends any>(): T => useInternalContextSelector(ChaynsContext, v => v?.customData!)
+export const useCustomData = <T extends any>(): T => useValuesSelector(v => v.customData)

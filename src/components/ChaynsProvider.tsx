@@ -6,7 +6,7 @@ import { AppWrapper } from '../wrapper/AppWrapper';
 import { FrameWrapper } from '../wrapper/FrameWrapper';
 import { ModuleFederationWrapper } from '../wrapper/ModuleFederationWrapper';
 import { SsrWrapper } from '../wrapper/SsrWrapper';
-import { ChaynsContext, ChaynsFunctionsContext } from './ChaynsContext';
+import { ChaynsContext } from './ChaynsContext';
 import { moduleWrapper } from './moduleWrapper';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -65,42 +65,37 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         moduleWrapper.current = customWrapper.current;
     }
 
-    const [state, setState] = useState<ChaynsReactValues | undefined>(customWrapper.current?.values ?? undefined);
+    const [isInitialized, setIsInitialized] = useState<boolean>(!!customWrapper.current?.values);
 
     useEffect(() => {
         void (async () => {
             await customWrapper.current.init();
             customWrapper.current.addDataListener(({ type, value }) => {
-                setState((oldState) => {
-                    if(oldState) return ({ ...oldState, [type]: value })
-                    return undefined;
-                });
+                customWrapper.current.emitChange();
             });
-            if (customWrapper.current.values && !isModule) {
-                setState({ ...customWrapper.current.values });
+            if (!isInitialized) {
+                setIsInitialized(true);
             }
         })();
     }, []);
 
     useEffect(() => {
         if (isModule) {
-            setState(data);
             if (data) {
                 customWrapper.current.values = data;
+                customWrapper.current.emitChange();
             }
         }
     }, [data, isModule]);
 
     return (
         <>
-            {!!state && (
-                <ChaynsContext.Provider value={state}>
-                    <ChaynsFunctionsContext.Provider value={customWrapper.current?.functions}>
-                        {children}
-                    </ChaynsFunctionsContext.Provider>
+            {isInitialized && (
+                <ChaynsContext.Provider value={customWrapper.current}>
+                    {children}
                 </ChaynsContext.Provider>
             )}
-            <InitialDataProvider data={state} renderedByServer={renderedByServer}/>
+            <InitialDataProvider data={customWrapper.current?.values} renderedByServer={renderedByServer}/>
         </>
     );
 };
