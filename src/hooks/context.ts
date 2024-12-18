@@ -10,7 +10,9 @@ export const useValuesSelector = <Result>(selector: (value: IChaynsReact["values
         throw new Error('Could not find chayns context. Did you forget to add ChaynsProvider?');
     }
 
-    return useSyncExternalStore(store.subscribe, () => selector(store.values));
+    const getSnapshot = () => selector(store.values);
+
+    return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
 }
 
 export const useFunctionsSelector = <Result>(selector: (value: IChaynsReact["functions"]) => Result) => {
@@ -20,5 +22,7 @@ export const useFunctionsSelector = <Result>(selector: (value: IChaynsReact["fun
         throw new Error('Could not find chayns context. Did you forget to add ChaynsProvider?');
     }
 
-    return useSyncExternalStore(store.subscribe, () => selector(store.functions));
+    const getSnapshot = () => selector(store.functions);
+
+    return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
 }
