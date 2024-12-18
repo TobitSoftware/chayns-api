@@ -53,6 +53,7 @@
         "semaphore-async-await": "^1.5.1",
         "semver": "^7.6.0",
         "ua-parser-js": "^1.0.38",
+        "use-sync-external-store": "^1.4.0",
         "util": "^0.12.5"
     },
     "devDependencies": {

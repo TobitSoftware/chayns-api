@@ -1,4 +1,5 @@
-import { useContext, useSyncExternalStore } from 'react';
+import { useContext } from 'react';
+import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { ChaynsContext } from '../components/ChaynsContext';
 import { IChaynsReact } from '../types/IChaynsReact';
 
