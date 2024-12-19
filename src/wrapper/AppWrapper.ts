@@ -561,6 +561,8 @@ export class AppWrapper implements IChaynsReact {
     async init() {
         this.values = this.mapOldApiToNew(await this.appCall(18));
 
+        document.documentElement.classList.add('chayns-api--app');
+
         this.appCall(66, {
             enabled: true,
         }, {
