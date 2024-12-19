@@ -1,4 +1,5 @@
 import { Shared } from '@module-federation/runtime/dist/src/type';
+import type { Root } from 'react-dom/client';
 import semver from 'semver';
 import React from "react";
 
@@ -44,7 +45,7 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
         console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
     }
 
-    const { loadShareSync } = globalThis.moduleFederationRuntime;
+    const { loadShareSync, getInstance } = globalThis.moduleFederationRuntime;
     const { componentMap } = globalThis.moduleFederationScopes;
 
     if (!componentMap[scope]) {
@@ -59,7 +60,7 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
             const hostVersion = semver.minVersion(React.version)!;
             const { requiredVersion, environment } = Module.default;
 
-            const shareScopes = await new Promise<Shared[]>(resolve => {
+            const shareScopes = typeof getInstance === 'function' ? getInstance().shareScopeMap : await new Promise<Shared[]>(resolve => {
                 loadShareSync('react', {
                     resolver: (shareOptions) => {
                         resolve(shareOptions);
@@ -67,12 +68,54 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                     },
                 });
             });
+
             const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !shareScopes.some(({ version, from }) => {
                 return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === from.split('-').join('_');
             })
 
             if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development' || Module.default.version !== 2) {
-                return { default: Module.default.CompatComponent };
+                if (semver.lt(React.version, '19.0.0')) {
+                    return {
+                        default: Module.default.CompatComponent,
+                    };
+                }
+
+                const scopes = shareScopes[Module.default.version === 2 ? 'chayns-api' : 'default'];
+                const reactVersion = Object.keys(scopes.react).reduce((p: null | string, e) => {
+                    if (!semver.satisfies(e, requiredVersion)) {
+                        return p;
+                    }
+                    return !p || semver.gt(e, p) ? e : p;
+                }, null)!;
+                const CompatReact = (await scopes.react[reactVersion].get())();
+                const CompatReactDOM = (await scopes['react-dom'][reactVersion].get())();
+
+                class CompatComponent extends React.Component {
+                    root: Root = undefined!;
+                    ref: React.RefObject<HTMLDivElement>;
+
+                    constructor(props) {
+                        super(props);
+                        this.ref = React.createRef();
+                    }
+
+                    componentDidMount() {
+                        this.root = CompatReactDOM.createRoot(this.ref.current);
+                        this.root.render(CompatReact.createElement(Module.default.Component, this.props));
+                    }
+
+                    componentDidUpdate(prevProps, prevState, snapshot) {
+                        setTimeout(() => {
+                            this.root.render(CompatReact.createElement(Module.default.Component, this.props));
+                        }, 0);
+                    }
+
+                    render() {
+                        return React.createElement('div', { ref: this.ref });
+                    }
+                }
+
+                return { default: CompatComponent };
             }
             return { default: Module.default.Component };
         });
