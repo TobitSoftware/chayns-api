@@ -60,21 +60,26 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
             const hostVersion = semver.minVersion(React.version)!;
             const { requiredVersion, environment } = Module.default;
 
-            const shareScopes = typeof getInstance === 'function' ? getInstance().shareScopeMap : await new Promise<Shared[]>(resolve => {
+            const shareScopes: { [scope: string]: { [pkg: string]: { [version: string]: Shared } } } = typeof getInstance === 'function' ? getInstance().shareScopeMap : await new Promise(resolve => {
                 loadShareSync('react', {
                     resolver: (shareOptions) => {
-                        resolve(shareOptions);
+                        const optionsMap = shareOptions.reduce((p, e) => {
+                            p[e.version] = e;
+                            e.version;
+                            return p;
+                        }, {});
+                        resolve({ 'chayns-api': optionsMap });
                         return shareOptions[0];
                     },
                 });
             });
 
-            const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !shareScopes.some(({ version, from }) => {
+            const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !Object.values(shareScopes['chayns-api'].react).some(({ version, from }) => {
                 return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === from.split('-').join('_');
             })
 
             if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development' || Module.default.version !== 2) {
-                if (semver.lt(React.version, '19.0.0')) {
+                if (semver.lt(React.version, '19.0.0') && semver.lt(semver.minVersion(requiredVersion)!, '19.0.0')) {
                     return {
                         default: Module.default.CompatComponent,
                     };
