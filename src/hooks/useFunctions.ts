@@ -1,10 +1,6 @@
-import { ChaynsFunctionsContext } from "../components/ChaynsContext";
-import { ChaynsReactFunctions } from "../types/IChaynsReact";
-import { useInternalContextSelector } from "./context";
+import { useFunctionsSelector } from './context';
 
 /**
  * @category Hooks
  */
-export const useFunctions = () => {
-    return useInternalContextSelector(ChaynsFunctionsContext, f => f || {} as ChaynsReactFunctions);
-}
+export const useFunctions = () => useFunctionsSelector((f) => f);

@@ -1,7 +1,6 @@
-import { ChaynsContext } from '../components/ChaynsContext';
 import { ChaynsReactValues } from '../types/IChaynsReact';
-import { useInternalContextSelector } from "./context";
+import { useValuesSelector } from './context';
 /**
  * @category Hooks
  */
-export const useEnvironment = (): ChaynsReactValues["environment"] => useInternalContextSelector(ChaynsContext, v => v?.environment!)
+export const useEnvironment = (): ChaynsReactValues["environment"] => useValuesSelector(v => v.environment)

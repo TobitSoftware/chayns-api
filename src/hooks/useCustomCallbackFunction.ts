@@ -1,10 +1,7 @@
-import { useFunctions } from './useFunctions';
+import { useFunctionsSelector } from './context';
 
 /**
  * @category Hooks
  * Returns customCallbackFunction
  */
-export const useCustomCallbackFunction = () => {
-    const { customCallbackFunction } = useFunctions();
-    return customCallbackFunction;
-}
+export const useCustomCallbackFunction = () => useFunctionsSelector((f) => f.customCallbackFunction);

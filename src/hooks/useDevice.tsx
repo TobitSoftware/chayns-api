@@ -1,7 +1,6 @@
-import { ChaynsContext } from '../components/ChaynsContext';
 import { ChaynsApiDevice } from '../types/IChaynsReact';
-import { useInternalContextSelector } from "./context";
+import { useValuesSelector } from "./context";
 /**
  * @category Hooks
  */
-export const useDevice = (): ChaynsApiDevice => useInternalContextSelector(ChaynsContext, v => v?.device!)
+export const useDevice = (): ChaynsApiDevice => useValuesSelector(v => v.device)

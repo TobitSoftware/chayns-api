@@ -1,7 +1,6 @@
-import { ChaynsContext } from '../components/ChaynsContext';
 import { ChaynsApiSite } from '../types/IChaynsReact';
-import { useInternalContextSelector } from "./context";
+import { useValuesSelector } from './context';
 /**
  * @category Hooks
  */
-export const useSite = (): ChaynsApiSite => useInternalContextSelector(ChaynsContext, v => v?.site!)
+export const useSite = (): ChaynsApiSite => useValuesSelector(v => v.site);

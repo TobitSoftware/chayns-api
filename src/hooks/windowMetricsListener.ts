@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ChaynsFunctionsContext } from '../components/ChaynsContext';
 import { ScreenSize, WindowMetricsListenerResult } from '../types/IChaynsReact';
-import { useInternalContextSelector } from "./context";
+import { useFunctionsSelector } from './context';
 /**
  * @category Hooks
  */
 export const useWindowMetricsListener = () => {
-    const addListener = useInternalContextSelector(ChaynsFunctionsContext, v => v.addWindowMetricsListener);
-    const removeListener = useInternalContextSelector(ChaynsFunctionsContext, v => v.removeWindowMetricsListener);
+    const addListener = useFunctionsSelector(f => f.addWindowMetricsListener);
+    const removeListener = useFunctionsSelector(f => f.removeWindowMetricsListener);
     const promiseRef = useRef<Promise<number>>();
 
     return useCallback(((callback: (result: WindowMetricsListenerResult) => void) => {
@@ -33,7 +32,7 @@ export const useWindowMetrics = ({ enabled = true } = {}) => {
         pageSize: ScreenSize.XS
     });
     const addListener = useWindowMetricsListener();
-    const getWindowMetrics = useInternalContextSelector(ChaynsFunctionsContext, v => v.getWindowMetrics);
+    const getWindowMetrics = useFunctionsSelector(f => f.getWindowMetrics);
 
     useEffect(() => {
         if (enabled) {

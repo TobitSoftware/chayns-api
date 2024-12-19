@@ -15,6 +15,8 @@ export class SsrWrapper implements IChaynsReact {
 
     functions: ChaynsReactFunctions;
 
+    listeners: (() => void)[] =  [];
+
     constructor(values: ChaynsReactValues, functions: ChaynsReactFunctions) {
         this.initialData = values;
         this.values = values;
@@ -29,6 +31,17 @@ export class SsrWrapper implements IChaynsReact {
         const listener = (ev: CustomEventInit<DataChangeValue>) => ev.detail && cb(ev.detail);
         document.addEventListener('chayns_api_data', listener)
         return () => {document.removeEventListener('chayns_api_data', listener)}
+    }
+
+    subscribe = (listener: () => void) => {
+        this.listeners.push(listener);
+        return () => {
+            this.listeners = this.listeners.filter(l => l !== listener);
+        }
+    }
+
+    emitChange = () => {
+        this.listeners.forEach((l) => l());
     }
 
     getSSRData() {
