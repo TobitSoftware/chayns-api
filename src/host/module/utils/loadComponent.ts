@@ -77,14 +77,8 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                 return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === from.split('-').join('_');
             })
 
-            if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development' || Module.default.version !== 2) {
-                if (semver.lt(React.version, '19.0.0') && semver.lt(semver.minVersion(requiredVersion)!, '19.0.0')) {
-                    return {
-                        default: Module.default.CompatComponent,
-                    };
-                }
-
-                const OriginalCompatComponent = Module.default.CompatComponent.render({}).type.prototype;
+            if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development' || (Module.default.version || 1) < 2) {
+                const OriginalCompatComponent = (Module.default.version || 1) < 2.1 ? Module.default.CompatComponent.render({}).type.prototype : Module.default.CompatComponent.prototype;
 
                 class CompatComponent extends React.Component {
                     ref: React.RefObject<HTMLDivElement>;
