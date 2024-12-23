@@ -1,5 +1,4 @@
 import { Shared } from '@module-federation/runtime/dist/src/type';
-import type { Root } from 'react-dom/client';
 import semver from 'semver';
 import React from "react";
 
@@ -85,18 +84,9 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                     };
                 }
 
-                const scopes = shareScopes[Module.default.version === 2 ? 'chayns-api' : 'default'];
-                const reactVersion = Object.keys(scopes.react).reduce((p: null | string, e) => {
-                    if (!semver.satisfies(e, requiredVersion)) {
-                        return p;
-                    }
-                    return !p || semver.gt(e, p) ? e : p;
-                }, null)!;
-                const CompatReact = (await scopes.react[reactVersion].get())();
-                const CompatReactDOM = (await scopes['react-dom'][reactVersion].get())();
+                const OriginalCompatComponent = Module.default.CompatComponent.render({}).type.prototype;
 
                 class CompatComponent extends React.Component {
-                    root: Root = undefined!;
                     ref: React.RefObject<HTMLDivElement>;
 
                     constructor(props) {
@@ -105,14 +95,15 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                     }
 
                     componentDidMount() {
-                        this.root = CompatReactDOM.createRoot(this.ref.current);
-                        this.root.render(CompatReact.createElement(Module.default.Component, this.props));
+                        OriginalCompatComponent.componentDidMount.apply(this);
                     }
 
                     componentDidUpdate(prevProps, prevState, snapshot) {
-                        setTimeout(() => {
-                            this.root.render(CompatReact.createElement(Module.default.Component, this.props));
-                        }, 0);
+                        OriginalCompatComponent.componentDidUpdate.apply(this, prevProps, prevState, snapshot);
+                    }
+
+                    componentWillUnmount() {
+                        OriginalCompatComponent.componentWillUnmount.apply(this);
                     }
 
                     render() {
