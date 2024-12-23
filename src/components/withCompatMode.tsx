@@ -65,14 +65,14 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
     }
 
     return {
-        Component: React.forwardRef((props, ref) => <div><Component {...props as P} innerRef={ref}/></div>),
-        CompatComponent: React.forwardRef((props, ref) => <CompatComponent {...props as P} innerRef={ref}/>),
+        Component: (props) => <div><Component {...props as P} /></div>,
+        CompatComponent,
         // @ts-expect-error will be set by chayns-toolkit via DefinePlugin
         requiredVersion: __REQUIRED_REACT_VERSION__,
         environment: process.env.NODE_ENV,
         buildEnv: process.env.BUILD_ENV || process.env.NODE_ENV,
         appVersion: process.env.VERSION,
-        version: 2,
+        version: 2.1,
     };
 };
 

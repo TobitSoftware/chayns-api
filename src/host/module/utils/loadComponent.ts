@@ -44,7 +44,7 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
         console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
     }
 
-    const { loadShareSync } = globalThis.moduleFederationRuntime;
+    const { loadShareSync, getInstance } = globalThis.moduleFederationRuntime;
     const { componentMap } = globalThis.moduleFederationScopes;
 
     if (!componentMap[scope]) {
@@ -59,20 +59,53 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
             const hostVersion = semver.minVersion(React.version)!;
             const { requiredVersion, environment } = Module.default;
 
-            const shareScopes = await new Promise<Shared[]>(resolve => {
+            const shareScopes: { [scope: string]: { [pkg: string]: { [version: string]: Shared } } } = typeof getInstance === 'function' ? getInstance().shareScopeMap : await new Promise(resolve => {
                 loadShareSync('react', {
                     resolver: (shareOptions) => {
-                        resolve(shareOptions);
+                        const optionsMap = shareOptions.reduce((p, e) => {
+                            p[e.version] = e;
+                            e.version;
+                            return p;
+                        }, {});
+                        resolve({ 'chayns-api': optionsMap });
                         return shareOptions[0];
                     },
                 });
             });
-            const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !shareScopes.some(({ version, from }) => {
+
+            const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !Object.values(shareScopes['chayns-api'].react).some(({ version, from }) => {
                 return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === from.split('-').join('_');
             })
 
-            if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development' || Module.default.version !== 2) {
-                return { default: Module.default.CompatComponent };
+            if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development' || (Module.default.version || 1) < 2) {
+                const OriginalCompatComponent = (Module.default.version || 1) < 2.1 ? Module.default.CompatComponent.render({}).type.prototype : Module.default.CompatComponent.prototype;
+
+                class CompatComponent extends React.Component {
+                    ref: React.RefObject<HTMLDivElement>;
+
+                    constructor(props) {
+                        super(props);
+                        this.ref = React.createRef();
+                    }
+
+                    componentDidMount() {
+                        OriginalCompatComponent.componentDidMount.apply(this);
+                    }
+
+                    componentDidUpdate(prevProps, prevState, snapshot) {
+                        OriginalCompatComponent.componentDidUpdate.apply(this, prevProps, prevState, snapshot);
+                    }
+
+                    componentWillUnmount() {
+                        OriginalCompatComponent.componentWillUnmount.apply(this);
+                    }
+
+                    render() {
+                        return React.createElement('div', { ref: this.ref });
+                    }
+                }
+
+                return { default: CompatComponent };
             }
             return { default: Module.default.Component };
         });
