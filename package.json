@@ -31,7 +31,8 @@
         "dev": "npm link && npm run watch",
         "format": "prettier . --write",
         "lint": "eslint src",
-        "prepublishOnly": "npm run build:cjs && npm run build:esm && npm run build:typescript"
+        "prepublishOnly": "npm run build:cjs && npm run build:esm && npm run build:typescript",
+        "preversion": "npm run build:typescript -- --noEmit"
     },
     "prettier": {
         "proseWrap": "always",
