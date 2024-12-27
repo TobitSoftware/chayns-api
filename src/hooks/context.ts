@@ -3,7 +3,7 @@ import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { ChaynsContext } from '../components/ChaynsContext';
 import { IChaynsReact } from '../types/IChaynsReact';
 
-export const useValuesSelector = <Result>(selector: (value: IChaynsReact["values"]) => Result) => {
+export const useValuesSelector = <Result>(selector: (value: IChaynsReact["values"]) => Result): Result => {
     const store = useContext(ChaynsContext);
 
     if (!store) {
@@ -15,7 +15,7 @@ export const useValuesSelector = <Result>(selector: (value: IChaynsReact["values
     return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
 }
 
-export const useFunctionsSelector = <Result>(selector: (value: IChaynsReact["functions"]) => Result) => {
+export const useFunctionsSelector = <Result>(selector: (value: IChaynsReact["functions"]) => Result): Result => {
     const store = useContext(ChaynsContext);
 
     if (!store) {
