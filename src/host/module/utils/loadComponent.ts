@@ -1,5 +1,4 @@
 import { Shared } from '@module-federation/runtime/dist/src/type';
-import semver from 'semver';
 import React from "react";
 
 export const loadModule = (scope, module, url, preventSingleton = false) => {
@@ -56,8 +55,6 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
             if (typeof Module.default === 'function') {
                 return Module;
             }
-            const hostVersion = semver.minVersion(React.version)!;
-            const { requiredVersion, environment } = Module.default;
 
             const shareScopes: { [scope: string]: { [pkg: string]: { [version: string]: Shared } } } = typeof getInstance === 'function' ? getInstance().shareScopeMap : await new Promise(resolve => {
                 loadShareSync('react', {
@@ -73,11 +70,13 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                 });
             });
 
-            const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !Object.values(shareScopes['chayns-api'].react).some(({ version, from }) => {
-                return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === from.split('-').join('_');
-            })
+            const matchReactVersion = Object.values(shareScopes['chayns-api'].react).some(({ lib, useIn, version }) => {
+                if (!useIn.includes(scope)) return false;
+                if (version !== React.version) return false;
+                return lib?.() === React;
+            });
 
-            if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development' || (Module.default.version || 1) < 2) {
+            if (!matchReactVersion || (Module.default.version || 1) < 2) {
                 const OriginalCompatComponent = (Module.default.version || 1) < 2.1 ? Module.default.CompatComponent.render({}).type.prototype : Module.default.CompatComponent.prototype;
 
                 class CompatComponent extends React.Component {
