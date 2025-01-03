@@ -44,13 +44,13 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
     }
 
     const { loadShareSync, getInstance } = globalThis.moduleFederationRuntime;
-    const { componentMap } = globalThis.moduleFederationScopes;
+    const { componentMap, registeredScopes } = globalThis.moduleFederationScopes;
 
     if (!componentMap[scope]) {
         componentMap[scope] = {};
     }
 
-    if (!(module in componentMap[scope])) {
+    if (!(module in componentMap[scope]) || registeredScopes[scope] !== url) {
         const promise = loadModule(scope, module, url, preventSingleton).then(async (Module: any) => {
             if (typeof Module.default === 'function') {
                 return Module;
