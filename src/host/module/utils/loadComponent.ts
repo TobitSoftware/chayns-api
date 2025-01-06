@@ -70,11 +70,8 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                 });
             });
 
-            const matchReactVersion = Object.values(shareScopes['chayns-api'].react).some(({ lib, useIn, version }) => {
-                if (!useIn.includes(scope)) return false;
-                if (version !== React.version) return false;
-                return lib?.() === React;
-            });
+            const sharedReact = shareScopes['chayns-api'].react[React.version];
+            const matchReactVersion = sharedReact && sharedReact.useIn.includes(scope) && sharedReact.lib?.() === React;
 
             if (!matchReactVersion || (Module.default.version || 1) < 2) {
                 const OriginalCompatComponent = (Module.default.version || 1) < 2.1 ? Module.default.CompatComponent.render({}).type.prototype : Module.default.CompatComponent.prototype;
