@@ -239,10 +239,6 @@ export type DialogHookResult = {
     addDataListener: ChaynsReactFunctions["addDialogHostEventListener"];
 }
 
-export type DialogDataHookResult = {
-    [key: string | symbol]: object;
-}
-
 /**
  * @ignore
  */

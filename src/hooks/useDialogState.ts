@@ -1,4 +1,4 @@
-import { DialogDataHookResult, DialogHookResult } from '../types/IChaynsReact';
+import { DialogHookResult } from '../types/IChaynsReact';
 import { useFunctionsSelector, useValuesSelector } from './context';
 
 /**
@@ -21,7 +21,7 @@ export const useDialogState = (): DialogHookResult => {
 /**
  * @category Hooks
  */
-export const useDialogData = (): DialogDataHookResult => {
+export const useDialogData = <T extends any>(): T => {
     return useValuesSelector(v => v.dialog?.dialogInput);
 };
 
