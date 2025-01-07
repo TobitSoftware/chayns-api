@@ -1,5 +1,4 @@
 import { Shared } from '@module-federation/runtime/dist/src/type';
-import semver from 'semver';
 import React from "react";
 
 export const loadModule = (scope, module, url, preventSingleton = false) => {
@@ -45,19 +44,17 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
     }
 
     const { loadShareSync, getInstance } = globalThis.moduleFederationRuntime;
-    const { componentMap } = globalThis.moduleFederationScopes;
+    const { componentMap, registeredScopes } = globalThis.moduleFederationScopes;
 
     if (!componentMap[scope]) {
         componentMap[scope] = {};
     }
 
-    if (!(module in componentMap[scope])) {
+    if (!(module in componentMap[scope]) || registeredScopes[scope] !== url) {
         const promise = loadModule(scope, module, url, preventSingleton).then(async (Module: any) => {
             if (typeof Module.default === 'function') {
                 return Module;
             }
-            const hostVersion = semver.minVersion(React.version)!;
-            const { requiredVersion, environment } = Module.default;
 
             const shareScopes: { [scope: string]: { [pkg: string]: { [version: string]: Shared } } } = typeof getInstance === 'function' ? getInstance().shareScopeMap : await new Promise(resolve => {
                 loadShareSync('react', {
@@ -73,11 +70,10 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                 });
             });
 
-            const matchReactVersion = requiredVersion && semver.satisfies(hostVersion, requiredVersion) && !Object.values(shareScopes['chayns-api'].react).some(({ version, from }) => {
-                return (semver.gt(version, hostVersion) && semver.satisfies(version, requiredVersion)) || scope === from.split('-').join('_');
-            })
+            const sharedReact = shareScopes['chayns-api'].react[React.version];
+            const matchReactVersion = sharedReact && sharedReact.useIn.includes(scope) && sharedReact.lib?.() === React;
 
-            if (!matchReactVersion || environment !== 'production' || process.env.NODE_ENV === 'development' || (Module.default.version || 1) < 2) {
+            if (!matchReactVersion || (Module.default.version || 1) < 2) {
                 const OriginalCompatComponent = (Module.default.version || 1) < 2.1 ? Module.default.CompatComponent.render({}).type.prototype : Module.default.CompatComponent.prototype;
 
                 class CompatComponent extends React.Component {

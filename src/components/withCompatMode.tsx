@@ -30,7 +30,8 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
 
             const component = <ErrorBoundary><Component {...this.props} ref={innerRef}/></ErrorBoundary>;
             if (typeof ReactDOMClient?.createRoot === 'function') {
-                this.root = ReactDOMClient.createRoot(this.ref.current);
+                // TODO: use non-random value
+                this.root = ReactDOMClient.createRoot(this.ref.current, { identifierPrefix: crypto.randomUUID() });
                 this.root.render(component);
             } else {
                 ReactDOM.render(component, this.ref.current);
