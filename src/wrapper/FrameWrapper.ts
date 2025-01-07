@@ -24,6 +24,10 @@ export class FrameWrapper implements IChaynsReact {
 
     private exposedFunctions: ChaynsReactFunctions = null!;
 
+    private exposedCustomFunctions: IChaynsReact["customFunctions"] = {};
+
+    private exposedCustomFunctionNames: string[] = [];
+
     private resizeListener: ((ev: UIEvent) => void) | null = null;
 
     ready = new Promise((res) => { this.resolve = res });
@@ -310,6 +314,19 @@ export class FrameWrapper implements IChaynsReact {
         }
     };
 
+    customFunctions = new Proxy({}, {
+        get: (target, p: string): any => {
+            if (p in target) {
+                return target[p];
+            }
+            return target[p] = async (...args) => {
+                if (!this.initialized) await this.ready;
+                const wrappedArgs = args.map((v) => typeof v === 'function' ? comlink.proxy(v) : v);
+                return this.exposedCustomFunctions[p](...wrappedArgs);
+            }
+        },
+    });
+
     initialized = false;
 
     constructor() {
@@ -322,7 +339,7 @@ export class FrameWrapper implements IChaynsReact {
     async init() {
         if (this.initialized) return;
 
-        const exposed = comlink.wrap(comlink.windowEndpoint(window.parent))[window.name] as comlink.Remote<IChaynsReact>;
+        const exposed = comlink.wrap(comlink.windowEndpoint(window.parent))[window.name] as comlink.Remote<IChaynsReact & { _customFunctionNames: string[] }>;
         const dataListener: () => Promise<CleanupCallback> = () => exposed.addDataListener(comlink.proxy(({ type, value }) => {
             if (this.initialized) {
                 this.values[type] = value;
@@ -348,6 +365,13 @@ export class FrameWrapper implements IChaynsReact {
 
         this.values = await exposed.getInitialData();
         this.exposedFunctions = exposed.functions as unknown as ChaynsReactFunctions;
+        this.exposedCustomFunctions = exposed.customFunctions as unknown as IChaynsReact["customFunctions"];
+        this.exposedCustomFunctionNames = (await exposed._customFunctionNames) as unknown as string[];
+
+        this.customFunctions = this.exposedCustomFunctionNames.reduce((p, e) => {
+            p[e] = (...args) => this.exposedCustomFunctions[e](...args.map(a => typeof a === 'function' ? comlink.proxy(a) : a))
+            return p;
+        }, {});
 
         this.initialized = true;
         this.resolve(null);

@@ -5,8 +5,8 @@ import {
     ChaynsApiSite,
     ChaynsApiUser,
     ChaynsReactFunctions,
-    ChaynsReactValues,
-    Page
+    ChaynsReactValues, IChaynsReact,
+    Page,
 } from '../../types/IChaynsReact';
 import { replaceStagingUrl } from "../../util/url";
 
@@ -27,6 +27,7 @@ type SystemPropTypes = {
 type ModulePropTypes = {
     system: TypeSystem,
     functions: ChaynsReactFunctions,
+    customFunctions?: IChaynsReact["customFunctions"],
     pages: Page[],
     isAdminModeActive: boolean,
     site: ChaynsApiSite,
@@ -60,6 +61,7 @@ const ModuleHost: FC<ModulePropTypes> = ({
     system,
     children = null,
     functions,
+    customFunctions,
     // shallow data
     pages,
     isAdminModeActive,
@@ -108,6 +110,7 @@ const ModuleHost: FC<ModulePropTypes> = ({
                 }}
                 data={initialData}
                 functions={functions}
+                customFunctions={customFunctions}
                 fallback={children}
                 isModule
             />

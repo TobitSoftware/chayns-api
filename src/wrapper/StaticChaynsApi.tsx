@@ -12,6 +12,8 @@ class StaticChaynsApi {
 
     private _wrapper;
 
+    private customFunctions;
+
     constructor(values, functions) {
         let wrapper;
         const deviceInfo = getDeviceInfo(navigator.userAgent, '');
@@ -30,6 +32,7 @@ class StaticChaynsApi {
         Object.entries(wrapper.functions).forEach(([k,v]) => {
             this[k] = v;
         });
+        this.customFunctions = this._wrapper.customFunctions;
     }
 
     getUser = () => this._wrapper.values.user;

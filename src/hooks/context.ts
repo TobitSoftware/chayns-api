@@ -26,3 +26,15 @@ export const useFunctionsSelector = <Result>(selector: (value: IChaynsReact["fun
 
     return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
 }
+
+export const useCustomFunctionsSelector = <Result>(selector: (value: IChaynsReact["customFunctions"]) => Result): Result => {
+    const store = useContext(ChaynsContext);
+
+    if (!store) {
+        throw new Error('Could not find chayns context. Did you forget to add ChaynsProvider?');
+    }
+
+    const getSnapshot = () => selector(store.customFunctions);
+
+    return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
+}

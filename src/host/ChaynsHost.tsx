@@ -7,13 +7,15 @@ import {
     ChaynsApiUser,
     ChaynsReactFunctions,
     ChaynsReactValues,
-    Page
+    IChaynsReact,
+    Page,
 } from '../types/IChaynsReact';
 
 type ChaynsHostType = {
     type: string,
     iFrameProps?: { [key: string]: unknown, name: string },
     functions: ChaynsReactFunctions,
+    customFunctions?: IChaynsReact["customFunctions"],
     src?: string,
     iFrameRef?: React.MutableRefObject<HTMLIFrameElement | null> | undefined,
     loadingComponent?: JSX.Element,
@@ -37,6 +39,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
     type,
     iFrameProps,
     functions,
+    customFunctions,
     src,
     iFrameRef = undefined,
     loadingComponent = undefined,
@@ -87,6 +90,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     device={device}
                     currentPage={currentPage}
                     functions={functions}
+                    customFunctions={customFunctions}
                     src={src!}
                     postForm={type === 'server-iframe'}
                     language={language}
@@ -110,6 +114,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     currentPage={currentPage}
                     children={loadingComponent}
                     functions={functions}
+                    customFunctions={customFunctions}
                     language={language}
                     parameters={parameters}
                     customData={customData}

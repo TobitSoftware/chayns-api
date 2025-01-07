@@ -25,6 +25,7 @@ const InitialDataProvider = React.memo<{ data?: ChaynsReactValues, renderedBySer
 type ChaynsProviderProps = {
     data?: ChaynsReactValues;
     functions?: ChaynsReactFunctions,
+    customFunctions?: IChaynsReact["customFunctions"],
     renderedByServer?: boolean,
     isModule?: boolean,
     children?: ReactNode,
@@ -34,6 +35,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     children,
     data,
     functions,
+    customFunctions,
     renderedByServer,
     isModule
 }) => {
@@ -43,13 +45,13 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     if (!customWrapper.current) {
         if (isModule) {
             if (data && functions) {
-                customWrapper.current = new ModuleFederationWrapper(data, functions);
+                customWrapper.current = new ModuleFederationWrapper(data, functions, customFunctions);
             } else {
                 console.warn('ModuleFederationWrapper requires data and functions');
             }
         } else if (isServer) {
             if (data && functions) {
-                customWrapper.current = new SsrWrapper(data, functions);
+                customWrapper.current = new SsrWrapper(data, functions, customFunctions);
             } else {
                 console.warn('SsrWrapper requires data and functions');
             }

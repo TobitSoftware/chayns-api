@@ -38,6 +38,8 @@ export class AppWrapper implements IChaynsReact {
 
     listeners: (() => void)[] =  [];
 
+    customFunctions = {};
+
     mapOldApiToNew(retVal) {
         const { AppInfo, AppUser, Device } = retVal;
         this.accessToken = AppUser.TobitAccessToken;
