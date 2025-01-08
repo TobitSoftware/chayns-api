@@ -90,6 +90,13 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         }
     }, [data, isModule]);
 
+    useEffect(() => {
+        if (isModule && customFunctions) {
+            customWrapper.current.customFunctions = customFunctions;
+            customWrapper.current.emitChange();
+        }
+    }, [customFunctions, isModule]);
+
     return (
         <>
             {isInitialized && (

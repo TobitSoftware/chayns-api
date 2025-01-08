@@ -40,9 +40,7 @@ export class ModuleFederationWrapper implements IChaynsReact {
         });
 
         if (customFunctions) {
-            Object.entries(customFunctions).forEach(([k, fn]) => {
-                this.customFunctions[k] = async (...args) => (fn as Function)(...args);
-            })
+            this.customFunctions = customFunctions;
         }
 
         this.functions.createDialog = (config) => {

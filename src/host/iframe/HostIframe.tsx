@@ -60,6 +60,8 @@ const HostIframe: FC<HostIframeProps> = ({
     const eventTarget = useRef<EventTarget>();
     const ref = useRef<HTMLIFrameElement | null>();
     const currentDataRef = useRef<ChaynsReactValues>();
+    const customFunctionsRef = useRef<IChaynsReact["customFunctions"]>();
+    customFunctionsRef.current = customFunctions;
 
     if (!eventTarget.current) {
         eventTarget.current = global.document ? document.createElement('div') : undefined; // global.EventTarget ? new EventTarget() : undefined
@@ -110,7 +112,9 @@ const HostIframe: FC<HostIframeProps> = ({
                         ...functions,
                         setHeight,
                     } as ChaynsReactFunctions,
-                    customFunctions,
+                    customFunctions: new Proxy(customFunctionsRef, {
+                        get: (target, p: string) => target.current?.[p]
+                    }),
                     _customFunctionNames: Object.keys(customFunctions ?? {}),
                     addDataListener: (cb: DataChangeCallback) => {
                         if(eventTarget.current) eventTarget.current.addEventListener('data_update', (e: CustomEventInit<DataChangeValue>) => e.detail && cb(e.detail));
