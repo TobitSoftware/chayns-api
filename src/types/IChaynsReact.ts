@@ -101,6 +101,7 @@ export interface DialogModule<T extends any = object> {
     dialogInput?: T,
     backgroundColor?: string;
     allowAnonymousUser?: boolean;
+    seamless?: boolean;
 }
 
 export interface DialogIFrame<T extends any = object> {
@@ -109,6 +110,7 @@ export interface DialogIFrame<T extends any = object> {
     dialogInput?: T,
     backgroundColor?: string;
     allowAnonymousUser?: boolean;
+    seamless?: boolean;
 }
 
 export enum DialogInputType {
