@@ -32,7 +32,6 @@ class StaticChaynsApi {
         Object.entries(wrapper.functions).forEach(([k,v]) => {
             this[k] = v;
         });
-        this.customFunctions = this._wrapper.customFunctions;
     }
 
     getUser = () => this._wrapper.values.user;
@@ -43,6 +42,7 @@ class StaticChaynsApi {
     getParameters = () => this._wrapper.values.parameters;
     getPages = () => this._wrapper.values.pages;
     getEnvironment = () => this._wrapper.values.environment;
+    getCustomFunction = (key: string) => this._wrapper.customFunctions[key];
 }
 
 export default StaticChaynsApi;
