@@ -33,7 +33,8 @@ export const addToolbarChangeListener = (...args: Parameters<ChaynsReactFunction
  * @category Event listener
  */
 export const addWindowMetricsListener = (...args: Parameters<ChaynsReactFunctions["addWindowMetricsListener"]>) => moduleWrapper.current.functions.addWindowMetricsListener(...args);/**
- * Allows a custom callback function to be defined
+ * Allows a custom callback function to be defined. Prefer usage via useCustomCallbackFunction when possible
+ * @deprecated Use customFunction/useCustomFunction-interface instead if possible
  */
 export const customCallbackFunction = (...args: Parameters<ChaynsReactFunctions["customCallbackFunction"]>) => moduleWrapper.current.functions.customCallbackFunction(...args);
 /**
@@ -225,6 +226,10 @@ export const getLanguage = () => moduleWrapper.current.values.language;
 export const getParameters = () => moduleWrapper.current.values.parameters;
 export const getPages = () => moduleWrapper.current.values.pages;
 export const getEnvironment = () => moduleWrapper.current.values.environment;
+/**
+ * Returns the customFunction. Prefer usage via useCustomFunction when possible
+ * @param key functionName
+ */
 export const getCustomFunction = <A extends Array<any>, T>(key: string) => moduleWrapper.current.customFunctions[key]<A, T>;
 
 export const user = new Proxy<UserInfo>({ } as UserInfo, { get: (target, prop) => {console.warn('Deprecated user import'); return moduleWrapper.current.values.user?.[prop]} });
