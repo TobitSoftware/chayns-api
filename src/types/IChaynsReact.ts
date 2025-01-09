@@ -599,6 +599,7 @@ interface DesignSettingsUpdateItem {
 export interface IChaynsReact {
     values: ChaynsReactValues;
     functions: ChaynsReactFunctions;
+    customFunctions: { [key: string]: <A extends Array<any>, O>(...args: A) => Promise<O> }
     addDataListener: (cb: DataChangeCallback) => CleanupCallback;
     getSSRData: () => ChaynsReactValues | null;
     init: () => Promise<void>;

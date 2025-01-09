@@ -17,9 +17,11 @@ export class ModuleFederationWrapper implements IChaynsReact {
 
     functions: ChaynsReactFunctions;
 
+    customFunctions: IChaynsReact["customFunctions"] = {};
+
     listeners: (() => void)[] =  [];
 
-    constructor(values: ChaynsReactValues, functions: ChaynsReactFunctions) {
+    constructor(values: ChaynsReactValues, functions: ChaynsReactFunctions, customFunctions?: IChaynsReact["customFunctions"]) {
         this.values = values;
         this.functions = {} as ChaynsReactFunctions;
         this.functions.addVisibilityChangeListener = async (callback) => addVisibilityChangeListener(callback);
@@ -36,6 +38,10 @@ export class ModuleFederationWrapper implements IChaynsReact {
             // eslint-disable-next-line
             this.functions[k] = async (...args) => (fn as Function)(...args);
         });
+
+        if (customFunctions) {
+            this.customFunctions = customFunctions;
+        }
 
         this.functions.createDialog = (config) => {
             return new DialogHandler(config, functions.openDialog, functions.closeDialog, functions.dispatchEventToDialogClient, functions.addDialogClientEventListener);

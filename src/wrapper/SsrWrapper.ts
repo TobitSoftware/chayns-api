@@ -15,12 +15,15 @@ export class SsrWrapper implements IChaynsReact {
 
     functions: ChaynsReactFunctions;
 
+    customFunctions: IChaynsReact["customFunctions"];
+
     listeners: (() => void)[] =  [];
 
-    constructor(values: ChaynsReactValues, functions: ChaynsReactFunctions) {
+    constructor(values: ChaynsReactValues, functions: ChaynsReactFunctions, customFunctions?: IChaynsReact["customFunctions"]) {
         this.initialData = values;
         this.values = values;
         this.functions = functions;
+        this.customFunctions = customFunctions ?? {};
     }
 
     async init() {

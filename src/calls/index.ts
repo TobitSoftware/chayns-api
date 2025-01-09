@@ -225,7 +225,7 @@ export const getLanguage = () => moduleWrapper.current.values.language;
 export const getParameters = () => moduleWrapper.current.values.parameters;
 export const getPages = () => moduleWrapper.current.values.pages;
 export const getEnvironment = () => moduleWrapper.current.values.environment;
-
+export const getCustomFunction = <A extends Array<any>, T>(key: string) => moduleWrapper.current.customFunctions[key]<A, T>;
 
 export const user = new Proxy<UserInfo>({ } as UserInfo, { get: (target, prop) => {console.warn('Deprecated user import'); return moduleWrapper.current.values.user?.[prop]} });
 export const site = new Proxy<ChaynsApiSite>({ } as ChaynsApiSite, { get: (target, prop) => {console.warn('Deprecated site import'); return moduleWrapper.current.values.site?.[prop]} });
