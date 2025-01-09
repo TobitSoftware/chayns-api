@@ -366,7 +366,7 @@ export class FrameWrapper implements IChaynsReact {
         this.values = await exposed.getInitialData();
         this.exposedFunctions = exposed.functions as unknown as ChaynsReactFunctions;
         this.exposedCustomFunctions = exposed.customFunctions as unknown as IChaynsReact["customFunctions"];
-        this.exposedCustomFunctionNames = (await exposed._customFunctionNames) as unknown as string[];
+        this.exposedCustomFunctionNames = await exposed._customFunctionNames;
 
         this.customFunctions = this.exposedCustomFunctionNames.reduce((p, e) => {
             p[e] = (...args) => this.exposedCustomFunctions[e](...args.map(a => typeof a === 'function' ? comlink.proxy(a) : a))
