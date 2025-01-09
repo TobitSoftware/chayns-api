@@ -137,7 +137,7 @@ export enum DialogSelectType {
 }
 
 export type DialogSelectListItemType = {
-    id: number;
+    id: number | string;
     name: string;
     disabled?: boolean;
     isSelected?: boolean;
@@ -291,7 +291,7 @@ export interface DialogResultFile {
 
 type DialogResultValue<T> = {
     [DialogType.INPUT]: string,
-    [DialogType.SELECT]: number[],
+    [DialogType.SELECT]: (number | string)[],
     [DialogType.CONFIRM]: void,
     [DialogType.ALERT]: void,
     [DialogType.DATE]: Date,
