@@ -44,17 +44,11 @@
     },
     "dependencies": {
         "@module-federation/enhanced": "^0.6.10",
-        "@module-federation/runtime": "^0.6.9",
-        "@types/semver": "^7.5.8",
         "comlink": "4.3.1",
         "htmlescape": "^1.1.1",
         "lodash.throttle": "^4.1.1",
-        "prop-types": "^15.7.2",
-        "scheduler": "^0.23.0",
-        "semaphore-async-await": "^1.5.1",
         "ua-parser-js": "^1.0.38",
-        "use-sync-external-store": "^1.4.0",
-        "util": "^0.12.5"
+        "use-sync-external-store": "^1.4.0"
     },
     "devDependencies": {
         "@babel/cli": "^7.24.1",
