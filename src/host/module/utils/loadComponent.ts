@@ -1,5 +1,7 @@
-import { Shared } from '@module-federation/runtime/dist/src/type';
 import React from "react";
+import type { FederationHost } from '@module-federation/enhanced/runtime'
+
+type ShareScopeMap = FederationHost["shareScopeMap"];
 
 export const loadModule = (scope, module, url, preventSingleton = false) => {
     const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
@@ -25,7 +27,7 @@ export const loadModule = (scope, module, url, preventSingleton = false) => {
     if (!(module in moduleMap[scope])) {
         const path = `${scope}/${module.replace(/^\.\//, '')}`;
 
-        const promise =  loadRemote(path);
+        const promise = loadRemote(path);
 
         promise.catch((e) => {
             console.error("[chayns-api] Failed to load module", scope, url, e);
@@ -56,7 +58,7 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                 return Module;
             }
 
-            const shareScopes: { [scope: string]: { [pkg: string]: { [version: string]: Shared } } } = typeof getInstance === 'function' ? getInstance().shareScopeMap : await new Promise(resolve => {
+            const shareScopes: ShareScopeMap = typeof getInstance === 'function' ? getInstance().shareScopeMap : await new Promise(resolve => {
                 loadShareSync('react', {
                     resolver: (shareOptions) => {
                         const optionsMap = shareOptions.reduce((p, e) => {
