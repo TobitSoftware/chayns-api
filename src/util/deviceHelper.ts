@@ -14,6 +14,8 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string, { imei }: { imei
         appName = AppName.Sidekick;
     } else if((/\steam\/\d+/i).test(userAgent)) {
         appName = AppName.Team;
+    } else if((/\scityApp\/\d+/i).test(userAgent)) {
+        appName = AppName.CityApp;
     } else if (match?.groups?.siteId === '60021-08989') {
         appName = AppName.Chayns;
     } else if (match?.groups?.siteId === '77892-10814') {

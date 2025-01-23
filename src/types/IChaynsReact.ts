@@ -884,7 +884,8 @@ export enum AppName {
     ChaynsLauncher,
     TobitChat,
     Sidekick,
-    Team
+    Team,
+    CityApp
 }
 
 export enum BrowserName {
