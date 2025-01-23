@@ -6,7 +6,7 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string, { imei }: { imei
 
     let appName: AppName = AppName.Unknown;
     const match = (/(?:my)?chayns\/(?<version>\d+).*(?<siteId>\d{5}-\d{5})/i).exec(userAgent);
-    const customMatch = (/\s(?<name>intercom|sidekick|team)\/(?<version>\d+)/i).exec(userAgent);
+    const customMatch = (/\s(?<name>intercom|sidekick|team|cityApp)\/(?<version>\d+)/i).exec(userAgent);
 
     if ((/\sintercom\/\d+/i).test(userAgent)) {
         appName = AppName.TobitChat;
