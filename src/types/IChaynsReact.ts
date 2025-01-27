@@ -217,7 +217,7 @@ export interface DesignSettings {
     backgroundColor?: string;
     headerBarColor?: string;
     accordionIcon?: number;
-    accordionLines?: boolean;
+    accordionLines: boolean;
     cardBorderRadius?: number;
     cardBackgroundOpacity?: number;
     cardShadow?: number;
