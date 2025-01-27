@@ -457,6 +457,10 @@ export interface RefreshData {
     suffix?: boolean;
     tapps?: boolean;
     user?: boolean;
+    chaynsProData?: boolean;
+    ignoreUacCache?: boolean;
+    siteSettings?: boolean;
+    chaynsInfo?: boolean;
 }
 
 export type IntercomMessage = {
