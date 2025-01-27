@@ -232,10 +232,66 @@ export const getEnvironment = () => moduleWrapper.current.values.environment;
  */
 export const getCustomFunction = <A extends Array<any>, T>(key: string) => moduleWrapper.current.customFunctions[key]<A, T>;
 
-export const user = new Proxy<UserInfo>({ } as UserInfo, { get: (target, prop) => {console.warn('Deprecated user import'); return moduleWrapper.current.values.user?.[prop]} });
-export const site = new Proxy<ChaynsApiSite>({ } as ChaynsApiSite, { get: (target, prop) => {console.warn('Deprecated site import'); return moduleWrapper.current.values.site?.[prop]} });
-export const device = new Proxy<ChaynsApiDevice>({ } as ChaynsApiDevice, { get: (target, prop) => {console.warn('Deprecated device import'); return moduleWrapper.current.values.device?.[prop]} });
-export const language = new Proxy<ChaynsReactValues["language"]>({ } as ChaynsReactValues["language"], { get: (target, prop) => {console.warn('Deprecated language import'); return moduleWrapper.current.values.language?.[prop]} });
-export const parameters = new Proxy<ChaynsReactValues["parameters"]>({ } as ChaynsReactValues["parameters"], { get: (target, prop) => {console.warn('Deprecated parameters import'); return moduleWrapper.current.values.parameters?.[prop]} });
-export const pages = new Proxy<ChaynsReactValues["pages"]>({ } as ChaynsReactValues["pages"], { get: (target, prop) => {console.warn('Deprecated pages import'); return moduleWrapper.current.values.pages?.[prop]} });
-export const environment = new Proxy<ChaynsReactValues["environment"]>({ } as ChaynsReactValues["environment"], { get: (target, prop) => {console.warn('Deprecated environment import'); return moduleWrapper.current.values.environment?.[prop]} });
+export const user = new Proxy<UserInfo>({} as UserInfo, {
+    get: (target, prop) => {
+        if (prop === '$$typeof') {
+            return 'object';
+        }
+        console.warn('Deprecated user import');
+        return moduleWrapper.current.values.user?.[prop];
+    },
+});
+export const site = new Proxy<ChaynsApiSite>({} as ChaynsApiSite, {
+    get: (target, prop) => {
+        if (prop === '$$typeof') {
+            return 'object';
+        }
+        console.warn('Deprecated site import');
+        return moduleWrapper.current.values.site?.[prop];
+    },
+});
+export const device = new Proxy<ChaynsApiDevice>({} as ChaynsApiDevice, {
+    get: (target, prop) => {
+        if (prop === '$$typeof') {
+            return 'object';
+        }
+        console.warn('Deprecated device import');
+        return moduleWrapper.current.values.device?.[prop];
+    },
+});
+export const language = new Proxy<ChaynsReactValues["language"]>({} as ChaynsReactValues["language"], {
+    get: (target, prop) => {
+        if (prop === '$$typeof') {
+            return 'object';
+        }
+        console.warn('Deprecated language import');
+        return moduleWrapper.current.values.language?.[prop];
+    },
+});
+export const parameters = new Proxy<ChaynsReactValues["parameters"]>({} as ChaynsReactValues["parameters"], {
+    get: (target, prop) => {
+        if (prop === '$$typeof') {
+            return 'object';
+        }
+        console.warn('Deprecated parameters import');
+        return moduleWrapper.current.values.parameters?.[prop];
+    },
+});
+export const pages = new Proxy<ChaynsReactValues["pages"]>({} as ChaynsReactValues["pages"], {
+    get: (target, prop) => {
+        if (prop === '$$typeof') {
+            return 'object';
+        }
+        console.warn('Deprecated pages import');
+        return moduleWrapper.current.values.pages?.[prop];
+    },
+});
+export const environment = new Proxy<ChaynsReactValues["environment"]>({} as ChaynsReactValues["environment"], {
+    get: (target, prop) => {
+        if (prop === '$$typeof') {
+            return 'object';
+        }
+        console.warn('Deprecated environment import');
+        return moduleWrapper.current.values.environment?.[prop];
+    },
+});
