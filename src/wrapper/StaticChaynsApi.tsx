@@ -12,8 +12,6 @@ class StaticChaynsApi {
 
     private _wrapper;
 
-    private customFunctions;
-
     constructor(values, functions) {
         let wrapper;
         const deviceInfo = getDeviceInfo(navigator.userAgent, '');
