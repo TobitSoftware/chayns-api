@@ -3,38 +3,18 @@ import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { ChaynsContext } from '../components/ChaynsContext';
 import { IChaynsReact } from '../types/IChaynsReact';
 
-export const useValuesSelector = <Result>(selector: (value: IChaynsReact["values"]) => Result): Result => {
+const useChaynsSelector = <T extends 'values' | 'functions' | 'customFunctions'>(key: T) => <Result>(selector: (value: IChaynsReact[T]) => Result): Result => {
     const store = useContext(ChaynsContext);
 
     if (!store) {
         throw new Error('Could not find chayns context. Did you forget to add ChaynsProvider?');
     }
 
-    const getSnapshot = () => selector(store.values);
+    const getSnapshot = () => selector(store[key]);
 
     return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
 }
 
-export const useFunctionsSelector = <Result>(selector: (value: IChaynsReact["functions"]) => Result): Result => {
-    const store = useContext(ChaynsContext);
-
-    if (!store) {
-        throw new Error('Could not find chayns context. Did you forget to add ChaynsProvider?');
-    }
-
-    const getSnapshot = () => selector(store.functions);
-
-    return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
-}
-
-export const useCustomFunctionsSelector = <Result>(selector: (value: IChaynsReact["customFunctions"]) => Result): Result => {
-    const store = useContext(ChaynsContext);
-
-    if (!store) {
-        throw new Error('Could not find chayns context. Did you forget to add ChaynsProvider?');
-    }
-
-    const getSnapshot = () => selector(store.customFunctions);
-
-    return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
-}
+export const useValuesSelector = useChaynsSelector('values');
+export const useFunctionsSelector = useChaynsSelector('functions');
+export const useCustomFunctionsSelector = useChaynsSelector('customFunctions');

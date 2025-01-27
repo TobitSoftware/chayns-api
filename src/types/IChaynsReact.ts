@@ -372,6 +372,10 @@ export interface ChaynsReactFunctions {
     addAnonymousAccount: () => Promise<AnonymousAccountResult>;
 }
 
+export type ChaynsReactCustomFunctions = {
+    [key: string]: <A extends Array<any>, O>(...args: A) => Promise<O>;
+};
+
 export type DialogResult = {
     open: () => Promise<any>,
     close: (buttonType: DialogButtonType, data) => Promise<void>
@@ -599,7 +603,7 @@ interface DesignSettingsUpdateItem {
 export interface IChaynsReact {
     values: ChaynsReactValues;
     functions: ChaynsReactFunctions;
-    customFunctions: { [key: string]: <A extends Array<any>, O>(...args: A) => Promise<O> }
+    customFunctions: ChaynsReactCustomFunctions;
     addDataListener: (cb: DataChangeCallback) => CleanupCallback;
     getSSRData: () => ChaynsReactValues | null;
     init: () => Promise<void>;
