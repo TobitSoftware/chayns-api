@@ -12,7 +12,7 @@ module.exports = buildToolkitConfig({
         },
         entryPoints: {
             ['chayns-api']: {
-                pathIndex: './src/index.js',
+                pathIndex: './src/umd.index.js',
             },
         },
         path: 'dist',
@@ -21,6 +21,7 @@ module.exports = buildToolkitConfig({
         config.plugins.push(pluginUmd({
             name: 'ChaynsApi',
         }));
+        config.output.sourceMap = false;
         return config;
     },
 });
