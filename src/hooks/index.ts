@@ -22,3 +22,4 @@ export { useCustomData } from './useCustomData';
 export { useDialogState, useDialogData } from './useDialogState';
 export { useCustomCallbackFunction } from './useCustomCallbackFunction';
 export { useCustomFunction } from './useCustomFunction';
+export { useSiteSettings } from './useSiteSettings';

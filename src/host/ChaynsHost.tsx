@@ -32,7 +32,8 @@ type ChaynsHostType = {
     customData: any,
     environment: ChaynsReactValues["environment"],
     preventStagingReplacement?: boolean,
-    dialog: ChaynsReactValues["dialog"]
+    dialog: ChaynsReactValues["dialog"],
+    siteSettings: ChaynsReactValues["siteSettings"],
 }
 
 const ChaynsHost: FC<ChaynsHostType> = ({
@@ -56,7 +57,8 @@ const ChaynsHost: FC<ChaynsHostType> = ({
     customData,
     environment,
     preventStagingReplacement,
-    dialog
+    dialog,
+    siteSettings,
 }) => {
     const [isVisible, setIsVisible] = useState(type !== 'client-module' && (type !== 'server-module' || !!system?.serverUrl));
 
@@ -99,6 +101,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     customData={customData}
                     preventStagingReplacement={preventStagingReplacement}
                     dialog={dialog}
+                    siteSettings={siteSettings}
                 />
             )
         case 'client-module':
@@ -121,6 +124,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     environment={environment}
                     preventStagingReplacement={preventStagingReplacement}
                     dialog={dialog}
+                    siteSettings={siteSettings}
                 />
             );
         default:

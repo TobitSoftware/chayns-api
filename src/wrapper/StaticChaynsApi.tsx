@@ -40,6 +40,7 @@ class StaticChaynsApi {
     getParameters = () => this._wrapper.values.parameters;
     getPages = () => this._wrapper.values.pages;
     getEnvironment = () => this._wrapper.values.environment;
+    getSiteSettings = () => this._wrapper.values.siteSettings;
     getCustomFunction = (key: string) => this._wrapper.customFunctions[key];
 }
 

@@ -197,6 +197,49 @@ export type ChaynsApiSite = {
     originSiteId?: string;
 }
 
+export enum IconStyle {
+    SOLID,
+    REGULAR,
+    LIGHT,
+    DUOTONE,
+    SHARP,
+}
+
+export interface DesignSettings {
+    siteId?: string;
+    color: string;
+    secondaryColor?: string;
+    colorMode: ColorMode;
+    fontSize: number;
+    iconStyle: IconStyle;
+    headlineFontId?: number;
+    backgroundType?: number;
+    backgroundColor?: string;
+    headerBarColor?: string;
+    accordionIcon?: number;
+    accordionLines?: boolean;
+    cardBorderRadius?: number;
+    cardBackgroundOpacity?: number;
+    cardShadow?: number;
+}
+
+export interface ParagraphFormat {
+    selector: string;
+    fontSizePx?: number;
+    lineHeight?: number;
+    marginBeforePx?: number;
+    marginAfterPx?: number;
+    color?: string;
+    fontId?: number;
+    buttonDesignType?: number;
+    backgroundColor?: string;
+}
+
+export type ChaynsSiteSettings = {
+    designSettings: DesignSettings;
+    paragraphFormats: ParagraphFormat[];
+};
+
 export enum ScreenSize {
     /** screen width smaller than or equal 556px */
     XS,
@@ -273,7 +316,8 @@ export interface ChaynsReactValues {
         runtimeEnvironment: RuntimeEnviroment | string;
     },
     customData: any,
-    dialog: { dialogInput: any, isClosingRequested: boolean }
+    dialog: { dialogInput: any, isClosingRequested: boolean },
+    siteSettings?: ChaynsSiteSettings,
 }
 
 export interface DialogResultFile {
