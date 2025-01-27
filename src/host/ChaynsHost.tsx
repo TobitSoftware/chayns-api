@@ -33,7 +33,7 @@ type ChaynsHostType = {
     environment: ChaynsReactValues["environment"],
     preventStagingReplacement?: boolean,
     dialog: ChaynsReactValues["dialog"],
-    siteSettings: ChaynsReactValues["siteSettings"],
+    siteSettings?: ChaynsReactValues["siteSettings"],
 }
 
 const ChaynsHost: FC<ChaynsHostType> = ({
