@@ -12,7 +12,7 @@ import {
 } from '../types/IChaynsReact';
 
 type ChaynsHostType = {
-    type: string,
+    type: `${'client' | 'server'}-${'iframe' | 'module'}`,
     iFrameProps?: { [key: string]: unknown, name: string },
     functions: ChaynsReactFunctions,
     customFunctions?: IChaynsReact["customFunctions"],
