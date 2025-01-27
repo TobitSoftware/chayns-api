@@ -1,20 +1,26 @@
-const path = require('path');
+const { buildToolkitConfig } = require('chayns-toolkit');
+const { pluginUmd } = require('@rsbuild/plugin-umd');
 
-module.exports = {
+module.exports = buildToolkitConfig({
     development: {
-        host: "0.0.0.0",
+        host: '0.0.0.0',
         port: 8081,
     },
     output: {
-        singleBundle: true,
-        filename: 'chayns-api.js',
-        path: path.resolve(__dirname, 'dist'),
+        filename: {
+            js: '[name].js',
+        },
+        entryPoints: {
+            ['chayns-api']: {
+                pathIndex: './src/index.js',
+            },
+        },
+        path: 'dist',
     },
     webpack(config) {
-        config.output.library = {
+        config.plugins.push(pluginUmd({
             name: 'ChaynsApi',
-            type: 'umd',
-        }
+        }));
         return config;
-    }
-};
+    },
+});
