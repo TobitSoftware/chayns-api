@@ -130,6 +130,7 @@ export class AppWrapper implements IChaynsReact {
                 gender: Gender.Unknown,
                 userId: userId,
                 personId: AppUser.PersonID,
+                isAnonymous: AppUser.IsAnonymous,
                 uacGroups: [],
             },
             customData: null,

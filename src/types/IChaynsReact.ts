@@ -175,6 +175,7 @@ export type ChaynsApiUser = {
     uacGroups?: UacGroup[];
     userId?: number;
     personId?: string;
+    isAnonymous?: boolean;
 };
 
 export type ChaynsApiSite = {
