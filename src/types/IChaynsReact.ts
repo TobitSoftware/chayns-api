@@ -205,7 +205,7 @@ export enum IconStyle {
     SHARP,
 }
 
-export interface DesignSettings {
+export interface ChaynsDesignSettings {
     siteId?: string;
     color: string;
     secondaryColor?: string;
@@ -223,7 +223,7 @@ export interface DesignSettings {
     cardShadow?: number;
 }
 
-export interface ParagraphFormat {
+export interface ChaynsParagraphFormat {
     selector: string;
     fontSizePx?: number;
     lineHeight?: number;
@@ -235,9 +235,9 @@ export interface ParagraphFormat {
     backgroundColor?: string;
 }
 
-export type ChaynsSiteSettings = {
-    designSettings: DesignSettings;
-    paragraphFormats: ParagraphFormat[];
+export type ChaynsStyleSettings = {
+    designSettings: ChaynsDesignSettings;
+    paragraphFormats: ChaynsParagraphFormat[];
 };
 
 export enum ScreenSize {
@@ -317,7 +317,7 @@ export interface ChaynsReactValues {
     },
     customData: any,
     dialog: { dialogInput: any, isClosingRequested: boolean },
-    siteSettings?: ChaynsSiteSettings,
+    styleSettings?: ChaynsStyleSettings,
 }
 
 export interface DialogResultFile {
@@ -459,7 +459,7 @@ export interface RefreshData {
     user?: boolean;
     chaynsProData?: boolean;
     ignoreUacCache?: boolean;
-    siteSettings?: boolean;
+    styleSettings?: boolean;
     chaynsInfo?: boolean;
 }
 

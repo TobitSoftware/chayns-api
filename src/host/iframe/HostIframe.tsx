@@ -34,7 +34,7 @@ type HostIframeProps = {
     customData: ChaynsReactValues["customData"],
     preventStagingReplacement?: boolean,
     dialog: ChaynsReactValues["dialog"],
-    siteSettings: ChaynsReactValues["siteSettings"],
+    styleSettings: ChaynsReactValues["styleSettings"],
 }
 
 const HostIframe: FC<HostIframeProps> = ({
@@ -57,7 +57,7 @@ const HostIframe: FC<HostIframeProps> = ({
     customData,
     preventStagingReplacement,
     dialog,
-    siteSettings,
+    styleSettings,
 }) => {
     const eventTarget = useRef<EventTarget>();
     const ref = useRef<HTMLIFrameElement | null>();
@@ -88,7 +88,7 @@ const HostIframe: FC<HostIframeProps> = ({
         environment,
         customData,
         dialog,
-        siteSettings,
+        styleSettings,
     } as ChaynsReactValues;
     // endregion
 
@@ -147,7 +147,7 @@ const HostIframe: FC<HostIframeProps> = ({
     useUpdateData(eventTarget.current, 'environment', environment);
     useUpdateData(eventTarget.current, 'customData', customData);
     useUpdateData(eventTarget.current, 'dialog', dialog);
-    useUpdateData(eventTarget.current, 'siteSettings', siteSettings);
+    useUpdateData(eventTarget.current, 'styleSettings', styleSettings);
     // endregion
 
     return (

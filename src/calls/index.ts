@@ -226,7 +226,7 @@ export const getLanguage = () => moduleWrapper.current.values.language;
 export const getParameters = () => moduleWrapper.current.values.parameters;
 export const getPages = () => moduleWrapper.current.values.pages;
 export const getEnvironment = () => moduleWrapper.current.values.environment;
-export const getSiteSettings = () => moduleWrapper.current.values.siteSettings;
+export const getStyleSettings = () => moduleWrapper.current.values.styleSettings;
 /**
  * Returns the customFunction. Prefer usage via useCustomFunction when possible
  * @param key functionName

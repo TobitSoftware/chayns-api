@@ -1,5 +1,5 @@
 import { moduleWrapper } from '../components/moduleWrapper';
-import { AppName, DataChangeCallback } from '../types/IChaynsReact';
+import { AppName, DataChangeCallback, IChaynsReact } from '../types/IChaynsReact';
 import getDeviceInfo from '../util/deviceHelper';
 import { AppWrapper } from './AppWrapper';
 import { FrameWrapper } from './FrameWrapper';
@@ -10,7 +10,7 @@ class StaticChaynsApi {
     ready: Promise<void>;
     addDataListener: (cb: DataChangeCallback) => () => void;
 
-    private _wrapper;
+    private _wrapper: IChaynsReact;
 
     constructor(values, functions) {
         let wrapper;
@@ -40,7 +40,7 @@ class StaticChaynsApi {
     getParameters = () => this._wrapper.values.parameters;
     getPages = () => this._wrapper.values.pages;
     getEnvironment = () => this._wrapper.values.environment;
-    getSiteSettings = () => this._wrapper.values.siteSettings;
+    getStyleSettings = () => this._wrapper.values.styleSettings;
     getCustomFunction = (key: string) => this._wrapper.customFunctions[key];
 }
 
