@@ -148,6 +148,7 @@ export class AppWrapper implements IChaynsReact {
                 gender: Gender.Unknown,
                 userId: userId,
                 personId: AppUser.PersonID,
+                isAnonymous: AppUser.IsAnonymous,
                 uacGroups: [],
             },
             customData: null,
@@ -600,7 +601,13 @@ export class AppWrapper implements IChaynsReact {
             enabled: true,
         }, {
             callback: ({ colorMode }) => {
-                this.values.site = { ...this.values.site, colorMode };
+                this.values = {
+                    ...this.values,
+                    site: {
+                        ...this.values.site,
+                        colorMode,
+                    }
+                };
                 document.dispatchEvent(new CustomEvent('chayns_api_data', { detail: { type: 'site', value: this.values.site } }));
             },
             awaitResult: true
