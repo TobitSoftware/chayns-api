@@ -211,6 +211,11 @@ export enum ScreenSize {
     XL
 }
 
+export enum AppFlavor {
+    None = 'none',
+    Chayns = 'chayns'
+}
+
 export type ChaynsApiDevice = {
     app?: { //  von host
         name: AppName; // user agent
@@ -221,6 +226,8 @@ export type ChaynsApiDevice = {
         /** the version of the chayns call interface */
         callVersion: number;
         storePackageName?: string; // maybe unused
+        /** the flavor of the app, e. g. all chayns apps including chat app, sidekick, team */
+        flavor: AppFlavor
     },
     browser?: { //  von host
         name?: IBrowser["name"] | 'bot' | null; // https://www.npmjs.com/package/detect-browser

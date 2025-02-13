@@ -41,6 +41,7 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string, { imei }: { imei
     };
     result.app = {
         name: appName,
+        flavor: appName === AppName.Unknown ? AppFlavor.None : AppFlavor.Chayns,
         version: match?.groups ? Number.parseInt(match.groups.version, 10) : NaN,
         appVersion,
         callVersion: match?.groups ? Number.parseInt(match.groups.version, 10) : NaN,
