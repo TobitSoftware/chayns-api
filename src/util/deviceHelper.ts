@@ -1,5 +1,5 @@
 import { UAParser } from 'ua-parser-js';
-import { AppName, ChaynsApiDevice, ScreenSize } from '../types/IChaynsReact';
+import { AppFlavor, AppName, ChaynsApiDevice, ScreenSize } from '../types/IChaynsReact';
 
 const getDeviceInfo = (userAgent: string, acceptHeader: string, { imei }: { imei?: string } = {}) => {
     const uaParser = new UAParser(userAgent);
