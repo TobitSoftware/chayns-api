@@ -459,7 +459,6 @@ export interface RefreshData {
     user?: boolean;
     chaynsProData?: boolean;
     ignoreUacCache?: boolean;
-    styleSettings?: boolean;
     chaynsInfo?: boolean;
 }
 
