@@ -207,7 +207,6 @@ export enum IconStyle {
 }
 
 export interface ChaynsDesignSettings {
-    siteId?: string;
     color: string;
     secondaryColor?: string;
     colorMode: ColorMode;
