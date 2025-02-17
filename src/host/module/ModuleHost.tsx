@@ -40,7 +40,8 @@ type ModulePropTypes = {
     environment: ChaynsReactValues["environment"],
     preventStagingReplacement?: boolean,
     dialog: ChaynsReactValues["dialog"],
-    children?: ReactNode
+    children?: ReactNode,
+    styleSettings: ChaynsReactValues["styleSettings"],
 }
 
 const System: FC<SystemPropTypes> = ({
@@ -74,7 +75,8 @@ const ModuleHost: FC<ModulePropTypes> = ({
     customData,
     dialog,
     environment,
-    preventStagingReplacement
+    preventStagingReplacement,
+    styleSettings,
 }) => {
     // region initialData
     const initialData = {
@@ -87,6 +89,7 @@ const ModuleHost: FC<ModulePropTypes> = ({
         parameters,
         customData,
         environment,
+        styleSettings,
     } as ChaynsReactValues;
 
     if (user) {

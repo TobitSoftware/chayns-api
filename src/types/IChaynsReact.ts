@@ -198,6 +198,48 @@ export type ChaynsApiSite = {
     originSiteId?: string;
 }
 
+export enum IconStyle {
+    SOLID,
+    REGULAR,
+    LIGHT,
+    DUOTONE,
+    SHARP,
+}
+
+export interface ChaynsDesignSettings {
+    color: string;
+    secondaryColor?: string;
+    colorMode: ColorMode;
+    fontSize: number;
+    iconStyle: IconStyle;
+    headlineFontId?: number;
+    backgroundType?: number;
+    backgroundColor?: string;
+    headerBarColor?: string;
+    accordionIcon?: number;
+    accordionLines: boolean;
+    cardBorderRadius?: number;
+    cardBackgroundOpacity?: number;
+    cardShadow?: number;
+}
+
+export interface ChaynsParagraphFormat {
+    selector: string;
+    fontSizePx?: number;
+    lineHeight?: number;
+    marginBeforePx?: number;
+    marginAfterPx?: number;
+    color?: string;
+    fontId?: number;
+    buttonDesignType?: number;
+    backgroundColor?: string;
+}
+
+export type ChaynsStyleSettings = {
+    designSettings: ChaynsDesignSettings;
+    paragraphFormats: ChaynsParagraphFormat[];
+};
+
 export enum ScreenSize {
     /** screen width smaller than or equal 556px */
     XS,
@@ -281,7 +323,8 @@ export interface ChaynsReactValues {
         runtimeEnvironment: RuntimeEnviroment | string;
     },
     customData: any,
-    dialog: { dialogInput: any, isClosingRequested: boolean }
+    dialog: { dialogInput: any, isClosingRequested: boolean },
+    styleSettings?: ChaynsStyleSettings,
 }
 
 export interface DialogResultFile {
@@ -421,6 +464,9 @@ export interface RefreshData {
     suffix?: boolean;
     tapps?: boolean;
     user?: boolean;
+    chaynsProData?: boolean;
+    ignoreUacCache?: boolean;
+    chaynsInfo?: boolean;
 }
 
 export type IntercomMessage = {

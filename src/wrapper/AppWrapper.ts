@@ -7,6 +7,7 @@ import {
     AvailableSharingServices,
     ChaynsReactFunctions,
     ChaynsReactValues,
+    ChaynsStyleSettings,
     CleanupCallback,
     DataChangeCallback,
     DataChangeValue,
@@ -39,6 +40,23 @@ export class AppWrapper implements IChaynsReact {
     listeners: (() => void)[] =  [];
 
     customFunctions = {};
+
+    async loadStyleSettings(siteId: string) {
+        try {
+            const res = await fetch(`https://style.tobit.cloud/css/${siteId}/components`, {
+                signal: AbortSignal.timeout?.(5000),
+            });
+
+            if (res.status === 200) {
+                return await res.json() as ChaynsStyleSettings;
+            }
+
+            console.error(`[chayns-api] failed to load style settings with status code: ${res.status}`);
+        } catch (ex) {
+            console.error('[chayns-api] failed to load style settings', ex);
+        }
+        return undefined;
+    }
 
     mapOldApiToNew(retVal) {
         const { AppInfo, AppUser, Device } = retVal;
@@ -563,6 +581,7 @@ export class AppWrapper implements IChaynsReact {
 
     async init() {
         this.values = this.mapOldApiToNew(await this.appCall(18));
+        this.values.styleSettings = await this.loadStyleSettings(this.values.site.id);
 
         document.documentElement.classList.add('chayns-api--app');
 

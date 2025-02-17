@@ -18,7 +18,7 @@ type ChaynsHostType = {
     customFunctions?: IChaynsReact["customFunctions"],
     src?: string,
     iFrameRef?: React.MutableRefObject<HTMLIFrameElement | null> | undefined,
-    loadingComponent?: JSX.Element,
+    loadingComponent?: React.ReactNode,
     system?: TypeSystem,
     // shallow data
     pages: Page[],
@@ -32,8 +32,16 @@ type ChaynsHostType = {
     customData: any,
     environment: ChaynsReactValues["environment"],
     preventStagingReplacement?: boolean,
-    dialog: ChaynsReactValues["dialog"]
-}
+    dialog: ChaynsReactValues["dialog"],
+    styleSettings?: ChaynsReactValues["styleSettings"],
+} & ({
+    type: `${'client' | 'server'}-iframe`,
+    src: string,
+    iFrameProps: { [key: string]: unknown, name: string },
+} | {
+    type: `${'client' | 'server'}-module`,
+    system: TypeSystem,
+});
 
 const ChaynsHost: FC<ChaynsHostType> = ({
     type,
@@ -56,7 +64,8 @@ const ChaynsHost: FC<ChaynsHostType> = ({
     customData,
     environment,
     preventStagingReplacement,
-    dialog
+    dialog,
+    styleSettings,
 }) => {
     const [isVisible, setIsVisible] = useState(type !== 'client-module' && (type !== 'server-module' || !!system?.serverUrl));
 
@@ -82,7 +91,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
             return (
                 <HostIframe
                     iFrameRef={iFrameRef}
-                    iFrameProps={iFrameProps!}
+                    iFrameProps={iFrameProps}
                     pages={pages}
                     isAdminModeActive={isAdminModeActive}
                     site={site}
@@ -91,7 +100,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     currentPage={currentPage}
                     functions={functions}
                     customFunctions={customFunctions}
-                    src={src!}
+                    src={src}
                     postForm={type === 'server-iframe'}
                     language={language}
                     parameters={parameters}
@@ -99,13 +108,14 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     customData={customData}
                     preventStagingReplacement={preventStagingReplacement}
                     dialog={dialog}
+                    styleSettings={styleSettings}
                 />
             )
         case 'client-module':
         case 'server-module':
             return (
                 <ModuleHost
-                    system={system!}
+                    system={system}
                     pages={pages}
                     isAdminModeActive={isAdminModeActive}
                     site={site}
@@ -121,6 +131,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                     environment={environment}
                     preventStagingReplacement={preventStagingReplacement}
                     dialog={dialog}
+                    styleSettings={styleSettings}
                 />
             );
         default:
