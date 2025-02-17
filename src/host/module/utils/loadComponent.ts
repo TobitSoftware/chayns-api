@@ -75,7 +75,7 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
             const sharedReact = shareScopes['chayns-api'].react[React.version];
             const matchReactVersion = sharedReact && sharedReact.useIn.includes(scope) && sharedReact.lib?.() === React;
 
-            if (!matchReactVersion || (Module.default.version || 1) < 2) {
+            if (!matchReactVersion || Module.default.environment !== 'production' || (Module.default.version || 1) < 2) {
                 const OriginalCompatComponent = (Module.default.version || 1) < 2.1 ? Module.default.CompatComponent.render({}).type.prototype : Module.default.CompatComponent.prototype;
 
                 class CompatComponent extends React.Component {
