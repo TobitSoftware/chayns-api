@@ -624,6 +624,7 @@ export interface DesignSettingsUpdateGlobalSettings {
     addBackgroundColorInHeader?: boolean;
     enableStagingSwitch?: boolean;
     hideNavigationButton?: boolean;
+    showFooterMenu?: boolean;
 }
 
 export enum DesignSettingsUpdateTappViewModes {
