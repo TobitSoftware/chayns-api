@@ -166,7 +166,6 @@ export enum DialogButtonType {
     NEGATIVE = 0
 }
 
-
 export type ChaynsApiUser = {
     firstName?: string;
     lastName?: string;
@@ -340,7 +339,7 @@ export interface DialogResultFile {
     url: string;
 }
 
-type DialogResultValue<T> = {
+export type DialogResultValue<T> = {
     [DialogType.INPUT]: string,
     [DialogType.SELECT]: (number | string)[],
     [DialogType.CONFIRM]: void,
@@ -512,7 +511,7 @@ export type ScanQrCodeResult = {
     resultType: number;
 }
 
-enum IOSFeedbackVibration {
+export enum IOSFeedbackVibration {
     Unknown,
     SelectionChanged,
     NotificationError,
@@ -540,7 +539,7 @@ export interface ShowOverlay {
 }
 
 // region design settings
-enum SnapshotType {
+export enum SnapshotType {
     Background = 'background',
     Settings = 'settings',
     ColorScheme = 'colorScheme',
@@ -548,20 +547,20 @@ enum SnapshotType {
     Tapp = 'tapp'
 }
 
-enum DesignSettingsUpdateBackgroundType {
+export enum DesignSettingsUpdateBackgroundType {
     None,
     Image,
     Video,
     Color
 }
 
-interface DesignSettingsUpdateGradient {
+export interface DesignSettingsUpdateGradient {
     startColor?: string,
     endColor: string;
     type: number;
 }
 
-interface DesignSettingsUpdateBackground {
+export interface DesignSettingsUpdateBackground {
     canvasBlur?: number;
     canvasOpacity?: number;
     color?: string;
@@ -572,7 +571,7 @@ interface DesignSettingsUpdateBackground {
     gradient?: DesignSettingsUpdateGradient;
 }
 
-enum DesignSettingsUpdateSeasonTypes {
+export enum DesignSettingsUpdateSeasonTypes {
     None,
     Snowm,
     Confetti,
@@ -584,14 +583,14 @@ enum DesignSettingsUpdateSeasonTypes {
     Coins
 }
 
-enum DesignSettingsUpdateGalleryAnimationTypes {
+export enum DesignSettingsUpdateGalleryAnimationTypes {
     Swipe,
     Fade,
     Parallax,
     KenBurns
 }
 
-enum DesignSettingsUpdateCoverTypes {
+export enum DesignSettingsUpdateCoverTypes {
     Image,
     Video,
     Slideshow,
@@ -599,7 +598,7 @@ enum DesignSettingsUpdateCoverTypes {
     None
 }
 
-interface DesignSettingsUpdateCover {
+export interface DesignSettingsUpdateCover {
     animationType: DesignSettingsUpdateGalleryAnimationTypes;
     seasonAnimation?: DesignSettingsUpdateSeasonTypes;
     fallbackUrl?: string;
@@ -609,25 +608,25 @@ interface DesignSettingsUpdateCover {
     urls: string[];
 }
 
-enum DesignSettingsUpdateColorSchemeMode {
+export enum DesignSettingsUpdateColorSchemeMode {
     Normal,
     Dark,
     Bright
 }
 
-interface DesignSettingsUpdateColorScheme {
+export interface DesignSettingsUpdateColorScheme {
     color: string;
     mode: DesignSettingsUpdateColorSchemeMode;
 }
 
-interface DesignSettingsUpdateGlobalSettings {
+export interface DesignSettingsUpdateGlobalSettings {
     useChatHead?: boolean;
     addBackgroundColorInHeader?: boolean;
     enableStagingSwitch?: boolean;
     hideNavigationButton?: boolean;
 }
 
-enum DesignSettingsUpdateTappViewModes {
+export enum DesignSettingsUpdateTappViewModes {
     Normal,
     Exclusive,
     Wide,
@@ -635,7 +634,7 @@ enum DesignSettingsUpdateTappViewModes {
     FullscreenWithBackground
 }
 
-interface DesignSettingsUpdateTapp {
+export interface DesignSettingsUpdateTapp {
     viewMode?: DesignSettingsUpdateTappViewModes;
     removeLocationBarHeight?: boolean;
 }
@@ -647,7 +646,7 @@ export interface DesignSettings {
     updates: DesignSettingsUpdateItem[];
 }
 
-interface DesignSettingsUpdateItem {
+export interface DesignSettingsUpdateItem {
     type: SnapshotType,
     value: DesignSettingsUpdateBackground | DesignSettingsUpdateCover | DesignSettingsUpdateColorScheme | DesignSettingsUpdateGlobalSettings | DesignSettingsUpdateTapp
 }
@@ -705,7 +704,7 @@ export interface OpenVideo {
     url: string;
 }
 
-enum LoginState {
+export enum LoginState {
     FACEBOOK = 0,
     T_WEB = 1,
     LoginFailed = 2,
@@ -852,7 +851,7 @@ export interface ScrollListenerResult { // ?
     scrollY: number | null;
 }
 
-interface LayoutDisposition {
+export interface LayoutDisposition {
     barOnTop: boolean;
     barWide: boolean;
     contentWide: boolean;
@@ -863,7 +862,7 @@ interface LayoutDisposition {
 }
 
 
-interface UacGroup {
+export interface UacGroup {
     id: number;
 }
 
@@ -1005,7 +1004,7 @@ export interface SelectInput {
     selectAllButton?: string;
 }
 
-enum selectType {
+export enum selectType {
     DEFAULT = 0,
     ICON = 1
 }
