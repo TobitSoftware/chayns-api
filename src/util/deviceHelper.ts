@@ -22,7 +22,7 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string, { imei }: { imei
         appName = AppName.David;
     } else if (match) {
         appName = AppName.Location;
-    } else if ((/dface|h96pp|h96max|jabiru|chaynsterminal|wayter|odroidn2p/i).test(userAgent)) {
+    } else if ((/dface|h96pp|h96max|jabiru|chaynsterminal|wayter|odroidn2p|chayns-runtime-custom/i).test(userAgent)) {
         appName = AppName.ChaynsLauncher;
     }
 
