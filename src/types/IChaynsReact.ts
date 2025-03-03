@@ -209,7 +209,7 @@ export interface ChaynsDesignSettings {
     color: string;
     secondaryColor?: string;
     colorMode: ColorMode;
-    fontSize: number;
+    fontSizePx: number;
     iconStyle: IconStyle;
     headlineFontId?: number;
     backgroundType?: number;
