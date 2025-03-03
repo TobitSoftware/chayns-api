@@ -78,27 +78,28 @@ const ModuleHost: FC<ModulePropTypes> = ({
     preventStagingReplacement,
     styleSettings,
 }) => {
-    // region initialData
-    const initialData = {
-        site,
-        isAdminModeActive,
-        pages,
-        currentPage,
-        device,
-        language,
-        parameters,
-        customData,
-        environment,
-        styleSettings,
-    } as ChaynsReactValues;
+    const data = useMemo(() => {
+        const result = {
+            site,
+            isAdminModeActive,
+            pages,
+            currentPage,
+            device,
+            language,
+            parameters,
+            customData,
+            environment,
+            styleSettings,
+        } as ChaynsReactValues;
 
-    if (user) {
-        initialData.user = user;
-    }
-    if (dialog) {
-        initialData.dialog = dialog;
-    }
-    // endregion
+        if (user) {
+            result.user = user;
+        }
+        if (dialog) {
+            result.dialog = dialog;
+        }
+        return result;
+    }, [site, isAdminModeActive, pages, currentPage, device, language, parameters, customData, environment, styleSettings, user, dialog]);
 
     return (
         <>
@@ -111,7 +112,7 @@ const ModuleHost: FC<ModulePropTypes> = ({
                     module: system.module,
                     preventSingleton: system.preventSingleton
                 }}
-                data={initialData}
+                data={data}
                 functions={functions}
                 customFunctions={customFunctions}
                 fallback={children}

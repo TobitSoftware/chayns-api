@@ -82,11 +82,9 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     }, []);
 
     useEffect(() => {
-        if (isModule) {
-            if (data) {
-                customWrapper.current.values = data;
-                customWrapper.current.emitChange();
-            }
+        if (isModule && data) {
+            customWrapper.current.values = data;
+            customWrapper.current.emitChange();
         }
     }, [data, isModule]);
 
