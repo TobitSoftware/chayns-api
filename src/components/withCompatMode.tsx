@@ -3,12 +3,7 @@
 import React, { PureComponent, RefObject } from 'react';
 import ReactDOM from 'react-dom';
 import ErrorBoundary from './ErrorBoundary';
-let ReactDOMClient;
-try {
-    ReactDOMClient = require('react-dom/client');
-} catch (e) {
-    // do nothing
-}
+import { createRoot } from 'react-dom/client';
 
 type Props = {
     innerRef?: RefObject<unknown>,
@@ -29,9 +24,11 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
             const { innerRef } = this.props;
 
             const component = <ErrorBoundary><Component {...this.props} ref={innerRef}/></ErrorBoundary>;
-            if (typeof ReactDOMClient?.createRoot === 'function') {
+            if (typeof createRoot === 'function') {
                 // TODO: use non-random value
-                this.root = ReactDOMClient.createRoot(this.ref.current, { identifierPrefix: crypto.randomUUID() });
+
+                const identifierPrefix = Math.floor(Math.random() * 2**64).toString(16);
+                this.root = createRoot(this.ref.current as HTMLDivElement, { identifierPrefix });
                 this.root.render(component);
             } else {
                 ReactDOM.render(component, this.ref.current);
