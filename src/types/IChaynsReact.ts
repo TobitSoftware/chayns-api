@@ -139,6 +139,7 @@ export enum DialogSelectType {
 export type DialogSelectListItemType = {
     id: number | string;
     name: string;
+    subtitle?: string;
     disabled?: boolean;
     isSelected?: boolean;
     url?: string;
