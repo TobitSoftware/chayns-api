@@ -26,8 +26,7 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
             const component = <ErrorBoundary><Component {...this.props} ref={innerRef}/></ErrorBoundary>;
             if (typeof createRoot === 'function') {
                 // TODO: use non-random value
-
-                const identifierPrefix = Math.floor(Math.random() * 2**64).toString(16);
+                const identifierPrefix = Array(8).fill(0).map(() => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join('');
                 this.root = createRoot(this.ref.current as HTMLDivElement, { identifierPrefix });
                 this.root.render(component);
             } else {
