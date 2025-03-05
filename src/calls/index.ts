@@ -204,7 +204,7 @@ export const vibrate = (...args: Parameters<ChaynsReactFunctions["vibrate"]>) =>
  * This method creates a dialog
  */
 // @ts-ignore
-export const createDialog: ChaynsReactFunctions["createDialog"] = (config) => moduleWrapper.current.functions.createDialog(config);
+export const createDialog: ChaynsReactFunctions["createDialog"] = <I, R>(config: Dialog<I>) => moduleWrapper.current.functions.createDialog<I, R>(config);
 /**
  * Displays an overlay
  */

@@ -3,7 +3,7 @@ import {
     ChaynsReactFunctions,
     ChaynsReactValues,
     DataChangeCallback,
-    DataChangeValue,
+    DataChangeValue, Dialog,
     IChaynsReact,
     IntercomMessage,
 } from '../types/IChaynsReact';
@@ -43,8 +43,8 @@ export class ModuleFederationWrapper implements IChaynsReact {
             this.customFunctions = customFunctions;
         }
 
-        this.functions.createDialog = (config) => {
-            return new DialogHandler(config, functions.openDialog, functions.closeDialog, functions.dispatchEventToDialogClient, functions.addDialogClientEventListener);
+        this.functions.createDialog = <I, R>(config: Dialog<I>) => {
+            return new DialogHandler<R>(config, functions.openDialog, functions.closeDialog, functions.dispatchEventToDialogClient, functions.addDialogClientEventListener);
         }
 
         this.functions.addWindowMetricsListener = async (callback) => {

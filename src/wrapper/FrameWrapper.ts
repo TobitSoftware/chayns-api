@@ -7,7 +7,7 @@ import {
     ChaynsReactValues,
     CleanupCallback,
     DataChangeCallback,
-    DataChangeValue, DialogButtonType,
+    DataChangeValue, Dialog, DialogButtonType,
     GeoLocation,
     IChaynsReact,
     ScrollListenerResult, ToolbarChangeListenerResult,
@@ -253,8 +253,8 @@ export class FrameWrapper implements IChaynsReact {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.scrollByY(value, duration);
         },
-        createDialog: (config) => {
-            return new DialogHandler(config, this.functions.openDialog, this.exposedFunctions.closeDialog, this.functions.dispatchEventToDialogClient, this.functions.addDialogClientEventListener);
+        createDialog: <I, R>(config: Dialog<I>) => {
+            return new DialogHandler<R>(config, this.functions.openDialog, this.exposedFunctions.closeDialog, this.functions.dispatchEventToDialogClient, this.functions.addDialogClientEventListener);
         },
         closeDialog: async (dialogId) => {
             if (!this.initialized) await this.ready;

@@ -1,7 +1,7 @@
-export default class DialogHandler<S = void, T extends any = void> {
+export default class DialogHandler<T = unknown> {
     private dialogId;
     private isOpen = false;
-    private result: { buttonType: number; result: T extends undefined ? S : T } | undefined;
+    private result: { buttonType: number; result: T } | undefined;
     private readonly _open;
     private readonly _close;
     private readonly _config;
@@ -21,7 +21,7 @@ export default class DialogHandler<S = void, T extends any = void> {
         if (this.isOpen) {
             throw new Error('cannot open a dialog which is already open');
         }
-        const res = await new Promise<{ buttonType: number, result: T extends undefined ? S : T }>(async (resolve) => {
+        const res = await new Promise<{ buttonType: number, result: T }>(async (resolve) => {
             const callback = (data) => {
                 this.isOpen = false;
                 resolve(data);
