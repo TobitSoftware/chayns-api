@@ -42,6 +42,8 @@ function withHydrationBoundary<P extends object, T, S, U>(
     useHydrationId?: () => string,
     useProps?: (props: P) => U,
 ): HydrationBoundary<P> {
+    const stores: { [key: string]: ReturnType<typeof initializer>} = {};
+
     return ({ id: idProp, children, ...rest }) => {
         let value: HydrationContextValueType<T>;
         if (!globalThis.window) {
@@ -66,14 +68,17 @@ function withHydrationBoundary<P extends object, T, S, U>(
                     initialValue = JSON.parse($elem.innerHTML);
                 }
             }
-            const s = initializer(initialValue, id, props!);
+            const s = globalThis.window && (id in stores) ? stores[id] : initializer(initialValue, id, props!);
             if (!globalThis.window) {
                 value[id] = s;
+            } else {
+                stores[id] = s;
             }
             return s;
         });
 
         useEffect(() => {
+            delete stores[id];
             const htmlId = `__INITIAL_DATA_${id}__`;
             const $elem = document.getElementById(htmlId);
             if ($elem) {
