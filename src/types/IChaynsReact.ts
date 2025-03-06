@@ -85,13 +85,13 @@ export interface BaseDialog {
     }
 }
 
-export type Dialog<T extends any = object> = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule<T> | DialogIFrame<T> | DialogSelect | DialogDate | DialogToast | DialogSignature | DialogFileSelect);
+export type Dialog<T = object> = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule<T> | DialogIFrame<T> | DialogSelect | DialogDate | DialogToast | DialogSignature | DialogFileSelect);
 
 export interface DialogSignature {
     type: DialogType.SIGNATURE;
 }
 
-export interface DialogModule<T extends any = object> {
+export interface DialogModule<T = object> {
     type: DialogType.MODULE
     system: {
         url: string,
@@ -104,7 +104,7 @@ export interface DialogModule<T extends any = object> {
     seamless?: boolean;
 }
 
-export interface DialogIFrame<T extends any = object> {
+export interface DialogIFrame<T = object> {
     type: DialogType.IFRAME
     url: string,
     dialogInput?: T,
@@ -394,15 +394,13 @@ export interface ChaynsReactFunctions {
     // findPerson: () => Promise<void>; // TODO: Maybe unused
     setOverlay: (value: ShowOverlay, callback: () => void) => Promise<void>;
     // public interface to create dialogs
-    createDialog(config: BaseDialog & DialogAlert): DialogHandler<void>;
-    createDialog(config: BaseDialog & DialogInput): DialogHandler<string>;
-    createDialog<I, R>(config: BaseDialog & DialogModule<I>): DialogHandler<R>;
-    createDialog<I, R>(config: BaseDialog & DialogIFrame<I>): DialogHandler<R>;
+    createDialog(config: BaseDialog & (DialogAlert | DialogConfirm | DialogToast)): DialogHandler<void>;
+    createDialog(config: BaseDialog & (DialogInput | DialogSignature)): DialogHandler<string>;
     createDialog(config: BaseDialog & DialogSelect): DialogHandler<(number | string)[]>;
+    createDialog(config: BaseDialog & DialogDate & ({ multiselect: true } | { interval: true })): DialogHandler<Date[]>;
     createDialog(config: BaseDialog & DialogDate): DialogHandler<Date>;
-    createDialog(config: BaseDialog & DialogToast): DialogHandler<void>;
-    createDialog(config: BaseDialog & DialogSignature): DialogHandler<string>;
     createDialog(config: BaseDialog & DialogFileSelect): DialogHandler<DialogResultFile[]>;
+    createDialog<I = any, R = unknown>(config: BaseDialog & (DialogModule<I> | DialogIFrame<I>)): DialogHandler<R>;
     // used internally by createDialog
     openDialog: (value, callback: (data: any) => any) => Promise<any>;
     // used internally by createDialog

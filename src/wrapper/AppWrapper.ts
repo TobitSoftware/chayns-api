@@ -11,6 +11,7 @@ import {
     CleanupCallback,
     DataChangeCallback,
     DataChangeValue,
+    Dialog,
     Environment,
     Font,
     Gender,
@@ -544,8 +545,8 @@ export class AppWrapper implements IChaynsReact {
         vibrate: async (value) => {
             void this.appCall(19, value, { awaitResult: false });
         },
-        createDialog: (config) => {
-            return new DialogHandler(config, this.functions.openDialog, this.functions.closeDialog, this.functions.dispatchEventToDialogClient, this.functions.addDialogClientEventListener);
+        createDialog: <I, R>(config: Dialog<I>) => {
+            return new DialogHandler<R>(config, this.functions.openDialog, this.functions.closeDialog, this.functions.dispatchEventToDialogClient, this.functions.addDialogClientEventListener);
         },
         openDialog: async (config, callback) => {
             const currentDialogId = appWrapperDialogId++;

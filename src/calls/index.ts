@@ -4,6 +4,7 @@ import {
     ChaynsApiSite,
     ChaynsReactFunctions,
     ChaynsReactValues,
+    Dialog,
     UserInfo,
 } from '../types/IChaynsReact';
 
@@ -203,8 +204,8 @@ export const vibrate = (...args: Parameters<ChaynsReactFunctions["vibrate"]>) =>
 /**
  * This method creates a dialog
  */
-// @ts-ignore
-export const createDialog: ChaynsReactFunctions["createDialog"] = <I, R>(config: Dialog<I>) => moduleWrapper.current.functions.createDialog<I, R>(config);
+// @ts-expect-error type is correct
+export const createDialog: ChaynsReactFunctions["createDialog"] = (config: Dialog<I>) => moduleWrapper.current.functions.createDialog(config as unknown);
 /**
  * Displays an overlay
  */
