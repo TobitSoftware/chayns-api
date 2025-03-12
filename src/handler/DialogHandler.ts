@@ -39,7 +39,7 @@ export default class DialogHandler<T = unknown> {
         return this.result = res;
     }
 
-    close(buttonType, data) {
+    close(buttonType: number, data: any = undefined) {
         if (!this.isOpen) {
             return;
         }
