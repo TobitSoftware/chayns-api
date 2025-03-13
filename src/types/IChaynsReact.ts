@@ -206,13 +206,26 @@ export enum IconStyle {
     SHARP,
 }
 
+export interface ChaynsFontInfo {
+    id: number;
+    name: string;
+    backup: string;
+    hasBold: boolean;
+    factor?: number;
+    lineHeightFactor?: number;
+    wordSpacing?: number;
+    letterSpacing?: number;
+}
+
 export interface ChaynsDesignSettings {
     color: string;
     secondaryColor?: string;
     colorMode: ColorMode;
     fontSizePx: number;
+    font?: ChaynsFontInfo;
     iconStyle: IconStyle;
     headlineFontId?: number;
+    headlineFont?: ChaynsFontInfo;
     backgroundType?: number;
     backgroundColor?: string;
     headerBarColor?: string;
@@ -231,6 +244,7 @@ export interface ChaynsParagraphFormat {
     marginAfterPx?: number;
     color?: string;
     fontId?: number;
+    font?: ChaynsFontInfo;
     buttonDesignType?: number;
     backgroundColor?: string;
 }
