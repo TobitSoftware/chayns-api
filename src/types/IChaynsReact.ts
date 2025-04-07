@@ -393,7 +393,7 @@ export interface ChaynsReactFunctions {
     sendMessageToPage: (message: IntercomMessage) => Promise<Response>;
     sendMessageToUser: (userId: number, message: IntercomMessage) => Promise<Response>;
     setAdminMode: (enabled: boolean) => Promise<void>;
-    setCustomCookie: (value: { name: string, value: string, expireDate?: string | number | Date }) => Promise<void>;
+    setCustomCookie: (value: { name: string, value: string | null, expireDate?: string | number | Date }) => Promise<void>;
     setDisplayTimeout: (enabled: boolean) => Promise<DisplayTimeout>;
     setFloatingButton: (value: FloatingButton, callback: () => void) => Promise<void>;
     setHeight: (height: number) => Promise<void>;
