@@ -366,6 +366,7 @@ export interface ChaynsReactFunctions {
     customCallbackFunction: (type: string, data: unknown) => Promise<unknown>;
     getAvailableSharingServices: () => Promise<AvailableSharingServices>;
     getAccessToken: (value?: AccessToken) => Promise<AccessTokenResult>;
+    getCustomCookie: (value: { name: string }) => Promise<string | undefined>;
     getGeoLocation: (value: { timeout?: number, silent?: boolean }) => Promise<GeoLocation>;
     getUserInfo: (value: UserInfoQuery) => Promise<UserInfo | null>;
     getScrollPosition: () => Promise<ScrollListenerResult>;
@@ -392,6 +393,7 @@ export interface ChaynsReactFunctions {
     sendMessageToPage: (message: IntercomMessage) => Promise<Response>;
     sendMessageToUser: (userId: number, message: IntercomMessage) => Promise<Response>;
     setAdminMode: (enabled: boolean) => Promise<void>;
+    setCustomCookie: (value: { name: string, value: string, expireDate?: string | number | Date }) => Promise<void>;
     setDisplayTimeout: (enabled: boolean) => Promise<DisplayTimeout>;
     setFloatingButton: (value: FloatingButton, callback: () => void) => Promise<void>;
     setHeight: (height: number) => Promise<void>;

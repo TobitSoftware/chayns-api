@@ -294,6 +294,9 @@ export class AppWrapper implements IChaynsReact {
                 availableAndroidApps: res.availableAndroidApps as string [],
             };
         },
+        getCustomCookie: async () => {
+            this.notImplemented('getCustomCookie');
+        },
         getGeoLocation: async () => {
             const res = await this.appCall(14) as GeoLocation;
             return {
@@ -468,6 +471,9 @@ export class AppWrapper implements IChaynsReact {
         },
         setAdminMode: async () => {
             this.notImplemented('setAdminMode');
+        },
+        setCustomCookie: async () => {
+            this.notImplemented('setCustomCookie');
         },
         setDisplayTimeout: async (enabled) => {
             this.appCall(94, { enabled }, { awaitResult: false });

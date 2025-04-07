@@ -80,6 +80,10 @@ export class FrameWrapper implements IChaynsReact {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.getAccessToken(accessToken);
         },
+        getCustomCookie: async (value) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.getCustomCookie(value);
+        },
         getGeoLocation: async (value) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.getGeoLocation(value);
@@ -189,6 +193,10 @@ export class FrameWrapper implements IChaynsReact {
         setAdminMode: async (enabled) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.setAdminMode(enabled);
+        },
+        setCustomCookie: async (value) => {
+            if (!this.initialized) await this.ready;
+            await this.exposedFunctions.setCustomCookie(value);
         },
         setDisplayTimeout: async (value) => {
             if (!this.initialized) await this.ready;

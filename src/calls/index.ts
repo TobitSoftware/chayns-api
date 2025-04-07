@@ -47,6 +47,10 @@ export const getAccessToken = (...args: Parameters<ChaynsReactFunctions["getAcce
  */
 export const getAvailableSharingServices = (...args: Parameters<ChaynsReactFunctions["getAvailableSharingServices"]>) => moduleWrapper.current.functions.getAvailableSharingServices(...args);
 /**
+ * This method allows getting the value of a custom cookie
+ */
+export const getCustomCookie = (...args: Parameters<ChaynsReactFunctions["getCustomCookie"]>) => moduleWrapper.current.functions.getCustomCookie(...args);
+/**
  * This method determines your location. If you want to track a route, use addGeoLocationListener.
  */
 export const getGeoLocation = (...args: Parameters<ChaynsReactFunctions["getGeoLocation"]>) => moduleWrapper.current.functions.getGeoLocation(...args);
@@ -156,6 +160,10 @@ export const sendMessageToUser = (...args: Parameters<ChaynsReactFunctions["send
  * Switches admin mode, also toggles admin switch in top frame.
  */
 export const setAdminMode = (...args: Parameters<ChaynsReactFunctions["setAdminMode"]>) => moduleWrapper.current.functions.setAdminMode(...args);
+/**
+ * This method sets the value for a custom cookie
+ */
+export const setCustomCookie = (...args: Parameters<ChaynsReactFunctions["setCustomCookie"]>) => moduleWrapper.current.functions.setCustomCookie(...args);
 /**
  * Sets the display timeout, only works in chayns App.
  */
