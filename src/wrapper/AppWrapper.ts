@@ -582,6 +582,16 @@ export class AppWrapper implements IChaynsReact {
         addAnonymousAccount: async () => {
             return this.appCall(302);
         },
+        addAccessTokenChangeListener: async (callback) => {
+            const { id } = addApiListener('accessTokenChangeListener', callback);
+            return id;
+        },
+        removeAccessTokenChangeListener: async (id) => {
+            const { shouldRemove } = removeApiListener('accessTokenChangeListener', id);
+            if (shouldRemove) {
+                // App does not support removal of token change listener which makes this a no-op
+            }
+        }
     };
 
     private dialogs = [];
@@ -597,6 +607,7 @@ export class AppWrapper implements IChaynsReact {
         }, {
             callback: async() => {
                 this.values = this.mapOldApiToNew(await this.appCall(18));
+                dispatchApiEvent('accessTokenChangeListener', { accessToken: this.accessToken, isExternal: false });
                 document.dispatchEvent(new CustomEvent('chayns_api_data', { detail: { type: 'user', value: this.values.user } }));
             },
             awaitResult: true

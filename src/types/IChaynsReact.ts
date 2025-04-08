@@ -430,6 +430,8 @@ export interface ChaynsReactFunctions {
     addDialogHostEventListener: (callback: (data: object) => void) => Promise<number>;
     removeDialogHostEventListener: (id: number) => Promise<void>;
     addAnonymousAccount: () => Promise<AnonymousAccountResult>;
+    addAccessTokenChangeListener: (callback: (result: { accessToken: string, isExternal: boolean }) => void) => Promise<number>;
+    removeAccessTokenChangeListener: (id: number) => Promise<void>;
 }
 
 export type ChaynsReactCustomFunctions = {

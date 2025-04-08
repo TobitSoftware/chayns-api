@@ -319,6 +319,14 @@ export class FrameWrapper implements IChaynsReact {
         addAnonymousAccount: async () => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.addAnonymousAccount();
+        },
+        addAccessTokenChangeListener: async (callback) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.addAccessTokenChangeListener(callback && comlink.proxy((result) => callback(result)));
+        },
+        removeAccessTokenChangeListener: async (id) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.removeAccessTokenChangeListener(id);
         }
     };
 

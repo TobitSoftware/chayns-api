@@ -28,7 +28,11 @@ export const addVisibilityChangeListener = (...args: Parameters<ChaynsReactFunct
  * @category Event listener
  */
 export const addToolbarChangeListener = (...args: Parameters<ChaynsReactFunctions["addToolbarChangeListener"]>) => moduleWrapper.current.functions.addToolbarChangeListener(...args);
-
+/**
+ * This method will be executed when the access token changes.
+ * @category Event listener
+ */
+export const addAccessTokenChangeListener = (...args: Parameters<ChaynsReactFunctions["addAccessTokenChangeListener"]>) => moduleWrapper.current.functions.addAccessTokenChangeListener(...args);
 /**
  * This adds a listener to get the actual height of the page.
  * @category Event listener
@@ -117,6 +121,12 @@ export const removeGeoLocationListener = (...args: Parameters<ChaynsReactFunctio
  * @category Event listener
  */
 export const removeToolbarChangeListener = (...args: Parameters<ChaynsReactFunctions["removeToolbarChangeListener"]>) => moduleWrapper.current.functions.removeToolbarChangeListener(...args);
+/**
+ * This removes a listener for access token changes.
+ * @category Event listener
+ */
+export const removeAccessTokenChangeListener = (...args: Parameters<ChaynsReactFunctions["removeAccessTokenChangeListener"]>) => moduleWrapper.current.functions.removeAccessTokenChangeListener(...args);
+
 /**
  * Removes scroll listener.
  * @category Event listener
