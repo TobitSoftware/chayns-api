@@ -582,7 +582,7 @@ export class AppWrapper implements IChaynsReact {
         addAnonymousAccount: async () => {
             return this.appCall(302);
         },
-        addAccessTokenChangeListener: async (callback) => {
+        addAccessTokenChangeListener: async (options, callback) => {
             const { id } = addApiListener('accessTokenChangeListener', callback);
             return id;
         },
