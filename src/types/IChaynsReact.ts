@@ -955,7 +955,8 @@ export enum AppName {
     TobitChat,
     Sidekick,
     Team,
-    CityApp
+    CityApp,
+    ElectronChayns,
 }
 
 export enum BrowserName {

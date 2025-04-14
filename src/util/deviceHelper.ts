@@ -6,7 +6,7 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string, { imei }: { imei
 
     let appName: AppName = AppName.Unknown;
     const match = (/(?:my)?chayns\/(?<version>\d+).*(?<siteId>\d{5}-\d{5})/i).exec(userAgent);
-    const customMatch = (/\s(?<name>intercom|sidekick|team|cityApp)\/(?<version>\d+)/i).exec(userAgent);
+    const customMatch = (/\s(?<name>intercom|sidekick|team|cityApp|electron-chayns|electron-d3sc)\/(?<version>\d+)/i).exec(userAgent);
 
     if ((/\sintercom\/\d+/i).test(userAgent)) {
         appName = AppName.TobitChat;
@@ -24,6 +24,8 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string, { imei }: { imei
         appName = AppName.Location;
     } else if ((/dface|h96pp|h96max|jabiru|chaynsterminal|wayter|odroidn2p|chayns-runtime-custom/i).test(userAgent)) {
         appName = AppName.ChaynsLauncher;
+    } else if ((/electron-chayns|electron-d3sc/i).test(userAgent)) {
+        appName = AppName.ElectronChayns;
     }
 
     let appVersion = match?.groups ? Number.parseInt(match.groups.version, 10) : NaN;
@@ -41,7 +43,7 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string, { imei }: { imei
     };
     result.app = {
         name: appName,
-        flavor: appName === AppName.Unknown ? AppFlavor.None : AppFlavor.Chayns,
+        flavor: appName === AppName.Unknown || appName === AppName.ElectronChayns ? AppFlavor.None : AppFlavor.Chayns,
         version: match?.groups ? Number.parseInt(match.groups.version, 10) : NaN,
         appVersion,
         callVersion: match?.groups ? Number.parseInt(match.groups.version, 10) : NaN,
@@ -57,7 +59,7 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string, { imei }: { imei
     } else {
         // estimate size over user agent, very inaccurate, could be improved by setting a cookie with the screensize
         const screenSizeByUA = /mobi/i.test(userAgent) ? ScreenSize.SM : ScreenSize.XL;
-        result.screenSize = appName !== AppName.Unknown ? ScreenSize.XS : screenSizeByUA;
+        result.screenSize = appName !== AppName.Unknown && appName !== AppName.ElectronChayns ? ScreenSize.XS : screenSizeByUA;
     }
 
     return result;
