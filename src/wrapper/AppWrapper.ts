@@ -367,7 +367,10 @@ export class AppWrapper implements IChaynsReact {
             });
         },
         openUrl: async (value) => {
-            window.open(value.url);
+            this.appCall(9, {
+                url: value.url,
+                inAppBrowser: value.openInApp,
+            });
         },
         openVideo: async (value) => {
             this.appCall(15, {
