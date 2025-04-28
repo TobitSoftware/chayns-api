@@ -102,6 +102,7 @@ export interface DialogModule<T = object> {
     backgroundColor?: string;
     allowAnonymousUser?: boolean;
     seamless?: boolean;
+    height?: string | number;
 }
 
 export interface DialogIFrame<T = object> {
@@ -111,6 +112,7 @@ export interface DialogIFrame<T = object> {
     backgroundColor?: string;
     allowAnonymousUser?: boolean;
     seamless?: boolean;
+    height?: string | number;
 }
 
 export enum DialogInputType {
