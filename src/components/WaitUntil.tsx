@@ -1,7 +1,7 @@
 import {
     FC,
     ReactNode,
-    useRef,
+    useEffect,
     useState
 } from "react";
 
@@ -22,11 +22,11 @@ const handleTasks = async (tasks: TaskList) => {
 
 export const WaitUntil: FC<{tasks: TaskList, children?: ReactNode, loadingComponent?: ReactNode}> = ({ tasks, children, loadingComponent }) => {
     const [loaded, setLoaded] = useState(() => !tasks.length);
-    const mounted = useRef(false);
 
-    if(!mounted.current) handleTasks(tasks).finally(() => setLoaded(true))
+    useEffect(() => {
+        handleTasks(tasks).finally(() => setLoaded(true));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    mounted.current = true;
-
-    return (loaded ? children : loadingComponent) as JSX.Element;
+    return loaded ? children : loadingComponent;
 }
