@@ -899,6 +899,7 @@ export interface Page {
     sortId: number;
     siteId: string;
     uacGroups: UacGroup[];
+    url: string;
 }
 
 export enum Gender {
