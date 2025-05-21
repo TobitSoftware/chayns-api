@@ -320,6 +320,7 @@ export interface ChaynsReactValues {
     currentPage: {
         id: number;
         siteId: string;
+        identifier?: string | number;
     }
     device: ChaynsApiDevice;
     language: {
