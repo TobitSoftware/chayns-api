@@ -2,8 +2,13 @@
 // @ts-nocheck
 
 import throttle from 'lodash.throttle';
+import getUserInfo from '../calls/getUserInfo';
+import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
+import { DeviceLanguage } from '../constants/languages';
 import DialogHandler from '../handler/DialogHandler';
+import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
 import {
+    AppName,
     AvailableSharingServices,
     ChaynsReactFunctions,
     ChaynsReactValues,
@@ -24,10 +29,6 @@ import {
 } from '../types/IChaynsReact';
 import invokeAppCall from '../util/appCall';
 import getDeviceInfo, { getScreenSize } from '../util/deviceHelper';
-import getUserInfo from '../calls/getUserInfo';
-import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
-import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
-import { DeviceLanguage } from '../constants/languages';
 import { isAppCallSupported } from '../util/is';
 
 let appWrapperDialogId = 0;
@@ -601,7 +602,20 @@ export class AppWrapper implements IChaynsReact {
 
     async init() {
         this.values = this.mapOldApiToNew(await this.appCall(18));
+        if (this.values.device.app?.name === AppName.CityApp) {
+            const match = (/cityApp\/(?<version>\d+)\s*\(App; (?<locationId>\d+); (?<siteId>\d{5}-\d{5})\)/i).exec(navigator.userAgent);
+
+            if (match) {
+                this.values.site.locationId = Number(match.groups.locationId);
+                this.values.site.id = match.groups.siteId;
+            }
+        }
+
         this.values.styleSettings = await this.loadStyleSettings(this.values.site.id);
+
+        if (this.values.device.app?.name === AppName.CityApp && !this.values.parameters.color && this.values.styleSettings?.designSettings) {
+            this.values.site.color = this.values.styleSettings.designSettings.color;
+        }
 
         document.documentElement.classList.add('chayns-api--app');
 
