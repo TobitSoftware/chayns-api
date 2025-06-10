@@ -43,6 +43,27 @@ export class AppWrapper implements IChaynsReact {
 
     customFunctions = {};
 
+    async switchToken(siteId: string, accessToken: string) {
+        const res = await fetch('https://auth.tobit.com/v2/token', {
+            method: 'POST',
+            headers: {
+                accept: 'application/json',
+                authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                siteId,
+            }),
+        });
+
+        if (res.status === 200) {
+            const { token: newAccessToken } = await res.json();
+            this.accessToken = newAccessToken;
+            return true;
+        }
+        return false;
+    }
+
     async loadStyleSettings(siteId: string) {
         try {
             const res = await fetch(`https://style.tobit.cloud/css/${siteId}/components`, {
@@ -608,6 +629,8 @@ export class AppWrapper implements IChaynsReact {
             if (match) {
                 this.values.site.locationId = Number(match.groups.locationId);
                 this.values.site.id = match.groups.siteId;
+
+                await this.switchToken(match.groups.siteId);
             }
         }
 
@@ -624,6 +647,9 @@ export class AppWrapper implements IChaynsReact {
         }, {
             callback: async() => {
                 this.values = this.mapOldApiToNew(await this.appCall(18));
+                if (this.values.device.app?.name === AppName.CityApp) {
+                    await this.switchToken(this.values.site.id);
+                }
                 dispatchApiEvent('accessTokenChangeListener', { accessToken: this.accessToken, isExternal: false });
                 document.dispatchEvent(new CustomEvent('chayns_api_data', { detail: { type: 'user', value: this.values.user } }));
             },
