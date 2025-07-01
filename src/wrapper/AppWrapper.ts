@@ -558,7 +558,7 @@ export class AppWrapper implements IChaynsReact {
             return new DialogHandler<R>(config, this.functions.openDialog, this.functions.closeDialog, this.functions.dispatchEventToDialogClient, this.functions.addDialogClientEventListener);
         },
         openDialog: async (config, callback) => {
-            const currentDialogId = appWrapperDialogId++;
+            const currentDialogId = crypto.randomUUID();
 
             const isSupported = isAppCallSupported({ minAndroidVersion: 7137, minIOSVersion: 6934 });
 
@@ -566,6 +566,7 @@ export class AppWrapper implements IChaynsReact {
                 dialogContent: {
                     apiVersion: 5,
                     config,
+                    dialogId: currentDialogId,
                 },
                 externalDialogUrl: isSupported ? undefined : 'https://tapp.chayns-static.space/api/dialog-v2/v1/index.html',
             }, { awaitResult: true }).then((result) => {
@@ -580,8 +581,45 @@ export class AppWrapper implements IChaynsReact {
                 dialog.resolve({ buttonType, result });
             }
         },
-        dispatchEventToDialogClient: () => this.notImplemented('dispatchEventToDialogClient'),
-        addDialogClientEventListener: () => this.notImplemented('addDialogClientEventListener'),
+        dispatchEventToDialogClient: (dialogId, data) => {
+            if (this.values.device.os === 'iOS' || this.values.device.os === 'Mac OS') {
+                window.webkit.messageHandlers.chaynsDataSetItem.postMessage({
+                    storeName: dialogId,
+                    key: 'client',
+                    value: data
+                });
+                return
+            }
+            this.notImplemented('dispatchEventToDialogClient');
+        },
+        addDialogClientEventListener: (dialogId, listener) => {
+            if (this.values.device.os === 'iOS' || this.values.device.os === 'Mac OS') {
+                const interval = setInterval(() => {
+                    const callback = `chaynsApiV5Callback_${this.counter++}`;
+                    window[callback] = (key, storeName, value) => {
+                        delete window[callback];
+                        if (value !== null) {
+                            listener(value);
+                            window.webkit.messageHandlers.chaynsDataSetItem.postMessage({
+                                storeName: dialogId,
+                                key: 'client',
+                                value: null
+                            });
+                            clearInterval(interval)
+                        }
+                    }
+                    window.webkit.messageHandlers.chaynsDataGetItem.postMessage({
+                        storeName: dialogId,
+                        key: 'client',
+                        callback,
+                    });
+                }, 10)
+                return;
+            }
+            this.notImplemented('dispatchEventToDialogClient');
+        },
+        dispatchEventToDialogHost: () => this.notImplemented('dispatchEventToDialogHost'),
+        addDialogHostEventListener: () => this.notImplemented('addDialogHostEventListener'),
         addAnonymousAccount: async () => {
             return this.appCall(302);
         },
