@@ -426,11 +426,17 @@ export interface ChaynsReactFunctions {
     closeDialog: (dialogId: number) => Promise<void>;
     // used internally by dialogs only
     setDialogResult: (buttonType: DialogButtonType, result: any) => Promise<void>;
+    /** Sends event from opener to dialog */
     dispatchEventToDialogClient: (dialogId: number, data: object) => Promise<void>;
+    /** Allows the opener of a dialog to add event listeners for events sent from the dialog */
     addDialogClientEventListener: (dialogId: number, callback: (data: object) => void) => Promise<number>;
+    /** Removes listeners which were added via addDialogClientEventListener */
     removeDialogClientEventListener: (dialogId: number, id: number) => Promise<void>;
+    /** Sends event from dialog to opener */
     dispatchEventToDialogHost: (data: object) => Promise<void>;
+    /** Allows the dialog to add event listeners for events sent from the opener */
     addDialogHostEventListener: (callback: (data: object) => void) => Promise<number>;
+    /** Removes listeners which were added via addDialogHostEventListener */
     removeDialogHostEventListener: (id: number) => Promise<void>;
     addAnonymousAccount: () => Promise<AnonymousAccountResult>;
     addAccessTokenChangeListener: (options: { external?: boolean }, callback: (result: { accessToken: string }) => void) => Promise<number>;
