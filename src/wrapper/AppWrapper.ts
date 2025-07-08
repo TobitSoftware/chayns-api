@@ -23,14 +23,13 @@ import {
     TappEvent,
 } from '../types/IChaynsReact';
 import invokeAppCall from '../util/appCall';
+import { addAppStorageListener, setAppStorageItem } from '../util/appStorage';
 import getDeviceInfo, { getScreenSize } from '../util/deviceHelper';
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
 import { DeviceLanguage } from '../constants/languages';
 import { isAppCallSupported } from '../util/is';
-
-let appWrapperDialogId = 0;
 
 export class AppWrapper implements IChaynsReact {
 
@@ -41,6 +40,8 @@ export class AppWrapper implements IChaynsReact {
     listeners: (() => void)[] =  [];
 
     customFunctions = {};
+
+    currentDialogId: string = '';
 
     async loadStyleSettings(siteId: string) {
         try {
@@ -559,6 +560,7 @@ export class AppWrapper implements IChaynsReact {
         },
         openDialog: async (config, callback) => {
             const currentDialogId = crypto.randomUUID();
+            this.currentDialogId = currentDialogId;
 
             const isSupported = isAppCallSupported({ minAndroidVersion: 7137, minIOSVersion: 6934 });
 
@@ -579,47 +581,21 @@ export class AppWrapper implements IChaynsReact {
             const dialog = this.dialogs.find(x => x.dialogId === dialogId);
             if (dialog) {
                 dialog.resolve({ buttonType, result });
+                // TODO: erase
             }
         },
         dispatchEventToDialogClient: (dialogId, data) => {
-            if (this.values.device.os === 'iOS' || this.values.device.os === 'Mac OS') {
-                window.webkit.messageHandlers.chaynsDataSetItem.postMessage({
-                    storeName: dialogId,
-                    key: 'client',
-                    value: data
-                });
-                return
-            }
-            this.notImplemented('dispatchEventToDialogClient');
+            void setAppStorageItem(dialogId, 'client', data);
         },
         addDialogClientEventListener: (dialogId, listener) => {
-            if (this.values.device.os === 'iOS' || this.values.device.os === 'Mac OS') {
-                const interval = setInterval(() => {
-                    const callback = `chaynsApiV5Callback_${this.counter++}`;
-                    window[callback] = (key, storeName, value) => {
-                        delete window[callback];
-                        if (value !== null) {
-                            listener(value);
-                            window.webkit.messageHandlers.chaynsDataSetItem.postMessage({
-                                storeName: dialogId,
-                                key: 'client',
-                                value: null
-                            });
-                            clearInterval(interval)
-                        }
-                    }
-                    window.webkit.messageHandlers.chaynsDataGetItem.postMessage({
-                        storeName: dialogId,
-                        key: 'client',
-                        callback,
-                    });
-                }, 10)
-                return;
-            }
-            this.notImplemented('dispatchEventToDialogClient');
+            addAppStorageListener(dialogId, listener);
         },
-        dispatchEventToDialogHost: () => this.notImplemented('dispatchEventToDialogHost'),
-        addDialogHostEventListener: () => this.notImplemented('addDialogHostEventListener'),
+        dispatchEventToDialogHost: (data) => {
+            void setAppStorageItem(this.currentDialogId, 'host', data);
+        },
+        addDialogHostEventListener: (callback) => {
+            addAppStorageListener(this.currentDialogId, callback);
+        },
         addAnonymousAccount: async () => {
             return this.appCall(302);
         },
