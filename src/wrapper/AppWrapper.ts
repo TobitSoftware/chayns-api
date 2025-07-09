@@ -23,7 +23,7 @@ import {
     TappEvent,
 } from '../types/IChaynsReact';
 import invokeAppCall from '../util/appCall';
-import { addAppStorageListener, setAppStorageItem } from '../util/appStorage';
+import { addAppStorageListener, clearAppStorage, setAppStorageItem } from '../util/appStorage';
 import getDeviceInfo, { getScreenSize } from '../util/deviceHelper';
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
@@ -41,7 +41,7 @@ export class AppWrapper implements IChaynsReact {
 
     customFunctions = {};
 
-    currentDialogId: string = '';
+    nextDialogEventId: number = 0;
 
     async loadStyleSettings(siteId: string) {
         try {
@@ -560,7 +560,7 @@ export class AppWrapper implements IChaynsReact {
         },
         openDialog: async (config, callback) => {
             const currentDialogId = crypto.randomUUID();
-            this.currentDialogId = currentDialogId;
+            this.nextDialogEventId = 0;
 
             const isSupported = isAppCallSupported({ minAndroidVersion: 7137, minIOSVersion: 6934 });
 
@@ -581,20 +581,20 @@ export class AppWrapper implements IChaynsReact {
             const dialog = this.dialogs.find(x => x.dialogId === dialogId);
             if (dialog) {
                 dialog.resolve({ buttonType, result });
-                // TODO: erase
+                clearAppStorage(window._currentDialogId)
             }
         },
         dispatchEventToDialogClient: (dialogId, data) => {
-            void setAppStorageItem(dialogId, 'client', data);
+            void setAppStorageItem.call(this, dialogId, `client/${this.nextDialogEventId++}`, data);
         },
         addDialogClientEventListener: (dialogId, listener) => {
-            addAppStorageListener(dialogId, listener);
+            addAppStorageListener.call(this, dialogId, 'host/', listener);
         },
         dispatchEventToDialogHost: (data) => {
-            void setAppStorageItem(this.currentDialogId, 'host', data);
+            void setAppStorageItem.call(this, window._currentDialogId, `host/${this.nextDialogEventId++}`, data);
         },
         addDialogHostEventListener: (callback) => {
-            addAppStorageListener(this.currentDialogId, callback);
+            addAppStorageListener.call(this, window._currentDialogId, 'client/', callback);
         },
         addAnonymousAccount: async () => {
             return this.appCall(302);
