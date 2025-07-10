@@ -6,52 +6,53 @@ export function isAppStorageAvailable(this: AppWrapper) {
     if (this.values.device.app?.name !== AppName.Team) {
         return false;
     }
-    return this.values.device.app?.appVersion >= (['iOS', 'Mac OS'].includes(this.values.device.os as string) ? 1046 : 1031)
+    return this.values.device.app?.appVersion >= (['iOS', 'Mac OS'].includes(this.values.device.os as string) ? 1046 : 1032)
 }
 
 export function getAppStorageItem<T extends unknown>(this: AppWrapper, storeName: string, key?: string) {
-    if (this.values.device.os === 'iOS' || this.values.device.os === 'Mac OS') {
-        const callbackName = `chaynsApiV5Callback_${this.counter++}`;
+    const callbackName = `chaynsApiV5Callback_${this.counter++}`;
 
-        return new Promise<T>((resolve) => {
-            window[callbackName] = (_key: string, _storeName: string, value: T) => {
-                resolve(value);
+    return new Promise<T>((resolve) => {
+        window[callbackName] = (_key: string, _storeName: string, value: T) => {
+            try {
+                return resolve(typeof value === 'string' ? JSON.parse(value) : value);
+            } catch {
+                return resolve(value);
+            } finally {
                 delete window[callbackName];
-            };
+            }
+        };
+        if (this.values.device.os === 'iOS' || this.values.device.os === 'Mac OS') {
             (window as any).webkit.messageHandlers.chaynsDataGetItem.postMessage({
                 storeName,
                 key,
                 callback: callbackName,
             });
-        });
-    }
-    const result = (window as any).chaynsWebViewStorage.chaynsDataGetItem(storeName, key);
-    try {
-        return Promise.resolve<T>(result ? JSON.parse(result) : result);
-    } catch {
-        return Promise.resolve<T>(result);
-    }
+        } else {
+            (window as any).chaynsWebViewStorage.chaynsDataGetItem(storeName, key, callbackName);
+        }
+    });
 }
 
 export function setAppStorageItem<T extends string | object>(this: AppWrapper, storeName: string, key: string, value: T) {
-    if (this.values.device.os === 'iOS' || this.values.device.os === 'Mac OS') {
-        const callbackName = `chaynsApiV5Callback_${this.counter++}`;
+    const callbackName = `chaynsApiV5Callback_${this.counter++}`;
 
-        return new Promise<void>((resolve, reject) => {
-            window[callbackName] = () => {
-                resolve();
-                delete window[callbackName];
-            };
+    return new Promise<void>((resolve, reject) => {
+        window[callbackName] = () => {
+            resolve();
+            delete window[callbackName];
+        };
+        if (this.values.device.os === 'iOS' || this.values.device.os === 'Mac OS') {
             (window as any).webkit.messageHandlers.chaynsDataSetItem.postMessage({
                 storeName,
                 key,
                 value,
                 callback: callbackName,
             });
-        });
-    }
-    (window as any).chaynsWebViewStorage.chaynsDataSetItem(storeName, key, JSON.stringify(value));
-    return Promise.resolve();
+        } else {
+            (window as any).chaynsWebViewStorage.chaynsDataSetItem(storeName, key, JSON.stringify(value), callbackName);
+        }
+    });
 }
 
 export function removeAppStorageItem(this: AppWrapper, storeName: string, key: string) {
