@@ -75,18 +75,23 @@ export function clearAppStorage(this: AppWrapper, storeName: string) {
     }
 }
 
-export async function addAppStorageListener<T extends string | object>(this: AppWrapper, storeName: string, prefix: string, callback: (value: {
-    key?: string;
-    value?: T,
-    action: number
-}) => void) {
+export async function addAppStorageListener<T extends string | object>(this: AppWrapper, storeName: string, prefix: string, callback: (value: T | undefined) => void) {
     const callbackName = `chaynsApiV5Callback_${this.counter++}`;
 
     const { shouldInitialize } = addApiListener(`appStorageListener/${storeName}`, callback);
 
     const handleValue = (value: { key?: string; value?: T, action: number }) => {
         if (value.action === 0 && value.key?.startsWith(prefix)) {
-            callback(value);
+            let data = value.value;
+            try {
+                if (typeof data === 'string') {
+                    data = JSON.parse(data);
+                }
+            } catch {
+                //
+            }
+
+            callback(data);
             void removeAppStorageItem.call(this, storeName, value.key);
         }
     };
