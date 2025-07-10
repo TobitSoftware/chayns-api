@@ -1,6 +1,6 @@
 {
     "name": "chayns-api",
-    "version": "2.3.0-beta.1",
+    "version": "2.3.0",
     "description": "new chayns api",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
