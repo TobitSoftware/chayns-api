@@ -2,66 +2,67 @@ import { addApiListener } from '../helper/apiListenerHelper';
 import { AppWrapper } from '../wrapper/AppWrapper';
 
 export function getAppStorageItem<T extends unknown>(this: AppWrapper, storeName: string, key?: string) {
-    const callbackName = `chaynsApiV5Callback_${this.counter++}`;
-    return new Promise((resolve) => {
-        window[callbackName] = (_key: string, _storeName: string, value: T) => {
-            resolve(value);
-            delete window[callbackName];
-        };
-        if (this.values.device.os === 'iOS' || this.values.device.os === 'Mac OS') {
-            window.webkit.messageHandlers.chaynsDataGetItem.postMessage({
+    if (this.values.device.os === 'iOS' || this.values.device.os === 'Mac OS') {
+        const callbackName = `chaynsApiV5Callback_${this.counter++}`;
+
+        return new Promise<T>((resolve) => {
+            window[callbackName] = (_key: string, _storeName: string, value: T) => {
+                resolve(value);
+                delete window[callbackName];
+            };
+            (window as any).webkit.messageHandlers.chaynsDataGetItem.postMessage({
                 storeName,
                 key,
                 callback: callbackName,
             });
-        } else {
-            const result = window.chaynsWebViewStorage.chaynsDataGetItem(storeName, key);
-            try {
-                resolve(result ? JSON.parse(result) : result);
-            } catch {
-                resolve(result);
-            }
-        }
-    });
+        });
+    }
+    const result = (window as any).chaynsWebViewStorage.chaynsDataGetItem(storeName, key);
+    try {
+        return result ? JSON.parse(result) : result;
+    } catch {
+        return result;
+    }
 }
 
 export function setAppStorageItem<T extends string | object>(this: AppWrapper, storeName: string, key: string, value: T) {
-    const callbackName = `chaynsApiV5Callback_${this.counter++}`;
-    return new Promise<void>((resolve, reject) => {
-        window[callbackName] = () => {
-            resolve();
-            delete window[callbackName];
-        };
-        if (this.values.device.os === 'iOS' || this.values.device.os === 'Mac OS') {
-            window.webkit.messageHandlers.chaynsDataSetItem.postMessage({
+    if (this.values.device.os === 'iOS' || this.values.device.os === 'Mac OS') {
+        const callbackName = `chaynsApiV5Callback_${this.counter++}`;
+
+        return new Promise<void>((resolve, reject) => {
+            window[callbackName] = () => {
+                resolve();
+                delete window[callbackName];
+            };
+            (window as any).webkit.messageHandlers.chaynsDataSetItem.postMessage({
                 storeName,
                 key,
                 value,
+                callback: callbackName,
             });
-        } else {
-            window.chaynsWebViewStorage.chaynsDataSetItem(storeName, key, JSON.stringify(value));
-        }
-    });
+        });
+    }
+    (window as any).chaynsWebViewStorage.chaynsDataSetItem(storeName, key, JSON.stringify(value));
 }
 
 export function removeAppStorageItem(this: AppWrapper, storeName: string, key: string) {
     if (this.values.device.os === 'iOS' || this.values.device.os === 'Mac OS') {
-        window.webkit.messageHandlers.chaynsDataRemoveItem.postMessage({
+        (window as any).webkit.messageHandlers.chaynsDataRemoveItem.postMessage({
             storeName,
             key,
         });
     } else {
-        window.chaynsWebViewStorage.chaynsDataRemoveItem(storeName, key);
+        (window as any).chaynsWebViewStorage.chaynsDataRemoveItem(storeName, key);
     }
 }
 
 export function clearAppStorage(this: AppWrapper, storeName: string) {
     if (this.values.device.os === 'iOS' || this.values.device.os === 'Mac OS') {
-        window.webkit.messageHandlers.chaynsDataErase.postMessage({
+        (window as any).webkit.messageHandlers.chaynsDataErase.postMessage({
             storeName,
         });
     } else {
-        window.chaynsWebViewStorage.chaynsDataErase(storeName);
+        (window as any).chaynsWebViewStorage.chaynsDataErase(storeName);
     }
 }
 
