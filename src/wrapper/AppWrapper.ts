@@ -2,7 +2,11 @@
 // @ts-nocheck
 
 import throttle from 'lodash.throttle';
+import getUserInfo from '../calls/getUserInfo';
+import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
+import { DeviceLanguage } from '../constants/languages';
 import DialogHandler from '../handler/DialogHandler';
+import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
 import {
     AvailableSharingServices,
     ChaynsReactFunctions,
@@ -23,14 +27,9 @@ import {
     TappEvent,
 } from '../types/IChaynsReact';
 import invokeAppCall from '../util/appCall';
+import { addAppStorageListener, clearAppStorage, isAppStorageAvailable, setAppStorageItem } from '../util/appStorage';
 import getDeviceInfo, { getScreenSize } from '../util/deviceHelper';
-import getUserInfo from '../calls/getUserInfo';
-import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
-import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
-import { DeviceLanguage } from '../constants/languages';
 import { isAppCallSupported } from '../util/is';
-
-let appWrapperDialogId = 0;
 
 export class AppWrapper implements IChaynsReact {
 
@@ -41,6 +40,8 @@ export class AppWrapper implements IChaynsReact {
     listeners: (() => void)[] =  [];
 
     customFunctions = {};
+
+    nextDialogEventId: number = 0;
 
     async loadStyleSettings(siteId: string) {
         try {
@@ -558,7 +559,8 @@ export class AppWrapper implements IChaynsReact {
             return new DialogHandler<R>(config, this.functions.openDialog, this.functions.closeDialog, this.functions.dispatchEventToDialogClient, this.functions.addDialogClientEventListener);
         },
         openDialog: async (config, callback) => {
-            const currentDialogId = appWrapperDialogId++;
+            const currentDialogId = crypto.randomUUID();
+            this.nextDialogEventId = 0;
 
             const isSupported = isAppCallSupported({ minAndroidVersion: 7137, minIOSVersion: 6934 });
 
@@ -566,6 +568,7 @@ export class AppWrapper implements IChaynsReact {
                 dialogContent: {
                     apiVersion: 5,
                     config,
+                    dialogId: currentDialogId,
                 },
                 externalDialogUrl: isSupported ? undefined : 'https://tapp.chayns-static.space/api/dialog-v2/v1/index.html',
             }, { awaitResult: true }).then((result) => {
@@ -578,10 +581,38 @@ export class AppWrapper implements IChaynsReact {
             const dialog = this.dialogs.find(x => x.dialogId === dialogId);
             if (dialog) {
                 dialog.resolve({ buttonType, result });
+                clearAppStorage(window._currentDialogId)
             }
         },
-        dispatchEventToDialogClient: () => this.notImplemented('dispatchEventToDialogClient'),
-        addDialogClientEventListener: () => this.notImplemented('addDialogClientEventListener'),
+        dispatchEventToDialogClient: (dialogId, data) => {
+            if (isAppStorageAvailable.call(this)) {
+                void setAppStorageItem.call(this, dialogId, `client/${this.nextDialogEventId++}`, data);
+            } else {
+                this.notImplemented('dispatchEventToDialogClient');
+            }
+
+        },
+        addDialogClientEventListener: (dialogId, listener) => {
+            if (isAppStorageAvailable.call(this)) {
+                addAppStorageListener.call(this, dialogId, 'host/', listener);
+            } else {
+                this.notImplemented('addDialogClientEventListener')
+            }
+        },
+        dispatchEventToDialogHost: (data) => {
+            if (isAppStorageAvailable.call(this)) {
+                void setAppStorageItem.call(this, window._currentDialogId, `host/${this.nextDialogEventId++}`, data);
+            } else {
+                this.notImplemented('dispatchEventToDialogHost')
+            }
+        },
+        addDialogHostEventListener: (callback) => {
+            if (isAppStorageAvailable.call(this)) {
+                void addAppStorageListener.call(this, window._currentDialogId, 'client/', callback);
+            } else {
+                this.notImplemented('addDialogHostEventListener')
+            }
+        },
         addAnonymousAccount: async () => {
             return this.appCall(302);
         },
