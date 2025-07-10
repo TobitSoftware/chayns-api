@@ -27,9 +27,9 @@ export function getAppStorageItem<T extends unknown>(this: AppWrapper, storeName
     }
     const result = (window as any).chaynsWebViewStorage.chaynsDataGetItem(storeName, key);
     try {
-        return result ? JSON.parse(result) : result;
+        return Promise.resolve<T>(result ? JSON.parse(result) : result);
     } catch {
-        return result;
+        return Promise.resolve<T>(result);
     }
 }
 
@@ -51,6 +51,7 @@ export function setAppStorageItem<T extends string | object>(this: AppWrapper, s
         });
     }
     (window as any).chaynsWebViewStorage.chaynsDataSetItem(storeName, key, JSON.stringify(value));
+    return Promise.resolve();
 }
 
 export function removeAppStorageItem(this: AppWrapper, storeName: string, key: string) {
