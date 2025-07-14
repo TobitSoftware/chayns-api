@@ -6,7 +6,7 @@ export function isAppStorageAvailable(this: AppWrapper) {
     if (this.values.device.app?.name !== AppName.Team) {
         return false;
     }
-    return this.values.device.app?.appVersion >= (['iOS', 'Mac OS'].includes(this.values.device.os as string) ? 1046 : 1032)
+    return this.values.device.app?.appVersion >= (['iOS', 'Mac OS'].includes(this.values.device.os as string) ? 1046 : 1033)
 }
 
 export function getAppStorageItem<T extends unknown>(this: AppWrapper, storeName: string, key?: string) {
