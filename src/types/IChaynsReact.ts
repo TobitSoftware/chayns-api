@@ -163,11 +163,13 @@ export interface DialogSelect {
     selectAllCheckbox?: string;
 }
 
-export enum DialogButtonType {
-    OK = 1,
-    CANCEL = -1,
-    NEGATIVE = 0
-}
+export const DialogButtonType = {
+    OK: 1,
+    CANCEL: -1,
+    NEGATIVE: 0
+} as const;
+
+export type DialogButtonType = typeof DialogButtonType[keyof typeof DialogButtonType];
 
 export type ChaynsApiUser = {
     firstName?: string;
