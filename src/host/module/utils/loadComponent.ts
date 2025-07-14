@@ -6,6 +6,13 @@ type ShareScopeMap = FederationHost["shareScopeMap"];
 export const loadModule = (scope, module, url, preventSingleton = false) => {
     const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
     const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
+    try {
+        // try simplifying url to avoid force when url is semantically the same, e.g.
+        // https://example.com/remoteEntry.js and https://example.com/js/../remoteEntry.js
+        url = new URL(url).toString()
+    } catch {
+        //
+    }
     if (registeredScopes[scope] !== url || preventSingleton) {
         if (scope in registeredScopes) {
             console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${url}`);
@@ -72,7 +79,7 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                 });
             });
 
-            const sharedReact = shareScopes['chayns-api'].react[React.version];
+            const sharedReact = shareScopes['chayns-api'].react?.[React.version];
             const matchReactVersion = sharedReact && sharedReact.useIn.includes(scope) && sharedReact.lib?.() === React;
 
             if (!matchReactVersion || Module.default.environment !== 'production' || (Module.default.version || 1) < 2) {
