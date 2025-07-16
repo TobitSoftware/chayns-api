@@ -8,6 +8,7 @@ import { DeviceLanguage } from '../constants/languages';
 import DialogHandler from '../handler/DialogHandler';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
 import {
+    AppName,
     AvailableSharingServices,
     ChaynsReactFunctions,
     ChaynsReactValues,
@@ -562,7 +563,10 @@ export class AppWrapper implements IChaynsReact {
             const currentDialogId = crypto.randomUUID();
             this.nextDialogEventId = 0;
 
-            const isSupported = isAppCallSupported({ minAndroidVersion: 7137, minIOSVersion: 6934 });
+            let isSupported = isAppCallSupported({ minAndroidVersion: 7137, minIOSVersion: 6934 });
+            if (this.values.device?.app?.name === AppName.Sidekick && this.values.device.os && ['iOS', 'Mac OS'].includes(this.values.device.os) && this.values.device.app.appVersion >= 2078) {
+                isSupported = true;
+            }
 
             this.appCall(184, {
                 dialogContent: {
