@@ -53,20 +53,9 @@ export class FrameWrapper implements IChaynsReact {
         addWindowMetricsListener: async (callback) => {
             if (!this.initialized) await this.ready;
 
-            const { id, shouldInitialize } = addApiListener('windowMetricsListener', callback);
-
-            if (shouldInitialize) {
-                void this.exposedFunctions.addWindowMetricsListener(comlink.proxy((result) => {
-                    dispatchApiEvent('windowMetricsListener', result);
-                }));
-                window.addEventListener('resize', this.resizeListener = () => {
-                    void (async() => {
-                        const metrics = await this.exposedFunctions.getWindowMetrics();
-                        dispatchApiEvent('windowMetricsListener', metrics);
-                    })();
-                })
-            }
-            return id;
+            return this.exposedFunctions.addWindowMetricsListener(comlink.proxy((result) => {
+                callback(result);
+            }));
         },
         customCallbackFunction: async (type, data) => {
             if (!this.initialized) await this.ready;
@@ -159,12 +148,7 @@ export class FrameWrapper implements IChaynsReact {
         removeWindowMetricsListener: async (id) => {
             if (!this.initialized) await this.ready;
 
-            const shouldRemove = removeApiListener('windowMetricsListener', id);
-            if (shouldRemove) {
-                void this.exposedFunctions.removeWindowMetricsListener(id);
-                if (this.resizeListener) window.removeEventListener('resize', this.resizeListener);
-                this.resizeListener = null;
-            }
+            return this.exposedFunctions.removeWindowMetricsListener(id);
         },
         removeToolbarChangeListener: async (id) => {
             if (!this.initialized) await this.ready;
@@ -291,27 +275,14 @@ export class FrameWrapper implements IChaynsReact {
         addDialogHostEventListener: async (callback: (data: object) => void) => {
             if (!this.initialized) await this.ready;
 
-            const listenerKey = `dialogHostEventListener`;
-
-            const { id, shouldInitialize } = addApiListener(listenerKey, callback);
-
-            if (shouldInitialize) {
-                this.exposedFunctions.addDialogHostEventListener(comlink.proxy((data) => {
-                    dispatchApiEvent(listenerKey, data);
-                }));
-            }
-
-            return id;
+            return this.exposedFunctions.addDialogHostEventListener(comlink.proxy((data) => {
+                callback(data);
+            }));
         },
         removeDialogHostEventListener: async (id: number) => {
             if (!this.initialized) await this.ready;
 
-            const listenerKey = `dialogHostEventListener`;
-            const shouldRemove = removeApiListener(listenerKey, id);
-
-            if (shouldRemove) {
-                // this.exposedFunctions.removeDialogHostEventListener(0);
-            }
+            return this.exposedFunctions.removeDialogHostEventListener(id);
         },
         removeDialogClientEventListener: async () => {
 

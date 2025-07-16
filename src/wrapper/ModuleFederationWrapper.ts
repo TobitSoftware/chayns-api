@@ -8,7 +8,6 @@ import {
     IntercomMessage,
 } from '../types/IChaynsReact';
 import { addVisibilityChangeListener, removeVisibilityChangeListener } from '../calls/visibilityChangeListener';
-import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 
@@ -45,22 +44,6 @@ export class ModuleFederationWrapper implements IChaynsReact {
 
         this.functions.createDialog = <I, R>(config: Dialog<I>) => {
             return new DialogHandler<R>(config, functions.openDialog, functions.closeDialog, functions.dispatchEventToDialogClient, functions.addDialogClientEventListener);
-        }
-
-        this.functions.addWindowMetricsListener = async (callback) => {
-            const { id, shouldInitialize } = addApiListener('windowMetrics', callback);
-
-            if (shouldInitialize) {
-                void functions.addWindowMetricsListener((value) => dispatchApiEvent('windowMetrics', value));
-            }
-
-            return id;
-        }
-        this.functions.removeWindowMetricsListener = async (id) => {
-            const shouldRemove = removeApiListener('windowMetrics', id);
-            if (shouldRemove) {
-                void functions.removeWindowMetricsListener(id);
-            }
         }
     }
 
