@@ -911,6 +911,9 @@ export interface Page {
     siteId: string;
     uacGroups: UacGroup[];
     url: string;
+    viewMode: number;
+    originalTappId?: number;
+    apiVersion?: number;
 }
 
 export enum Gender {
