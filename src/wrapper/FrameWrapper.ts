@@ -329,7 +329,7 @@ export class FrameWrapper implements IChaynsReact {
         const exposed = comlink.wrap(comlink.windowEndpoint(window.parent))[window.name] as comlink.Remote<IChaynsReact & { _customFunctionNames?: string[] }>;
         const dataListener: () => Promise<CleanupCallback> = () => exposed.addDataListener(comlink.proxy(({ type, value }) => {
             if (this.initialized) {
-                this.values[type] = value;
+                this.values = { ...this.values, [type]: value };
             }
 
             document.dispatchEvent(new CustomEvent('chayns_api_data', { detail: { type, value } }));
