@@ -140,8 +140,8 @@ export enum DialogSelectType {
     SIMPLE = 3,
 }
 
-export type DialogSelectListItemType = {
-    id: number | string;
+export type DialogSelectListItemType<T extends number | string = number | string> = {
+    id: T;
     name: string;
     subtitle?: string;
     disabled?: boolean;
@@ -154,10 +154,10 @@ export type DialogSelectListItemType = {
     icon?: string
 }
 
-export interface DialogSelect {
+export interface DialogSelect<T extends number | string = number | string> {
     type: DialogType.SELECT,
-    list: DialogSelectListItemType[];
-    fixedItem?: DialogSelectListItemType & { position?: 'top' | 'bottom' };
+    list: DialogSelectListItemType<T>[];
+    fixedItem?: DialogSelectListItemType<T> & { position?: 'top' | 'bottom' };
     multiselect?: boolean;
     quickfind?: boolean;
     selectType?: DialogSelectType;
@@ -419,7 +419,7 @@ export interface ChaynsReactFunctions {
     // public interface to create dialogs
     createDialog(config: BaseDialog & (DialogAlert | DialogConfirm | DialogToast)): DialogHandler<void>;
     createDialog(config: BaseDialog & (DialogInput | DialogSignature)): DialogHandler<string>;
-    createDialog(config: BaseDialog & DialogSelect): DialogHandler<(number | string)[]>;
+    createDialog<T extends number | string = number | string>(config: BaseDialog & DialogSelect<T>): DialogHandler<T[]>;
     createDialog(config: BaseDialog & DialogDate & ({ multiselect: true } | { interval: true })): DialogHandler<Date[]>;
     createDialog(config: BaseDialog & DialogDate): DialogHandler<Date>;
     createDialog(config: BaseDialog & DialogFileSelect): DialogHandler<DialogResultFile[]>;
