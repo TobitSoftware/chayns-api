@@ -143,6 +143,7 @@ export class AppWrapper implements IChaynsReact {
                 dynamicFontSize: false,
                 locationPersonId: AppInfo.LocationPersonId,
                 urlHash: window?.location.hash.replace('#', ''),
+                icon: `https://tsimg.cloud/${AppInfo.SiteID}/profile.png`,
             },
             parameters: Object.fromEntries(urlParams),
             user: {

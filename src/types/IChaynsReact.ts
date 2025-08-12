@@ -202,6 +202,7 @@ export type ChaynsApiSite = {
     url: string;
     urlHash: string;
     originSiteId?: string;
+    icon: string;
 }
 
 export enum IconStyle {
