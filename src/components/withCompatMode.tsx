@@ -57,12 +57,12 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
         }
 
         render() {
-            return <div ref={this.ref}/>;
+            return <div ref={this.ref} data-compat-mode={true}/>;
         }
     }
 
     return {
-        Component: (props) => <div><Component {...props as P} /></div>,
+        Component: (props) => <div data-compat-mode={false}><Component {...props as P} /></div>,
         CompatComponent,
         // @ts-expect-error will be set by chayns-toolkit via DefinePlugin
         requiredVersion: __REQUIRED_REACT_VERSION__,

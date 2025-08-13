@@ -106,7 +106,7 @@ const loadComponent = (scope, module, url, skipCompatMode = false, preventSingle
                     }
 
                     render() {
-                        return React.createElement('div', { ref: this.ref });
+                        return React.createElement('div', { ref: this.ref, 'data-compat-mode': true });
                     }
                 }
 
