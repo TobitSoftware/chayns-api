@@ -7,7 +7,7 @@ import { FrameWrapper } from '../wrapper/FrameWrapper';
 import { ModuleFederationWrapper } from '../wrapper/ModuleFederationWrapper';
 import { SsrWrapper } from '../wrapper/SsrWrapper';
 import { ChaynsContext } from './ChaynsContext';
-import { moduleWrapper, moduleWrapperList } from './moduleWrapper';
+import { addModuleWrapper, moduleWrapper, removeModuleWrapper } from './moduleWrapper';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 
@@ -29,7 +29,6 @@ type ChaynsProviderProps = {
     renderedByServer?: boolean,
     isModule?: boolean,
     children?: ReactNode,
-    preventOverrideSingleton?: boolean,
 }
 
 const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
@@ -39,7 +38,6 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     customFunctions,
     renderedByServer,
     isModule,
-    preventOverrideSingleton,
 }) => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const customWrapper = useRef<IChaynsReact>(null!);
@@ -66,10 +64,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
                 customWrapper.current = new FrameWrapper();
             }
         }
-        moduleWrapperList.push(customWrapper.current);
-        if (!preventOverrideSingleton || !moduleWrapper.current) {
-            moduleWrapper.current = customWrapper.current;
-        }
+        moduleWrapper.current = customWrapper.current;
     }
 
     const [isInitialized, setIsInitialized] = useState<boolean>(!!customWrapper.current?.values);
@@ -100,14 +95,11 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         }
     }, [customFunctions, isModule]);
 
-    useEffect(() => () => {
-        const index = moduleWrapperList.indexOf(customWrapper.current);
-        if (index > -1) {
-            moduleWrapperList.splice(index, 1);
-        }
-        if (moduleWrapper.current === customWrapper.current) {
-            moduleWrapper.current = moduleWrapperList[0];
-        }
+    useEffect(() => {
+        addModuleWrapper(customWrapper.current);
+        return () => {
+            removeModuleWrapper(customWrapper.current);
+        };
     }, []);
 
     return (
