@@ -22,7 +22,7 @@ const InitialDataProvider = React.memo<{ data?: ChaynsReactValues, renderedBySer
     );
 }, () => true);
 
-type ChaynsProviderProps = {
+export type ChaynsProviderProps = {
     data?: ChaynsReactValues;
     functions?: ChaynsReactFunctions,
     customFunctions?: IChaynsReact["customFunctions"],
