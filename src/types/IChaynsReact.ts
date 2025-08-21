@@ -954,6 +954,7 @@ export enum RuntimeEnviroment {
     IntercomPlugin,
     PagemakerPlugin,
     Dialog,
+    App,
 }
 
 export enum DeviceOs {
