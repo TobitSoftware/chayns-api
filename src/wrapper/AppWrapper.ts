@@ -97,7 +97,7 @@ export class AppWrapper implements IChaynsReact {
             }
         }
         if (urlParamsLowerCase.has('lang')) {
-            const languageFromParams = DeviceLanguage[urlParamsLowerCase.get('lang') as unknown as number];
+            const languageFromParams = DeviceLanguage[DeviceLanguage[urlParamsLowerCase.get('lang') as unknown as number]];
             if (languageFromParams) {
                 language = languageFromParams;
             }
