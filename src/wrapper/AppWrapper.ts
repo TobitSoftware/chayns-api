@@ -96,6 +96,12 @@ export class AppWrapper implements IChaynsReact {
                 color = `#${color}`;
             }
         }
+        if (urlParamsLowerCase.has('lang')) {
+            const languageFromParams = DeviceLanguage[urlParamsLowerCase.get('lang') as unknown as number];
+            if (languageFromParams) {
+                language = languageFromParams;
+            }
+        }
         let userId = AppUser.TobitUserID;
 
         if (typeof userId === 'string') {
