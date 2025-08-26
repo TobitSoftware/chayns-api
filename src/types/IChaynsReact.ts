@@ -82,7 +82,8 @@ export interface BaseDialog {
     animation?: {
         type: DialogAnimation,
         config?: any
-    }
+    },
+    hideDragHandle?: boolean,
 }
 
 export type Dialog<T = object> = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule<T> | DialogIFrame<T> | DialogSelect | DialogDate | DialogToast | DialogSignature | DialogFileSelect);
