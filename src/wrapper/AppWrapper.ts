@@ -16,21 +16,22 @@ import {
     CleanupCallback,
     DataChangeCallback,
     DataChangeValue,
-    Dialog,
+    Dialog, DialogButtonType,
     Environment,
     Font,
     Gender,
     GeoLocation,
     IChaynsReact,
-    IconType,
+    IconType, LoginState,
     RuntimeEnviroment,
     ScanQrCodeResult,
-    TappEvent,
+    TappEvent
 } from '../types/IChaynsReact';
 import invokeAppCall from '../util/appCall';
 import { addAppStorageListener, clearAppStorage, isAppStorageAvailable, setAppStorageItem } from '../util/appStorage';
 import getDeviceInfo, { getScreenSize } from '../util/deviceHelper';
 import { isAppCallSupported } from '../util/is';
+import { DefaultLoginDialogOptions } from '../constants';
 
 export class AppWrapper implements IChaynsReact {
 
@@ -347,9 +348,31 @@ export class AppWrapper implements IChaynsReact {
             const callObj = { ...value, value: { ...value.value, callback: callbackName } };
             invokeAppCall(callObj);
         },
-        login: async (value, callback, closeCallback) => {
-            const res = await this.appCall(54, value);
-            return { loginState: res?.loginState };
+        login: async (value = {}, callback, closeCallback) => {
+            const { result, buttonType } = await this.createDialog({
+                ...DefaultLoginDialogOptions,
+                ...value
+            }).open();
+
+            if (buttonType === DialogButtonType.OK && result.token) {
+                const response = {
+                    loginState: LoginState.SUCCESS,
+                    ...result
+                }
+
+                callback(response);
+
+                return response;
+            }
+
+            const response = {
+                loginState: LoginState.LoginFailed,
+                ...result
+            }
+
+            closeCallback(response);
+
+            return response;
         },
         logout: async () => {
             this.appCall(56, undefined, {

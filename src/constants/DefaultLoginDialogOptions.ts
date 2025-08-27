@@ -9,5 +9,6 @@ export const DefaultLoginDialogOptions = {
     minHeight: 200,
     seamless: true,
     dialogInput: { },
-    buttons: []
+    buttons: [],
+    hideDragHandle: true
 }
