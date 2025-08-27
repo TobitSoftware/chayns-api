@@ -360,7 +360,7 @@ export class AppWrapper implements IChaynsReact {
                     ...result
                 }
 
-                callback(response);
+                if (callback) callback(response);
 
                 return response;
             }
@@ -370,7 +370,7 @@ export class AppWrapper implements IChaynsReact {
                 ...result
             }
 
-            closeCallback(response);
+            if (closeCallback) closeCallback(response);
 
             return response;
         },
