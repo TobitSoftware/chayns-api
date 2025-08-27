@@ -349,7 +349,7 @@ export class AppWrapper implements IChaynsReact {
             invokeAppCall(callObj);
         },
         login: async (value = {}, callback, closeCallback) => {
-            const { result, buttonType } = await this.createDialog({
+            const { result, buttonType } = await this.functions.createDialog({
                 ...DefaultLoginDialogOptions,
                 ...value
             }).open();
