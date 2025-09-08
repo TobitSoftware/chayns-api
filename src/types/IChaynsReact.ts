@@ -334,6 +334,7 @@ export interface ChaynsReactValues {
         translation: Language | null;
         device: Language;
         active: Language;
+        user: Language | undefined;
     },
     /**
      * keys are in lower case
