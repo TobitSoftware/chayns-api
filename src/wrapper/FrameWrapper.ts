@@ -298,6 +298,10 @@ export class FrameWrapper implements IChaynsReact {
         removeAccessTokenChangeListener: async (id) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.removeAccessTokenChangeListener(id);
+        },
+        redirect: async (options) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.redirect(options);
         }
     };
 

@@ -315,3 +315,5 @@ export const environment = new Proxy<ChaynsReactValues["environment"]>({} as Cha
         return moduleWrapper.current.values.environment?.[prop];
     },
 });
+
+export const redirect = (...args: Parameters<ChaynsReactFunctions["redirect"]>) => moduleWrapper.current.functions.redirect(...args);

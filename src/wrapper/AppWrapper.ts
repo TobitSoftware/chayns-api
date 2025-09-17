@@ -659,6 +659,9 @@ export class AppWrapper implements IChaynsReact {
             if (shouldRemove) {
                 // App does not support removal of token change listener which makes this a no-op
             }
+        },
+        redirect: async (options) => {
+            this.notImplemented('redirect');
         }
     };
 

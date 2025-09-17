@@ -450,6 +450,7 @@ export interface ChaynsReactFunctions {
     addAnonymousAccount: () => Promise<AnonymousAccountResult>;
     addAccessTokenChangeListener: (options: { external?: boolean }, callback: (result: { accessToken: string }) => void) => Promise<number>;
     removeAccessTokenChangeListener: (id: number) => Promise<void>;
+    redirect: (options: { destination: string, isPermanent?: boolean }) => Promise<void>;
 }
 
 export type ChaynsReactCustomFunctions = {
