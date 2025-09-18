@@ -316,4 +316,7 @@ export const environment = new Proxy<ChaynsReactValues["environment"]>({} as Cha
     },
 });
 
+/**
+ * Redirects the user to the given destination. On the server side a 307 or 308 (depending on the isPermanent flag) redirect response is generated. On the client side a window.location.href change is performed.
+ */
 export const redirect = (...args: Parameters<ChaynsReactFunctions["redirect"]>) => moduleWrapper.current.functions.redirect(...args);
