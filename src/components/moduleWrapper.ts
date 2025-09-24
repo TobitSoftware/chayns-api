@@ -6,9 +6,9 @@ let current: IChaynsReact = undefined!;
 export const moduleWrapper: { current: IChaynsReact } = {
     get current(): IChaynsReact {
         if (moduleWrapperStack.length === 0 && !current) {
-            throw new Error("No chayns api instance intialized");
+            throw new Error("No chayns api instance initialized");
         }
-        return moduleWrapperStack.at(-1) || current;
+        return moduleWrapperStack.length > 0 ? moduleWrapperStack[moduleWrapperStack.length - 1] : current;
     },
     set current(chayns: IChaynsReact) {
         current = chayns;
