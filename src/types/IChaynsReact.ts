@@ -454,7 +454,7 @@ export interface ChaynsReactFunctions {
 }
 
 export type ChaynsReactCustomFunctions = {
-    [key: string]: <A extends Array<any>, O>(...args: A) => Promise<O>;
+    [key: string]: (...args: any[]) => Promise<any>;
 };
 
 export type DialogResult = {

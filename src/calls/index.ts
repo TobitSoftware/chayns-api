@@ -250,7 +250,7 @@ export const getStyleSettings = () => moduleWrapper.current.values.styleSettings
  * Returns the customFunction. Prefer usage via useCustomFunction when possible
  * @param key functionName
  */
-export const getCustomFunction = <A extends Array<any>, T>(key: string) => moduleWrapper.current.customFunctions[key]<A, T>;
+export const getCustomFunction = <A extends (...args: any[]) => Promise<any>>(key: string) => moduleWrapper.current.customFunctions[key] as A;
 
 export const user = new Proxy<UserInfo>({} as UserInfo, {
     get: (target, prop) => {
