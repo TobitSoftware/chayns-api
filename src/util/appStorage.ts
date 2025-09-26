@@ -9,8 +9,8 @@ export function isAppStorageAvailable(this: AppWrapper) {
     return this.values.device.app?.appVersion >= (['iOS', 'Mac OS'].includes(this.values.device.os as string) ? 1046 : 1033)
 }
 
-export function getAppStorageItem<T extends unknown>(this: AppWrapper, storeName: string, key?: string) {
-    const callbackName = `chaynsApiV5Callback_${this.counter++}`;
+export function getAppStorageItem<T extends unknown>(this: AppWrapper, storeName: string, key?: string, callbackPrefix = 'chaynsApiV5Callback') {
+    const callbackName = `${callbackPrefix}_${this.counter++}`;
 
     return new Promise<T>((resolve) => {
         window[callbackName] = (_key: string, _storeName: string, value: T) => {
@@ -34,8 +34,8 @@ export function getAppStorageItem<T extends unknown>(this: AppWrapper, storeName
     });
 }
 
-export function setAppStorageItem<T extends string | object>(this: AppWrapper, storeName: string, key: string, value: T) {
-    const callbackName = `chaynsApiV5Callback_${this.counter++}`;
+export function setAppStorageItem<T extends string | object>(this: AppWrapper, storeName: string, key: string, value: T, callbackPrefix = 'chaynsApiV5Callback') {
+    const callbackName = `${callbackPrefix}_${this.counter++}`;
 
     return new Promise<void>((resolve, reject) => {
         window[callbackName] = () => {
@@ -76,8 +76,8 @@ export function clearAppStorage(this: AppWrapper, storeName: string) {
     }
 }
 
-export async function addAppStorageListener<T extends string | object>(this: AppWrapper, storeName: string, prefix: string, callback: (value: T | undefined) => void) {
-    const callbackName = `chaynsApiV5Callback_${this.counter++}`;
+export async function addAppStorageListener<T extends string | object>(this: AppWrapper, storeName: string, prefix: string, callback: (value: T | undefined) => void, callbackPrefix = 'chaynsApiV5Callback') {
+    const callbackName = `${callbackPrefix}_${this.counter++}`;
 
     const { shouldInitialize } = addApiListener(`appStorageListener/${storeName}`, callback);
 

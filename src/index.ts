@@ -22,3 +22,5 @@ export * as dialog from './calls/dialogs/index';
 export * from './util/initModuleFederationSharing';
 
 export * from './util/bindChaynsApi';
+
+export * from './util/appStorage';
