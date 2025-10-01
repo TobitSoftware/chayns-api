@@ -45,7 +45,14 @@ export class FrameWrapper implements IChaynsReact {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.addScrollListener(value, callback && comlink.proxy((result: ScrollListenerResult) => callback(result)));
         },
-        addVisibilityChangeListener: async (callback) => addVisibilityChangeListener(callback),
+        addVisibilityChangeListener: async (callback) => {
+            if (!this.initialized) await this.ready;
+            try {
+                return await this.exposedFunctions.addVisibilityChangeListener(comlink.proxy((result) => callback(result)));
+            } catch (ex) {
+                return addVisibilityChangeListener(callback);
+            }
+        },
         addToolbarChangeListener: async (callback) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.addToolbarChangeListener(callback && comlink.proxy((result: ToolbarChangeListenerResult) => callback(result)));
