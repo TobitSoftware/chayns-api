@@ -4,6 +4,10 @@ import type { FederationHost } from '@module-federation/enhanced/runtime'
 type ShareScopeMap = FederationHost["shareScopeMap"];
 
 export const loadModule = (scope: string, module: string, url: string, preventSingleton = false) => {
+    if (!globalThis.moduleFederationRuntime || !globalThis.moduleFederationScopes) {
+        throw new Error('[chayns-api] moduleFederationSharing has not been initialized. Make sure to call initModuleFederationSharing.');
+    }
+
     const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
     const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
     try {
@@ -50,6 +54,10 @@ export const loadModule = (scope: string, module: string, url: string, preventSi
 const loadComponent = (scope: string, module: string, url: string, skipCompatMode = false, preventSingleton = false) => {
     if (skipCompatMode) {
         console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
+    }
+
+    if (!globalThis.moduleFederationRuntime || !globalThis.moduleFederationScopes) {
+        throw new Error('[chayns-api] moduleFederationSharing has not been initialized. Make sure to call initModuleFederationSharing.');
     }
 
     const { loadShareSync, getInstance } = globalThis.moduleFederationRuntime;
