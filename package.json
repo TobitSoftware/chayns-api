@@ -1,6 +1,6 @@
 {
     "name": "chayns-api",
-    "version": "2.4.23",
+    "version": "2.4.24",
     "description": "new chayns api",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
