@@ -49,7 +49,7 @@ const System: FC<SystemPropTypes> = ({
     fallback,
     ...props
 }) => {
-    const Component = useMemo(() => loadComponent(system.scope, system.module, globalThis.window ? system.url : system.serverUrl, undefined, system.preventSingleton), [system.scope, system.module, system.url, system.serverUrl, system.preventSingleton]);
+    const Component = useMemo(() => loadComponent(system.scope, system.module, globalThis.window ? system.url : system.serverUrl as string, undefined, system.preventSingleton), [system.scope, system.module, system.url, system.serverUrl, system.preventSingleton]);
 
     return (
         <React.Suspense fallback={fallback || ''}>
