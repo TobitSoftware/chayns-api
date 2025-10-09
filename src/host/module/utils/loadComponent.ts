@@ -3,7 +3,7 @@ import type { FederationHost } from '@module-federation/enhanced/runtime'
 
 type ShareScopeMap = FederationHost["shareScopeMap"];
 
-export const loadModule = (scope, module, url, preventSingleton = false) => {
+export const loadModule = (scope: string, module: string, url: string, preventSingleton = false) => {
     const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
     const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
     try {
@@ -47,7 +47,7 @@ export const loadModule = (scope, module, url, preventSingleton = false) => {
     return moduleMap[scope][module];
 }
 
-const loadComponent = (scope, module, url, skipCompatMode = false, preventSingleton = false) => {
+const loadComponent = (scope: string, module: string, url: string, skipCompatMode = false, preventSingleton = false) => {
     if (skipCompatMode) {
         console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
     }
