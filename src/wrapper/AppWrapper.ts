@@ -16,7 +16,7 @@ import {
     CleanupCallback,
     DataChangeCallback,
     DataChangeValue,
-    Dialog, DialogButtonType,
+    Dialog, DialogButtonType, DialogType,
     Environment,
     Font,
     Gender,
@@ -25,7 +25,7 @@ import {
     IconType, LoginState,
     RuntimeEnviroment,
     ScanQrCodeResult,
-    TappEvent
+    TappEvent,
 } from '../types/IChaynsReact';
 import invokeAppCall from '../util/appCall';
 import { addAppStorageListener, clearAppStorage, isAppStorageAvailable, setAppStorageItem } from '../util/appStorage';
@@ -606,6 +606,15 @@ export class AppWrapper implements IChaynsReact {
                 },
                 externalDialogUrl: isSupported ? undefined : 'https://tapp.chayns-static.space/api/dialog-v2/v1/index.html',
             }, { awaitResult: true }).then((result) => {
+                if (config.type === DialogType.DATE) {
+                    const dialogResult = result.result as string | string[] | undefined;
+                    if (typeof dialogResult === 'string') {
+                        result.result = new Date(dialogResult);
+                    } else if (Array.isArray(dialogResult)) {
+                        result.result = dialogResult.map((date) => new Date(date));
+                    }
+                }
+
                 callback(result);
             });
 
