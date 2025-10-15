@@ -259,7 +259,7 @@ export class AppWrapper implements IChaynsReact {
                 this.appCall(60, {}, {
                     callback: (v) => {
                         dispatchApiEvent('visibilityChangeListener', {
-                            isVisible: v.tappEvent === TappEvent.OnShow,
+                            isVisible: v.tappEvent !== TappEvent.OnHide,
                             tappEvent: v.tappEvent,
                         });
                     },
