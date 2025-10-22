@@ -920,6 +920,7 @@ export interface Page {
     viewMode: number;
     originalTappId?: number;
     apiVersion?: number;
+    mainGroupId?: PageMainGroupType
 }
 
 export enum Gender {
@@ -1090,4 +1091,10 @@ export enum DialogIconType {
 
 export type AnonymousAccountResult = {
     token: string;
+}
+
+export type PageMainGroupType = {
+    Id: 1,
+    Administration: 2,
+    User: 3
 }
