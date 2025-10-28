@@ -42,6 +42,7 @@ class StaticChaynsApi {
     getEnvironment = () => this._wrapper.values.environment;
     getStyleSettings = () => this._wrapper.values.styleSettings;
     getCustomFunction = (key: string) => this._wrapper.customFunctions[key];
+    getDialogInput = () => this._wrapper.values.dialog.dialogInput;
 }
 
 export default StaticChaynsApi;
