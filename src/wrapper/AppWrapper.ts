@@ -565,6 +565,13 @@ export class AppWrapper implements IChaynsReact {
                 key,
                 accessMode,
             });
+            if (['iOS', 'Mac OS'].includes(this.values.device.os) && typeof result?.object === 'string') {
+                try {
+                    return JSON.parse(result.object);
+                } catch {
+                    console.warn('[chayns-api] could not parse result from storageGetItem', result.object)
+                }
+            }
             return result?.object;
         },
         storageRemoveItem: async (key, accessMode) => {
@@ -574,9 +581,13 @@ export class AppWrapper implements IChaynsReact {
             }, { awaitResult: false });
         },
         storageSetItem: async (key, value, accessMode, tappIds) => {
+            let object: T = value;
+            if (['iOS', 'Mac OS'].includes(this.values.device.os)) {
+                object = JSON.stringify(value);
+            }
             this.appCall(73, {
                 key,
-                object: value as unknown,
+                object,
                 accessMode,
                 tappIDs: tappIds,
             }, {
