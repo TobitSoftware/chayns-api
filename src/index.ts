@@ -24,3 +24,5 @@ export * from './util/initModuleFederationSharing';
 export * from './util/bindChaynsApi';
 
 export * from './util/appStorage';
+
+export * from './util/collectCssChunks';

@@ -1,4 +1,5 @@
-import React, { FC, ReactNode, useMemo } from 'react';
+import React, { FC, ReactNode, useContext, useMemo } from 'react';
+import { ModuleContext } from '../../constants/moduleContext';
 import loadComponent from './utils/loadComponent';
 import {
     ChaynsApiDevice,
@@ -50,6 +51,14 @@ const System: FC<SystemPropTypes> = ({
     ...props
 }) => {
     const Component = useMemo(() => loadComponent(system.scope, system.module, globalThis.window ? system.url : system.serverUrl as string, undefined, system.preventSingleton), [system.scope, system.module, system.url, system.serverUrl, system.preventSingleton]);
+    if (!globalThis.window) {
+        const moduleContext = useContext(ModuleContext);
+        moduleContext[system.scope] ??= {
+            url: new URL('mf-manifest.json', system.url).toString(),
+            modules: new Set(),
+        };
+        moduleContext[system.scope].modules.add(system.module);
+    }
 
     return (
         <React.Suspense fallback={fallback || ''}>
