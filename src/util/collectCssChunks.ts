@@ -1,4 +1,4 @@
-import { ModuleContextValueType } from '../constants/moduleContext';
+import { ModuleContextValueType } from '../constants';
 
 type RemoteInfo = {
     exposes: {
@@ -12,13 +12,24 @@ type RemoteInfo = {
     }[]
 }
 
+const remoteInfoCache: Record<string, RemoteInfo> = {};
+
+const loadRemoteInfo = async (url: string) => {
+    if (remoteInfoCache[url]) {
+        return remoteInfoCache[url];
+    }
+    const res = await fetch(url);
+    if (res.ok) {
+        const info: RemoteInfo = await res.json();
+        remoteInfoCache[url] = info;
+        return info;
+    }
+    throw new Error(`Could not load remote info from ${url}`);
+}
+
 export const collectCssChunks = async (modules: ModuleContextValueType) => {
     const p = Object.values(modules).map(async (module) => {
-        const res = await fetch(module.url);
-        if (!res.ok) {
-            return [];
-        }
-        const info: RemoteInfo = await res.json();
+        const info = await loadRemoteInfo(module.url);
 
         const chunks: string[] = [];
         info.exposes.forEach((exposes) => {
