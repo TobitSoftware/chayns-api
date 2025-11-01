@@ -44,5 +44,5 @@ export const collectCssChunks = async (modules: ModuleContextValueType) => {
         return chunks;
     })
     const r = await Promise.allSettled(p);
-    return r.flatMap((v) => v.status === 'fulfilled' ? v.value : [])
+    return r.flatMap((v) => v.status === 'fulfilled' ? v.value : []).join('')
 };
