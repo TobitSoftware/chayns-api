@@ -577,6 +577,7 @@ export class AppWrapper implements IChaynsReact {
         storageRemoveItem: async (key, accessMode) => {
             this.appCall(73, {
                 key,
+                object: ['iOS', 'Mac OS'].includes(this.values.device.os) ? JSON.stringify(null) : undefined,
                 accessMode,
             }, { awaitResult: false });
         },
