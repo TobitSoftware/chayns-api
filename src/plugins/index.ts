@@ -1,0 +1,1 @@
+export { SSRManifestPlugin } from './SSRManifestPlugin';

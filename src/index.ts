@@ -19,6 +19,8 @@ export { default as DialogHandler } from './handler/DialogHandler';
 
 export * as dialog from './calls/dialogs/index';
 
+export * from './plugins';
+
 export * from './util/initModuleFederationSharing';
 
 export * from './util/bindChaynsApi';
