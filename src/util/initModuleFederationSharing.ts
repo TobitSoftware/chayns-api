@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { SequentialLoadPlugin } from '../plugins/SequentialLoadPlugin';
 let ReactDOMClient;
 try {
     ReactDOMClient = require('react-dom/client');
@@ -46,5 +47,6 @@ export const initModuleFederationSharing = ({ name }) => {
         name: name ?? '',
         remotes: [],
         shared,
+        plugins: [SequentialLoadPlugin()],
     });
 }
