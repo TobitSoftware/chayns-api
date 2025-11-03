@@ -8,7 +8,7 @@ try {
     // do nothing
 }
 
-export const initModuleFederationSharing = ({ name }) => {
+export const initModuleFederationSharing = ({ name, plugins = [] }) => {
     // forces single instance of module federation runtime
     if(globalThis.moduleFederationRuntime) {
         return;
@@ -47,6 +47,6 @@ export const initModuleFederationSharing = ({ name }) => {
         name: name ?? '',
         remotes: [],
         shared,
-        plugins: [SequentialLoadPlugin()],
+        plugins: [SequentialLoadPlugin(), ...plugins],
     });
 }
