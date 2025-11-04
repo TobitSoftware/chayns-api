@@ -23,7 +23,7 @@ export const loadModule = (scope: string, module: string, url: string, preventSi
         }
         registerRemotes([
             {
-                shareScope: url.endsWith('v2.remoteEntry.js') ? 'chayns-api' : 'default',
+                shareScope: url.endsWith('v2.remoteEntry.js') || url.endsWith('mf-manifest.json') ? 'chayns-api' : 'default',
                 name: scope,
                 entry: url,
                 alias: scope,

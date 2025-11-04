@@ -54,7 +54,7 @@ const System: FC<SystemPropTypes> = ({
     if (!globalThis.window) {
         const moduleContext = useContext(ModuleContext);
         moduleContext[system.scope] ??= {
-            url: new URL('mf-manifest.json', system.url).toString(),
+            url: system.url,
             modules: new Set(),
         };
         moduleContext[system.scope].modules.add(system.module);

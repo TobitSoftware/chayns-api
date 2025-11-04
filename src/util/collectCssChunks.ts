@@ -15,6 +15,10 @@ type RemoteInfo = {
 const remoteInfoCache: Record<string, RemoteInfo | null> = {};
 
 const loadRemoteInfo = async (url: string) => {
+    if (!url.endsWith('/mf-manifest.json')) {
+        return null;
+    }
+
     if (remoteInfoCache[url]) {
         return remoteInfoCache[url];
     }
