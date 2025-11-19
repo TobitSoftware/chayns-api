@@ -639,15 +639,11 @@ export interface DesignSettingsUpdateCover {
     urls: string[];
 }
 
-export enum DesignSettingsUpdateColorSchemeMode {
-    Normal,
-    Dark,
-    Bright
-}
-
 export interface DesignSettingsUpdateColorScheme {
     color: string;
-    mode: DesignSettingsUpdateColorSchemeMode;
+    /** @deprecated use colorMode instead */
+    mode: ColorMode;
+    colorMode: ColorMode;
 }
 
 export interface DesignSettingsUpdateGlobalSettings {
