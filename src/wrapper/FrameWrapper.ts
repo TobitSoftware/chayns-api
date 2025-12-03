@@ -100,6 +100,10 @@ export class FrameWrapper implements IChaynsReact {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.invokeCall(value, callback && comlink.proxy((result) => callback(result)));
         },
+        invokePaymentCall: async (value, callback) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.invokePaymentCall(value, callback && comlink.proxy((result) => callback(result)));
+        },
         invokeDialogCall: async (value, callback) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.invokeDialogCall(value, callback && comlink.proxy((result) => callback(result)));

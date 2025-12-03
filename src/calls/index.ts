@@ -74,6 +74,8 @@ export const getWindowMetrics = (...args: Parameters<ChaynsReactFunctions["getWi
 /** @internal */
 export const invokeCall = (...args: Parameters<ChaynsReactFunctions["invokeCall"]>) => moduleWrapper.current.functions.invokeCall(...args);
 /** @internal */
+export const invokePaymentCall = (...args: Parameters<ChaynsReactFunctions["invokePaymentCall"]>) => moduleWrapper.current.functions.invokePaymentCall(...args);
+/** @internal */
 export const invokeDialogCall = (...args: Parameters<ChaynsReactFunctions["invokeDialogCall"]>) => moduleWrapper.current.functions.invokeDialogCall(...args);
 /**
  * This method will show a login dialog where the user has the opportunity to log in.

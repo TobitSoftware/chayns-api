@@ -382,6 +382,7 @@ export interface ChaynsReactFunctions {
     getScrollPosition: () => Promise<ScrollListenerResult>;
     getWindowMetrics: () => Promise<WindowMetricsListenerResult>;
     invokeCall: (value: InvokeCall, callback?: (result: any) => void) => Promise<any>;
+    invokePaymentCall: <T>(value: InvokeCall, callback?: (result: T) => void) => Promise<T>;
     invokeDialogCall: (value: InvokeCall, callback?: (result: any) => void) => Promise<any>;
     login: (value?: Login, callback?: (result: boolean) => void, closeCallback?: () => void) => Promise<LoginResult>;
     logout: () => Promise<void>;

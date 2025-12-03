@@ -339,6 +339,9 @@ export class AppWrapper implements IChaynsReact {
         invokeCall: async (value, callback) => {
             return this.appCall(value.action, value.value, { callback });
         },
+        invokePaymentCall: async (value, callback) => {
+            return this.appCall(value.action, value.value, { callback });
+        },
         invokeDialogCall: async (value, callback) => {
             const callbackName = `chaynsApiV5Callback_${this.counter++}`;
             window[callbackName] = ({ retVal }) => {
