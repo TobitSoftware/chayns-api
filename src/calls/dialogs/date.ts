@@ -146,7 +146,6 @@ export function advancedDate(config: AdvancedDateConfig = {}) {
         }
     } else {
         // This will fix the iOS problem with not preselectedDate without user interaction. That it return the wrong time.
-        // eslint-disable-next-line no-lonely-if
         if (minuteInterval && minuteInterval > 1 && os === 'iOS' && app) {
             preSelect = roundInterval(preSelect as number, minuteInterval);
         } else {
@@ -232,7 +231,7 @@ function roundInterval(preDate: Date | undefined | number | number [] = new Date
             return -1;
         }
     }
-    let minutes = (preDate as Date).getMinutes();
+    const minutes = (preDate as Date).getMinutes();
     (preDate as Date).setMinutes(minutes - (minutes % interval));
     (preDate as Date).setSeconds(0);
     // TODO: Why?

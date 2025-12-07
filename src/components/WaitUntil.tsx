@@ -11,10 +11,8 @@ const handleTasks = async (tasks: TaskList) => {
     for(let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
         if(Array.isArray(task)) {
-            // eslint-disable-next-line no-await-in-loop
             await Promise.allSettled(task.map((t) => Array.isArray(t) ? handleTasks(t) : (typeof t === 'function' ? t() : t)));
         } else {
-            // eslint-disable-next-line no-await-in-loop
             await (typeof task === 'function' ? task() : task).catch(() => {});
         }
     }

@@ -1,5 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
-
 import React, { PureComponent, RefObject } from 'react';
 import ReactDOM from 'react-dom';
 import ErrorBoundary from './ErrorBoundary';

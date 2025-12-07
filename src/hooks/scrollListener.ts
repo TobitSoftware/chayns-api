@@ -32,7 +32,6 @@ export const useScrollPosition = ({ enabled = true, throttle = 200 } = {}) => {
             return addListener({ throttle }, setValue);
         }
         return undefined;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [enabled, throttle, addListener]);
 
     useEffect(()=> {

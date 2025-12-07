@@ -9,8 +9,6 @@ import { SsrWrapper } from '../wrapper/SsrWrapper';
 import { ChaynsContext } from './ChaynsContext';
 import { addModuleWrapper, moduleWrapper, removeModuleWrapper } from './moduleWrapper';
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-
 const isServer = typeof window === 'undefined';
 
 const InitialDataProvider = React.memo<{ data?: ChaynsReactValues, renderedByServer?: boolean }>(({ data, renderedByServer }) => {
@@ -39,7 +37,6 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     renderedByServer,
     isModule,
 }) => {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const customWrapper = useRef<IChaynsReact>(null!);
 
     if (!customWrapper.current) {
