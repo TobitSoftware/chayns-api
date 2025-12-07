@@ -4,16 +4,27 @@ import {addDialogDataListener, sendData} from './communication';
 import { DialogButtonOld } from "../../types/dialog";
 import { getSite, invokeDialogCall } from "../index";
 
-type iFrameDialog = {
+type IFrameDialog = {
     buttons?: DialogButtonOld[],
-    callType?: number,
-    tappIframeName?: string,
-    url: string
+    url: string,
+    input?: object,
+    seamless?: boolean,
+    transparent?: boolean,
+    waitCursor?: boolean,
+    maxHeight?: string,
+    width?: number,
+    fullHeight?: boolean,
+    customTransitionTimeout?: number,
 }
 
-export function iFrame(dialog: iFrameDialog = {url: ""}) {
-    if (!dialog.buttons || !Array.isArray(dialog.buttons)) {
-        dialog.buttons = [{
+export function iFrame(dialog: IFrameDialog = {url: ""}) {
+    const config = {
+        ...dialog,
+        tappIframeName: window.name,
+        callType: dialogAction.IFRAME,
+    };
+    if (!config.buttons || !Array.isArray(config.buttons)) {
+        config.buttons = [{
             'text': buttonText.YES,
             'buttonType': buttonType.POSITIVE
         }, {
@@ -22,12 +33,10 @@ export function iFrame(dialog: iFrameDialog = {url: ""}) {
         }];
     }
 
-    dialog.tappIframeName = window.name;
-    dialog.callType = dialogAction.IFRAME;
     const site = getSite();
-    dialog.url = `${dialog.url}${dialog.url.indexOf('?') >= 0 ? '&' : '?'}siteId=${site.id}`;
+    config.url = `${config.url}${config.url.indexOf('?') >= 0 ? '&' : '?'}siteId=${site.id}`;
     addDialogDataListener(_chaynsCallResponder, true);
-    return open(dialog);
+    return open(config);
 }
 
 export function _chaynsCallResponder(obj) {
