@@ -4,6 +4,7 @@
 import throttle from 'lodash.throttle';
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
+import { DefaultLoginDialogOptions } from '../constants';
 import { DeviceLanguage } from '../constants/languages';
 import DialogHandler from '../handler/DialogHandler';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
@@ -16,13 +17,16 @@ import {
     CleanupCallback,
     DataChangeCallback,
     DataChangeValue,
-    Dialog, DialogButtonType, DialogType,
+    Dialog,
+    DialogButtonType,
+    DialogType,
     Environment,
     Font,
     Gender,
     GeoLocation,
     IChaynsReact,
-    IconType, LoginState,
+    IconType,
+    LoginState,
     RuntimeEnviroment,
     ScanQrCodeResult,
     TappEvent,
@@ -31,7 +35,6 @@ import invokeAppCall from '../util/appCall';
 import { addAppStorageListener, clearAppStorage, isAppStorageAvailable, setAppStorageItem } from '../util/appStorage';
 import getDeviceInfo, { getScreenSize } from '../util/deviceHelper';
 import { isAppCallSupported } from '../util/is';
-import { DefaultLoginDialogOptions } from '../constants';
 
 export class AppWrapper implements IChaynsReact {
 
@@ -360,6 +363,7 @@ export class AppWrapper implements IChaynsReact {
             if (buttonType === DialogButtonType.OK && result.token) {
                 const response = {
                     loginState: LoginState.SUCCESS,
+                    buttonType,
                     ...result
                 }
 
@@ -370,6 +374,7 @@ export class AppWrapper implements IChaynsReact {
 
             const response = {
                 loginState: LoginState.LoginFailed,
+                buttonType,
                 ...result
             }
 

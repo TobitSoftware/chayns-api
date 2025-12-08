@@ -742,12 +742,29 @@ export enum LoginState {
 }
 
 export interface LoginResult {
+    /** @deprecated Check buttonType instead **/
     loginState: LoginState;
+    buttonType: DialogButtonType;
+    token?: string;
+    confirmationToken?: string;
+    authCode?: string;
+    redirectUri?: string;
 }
 
-export interface Login {
-    ignoreAuthenticated: boolean;
-}
+export type Login = BaseDialog & DialogModule<{
+    preventLogin?: boolean;
+    restore?: number;
+    tokenType?: number;
+    /**
+     * SiteId for which site the token should be generated.
+     * @warning Only works when tokenLocationId is defined too
+     **/
+    tokenSiteId?: string;
+    /**
+     * @warning Only works when tokenSiteId is defined too
+     */
+    tokenLocationId?: number;
+}>
 
 export interface InvokeCall {
     action: number;
