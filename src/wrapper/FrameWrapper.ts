@@ -12,7 +12,6 @@ import {
     ScrollListenerResult, ToolbarChangeListenerResult,
 } from '../types/IChaynsReact';
 import { addVisibilityChangeListener, removeVisibilityChangeListener } from '../calls/visibilityChangeListener';
-import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { setTappHeight } from '../util/heightHelper';
@@ -48,7 +47,7 @@ export class FrameWrapper implements IChaynsReact {
             if (!this.initialized) await this.ready;
             try {
                 return await this.exposedFunctions.addVisibilityChangeListener(comlink.proxy((result) => callback(result)));
-            } catch (ex) {
+            } catch {
                 return addVisibilityChangeListener(callback);
             }
         },
