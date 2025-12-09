@@ -5,27 +5,40 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string, { imei }: { imei
     const uaParser = new UAParser(userAgent);
 
     let appName: AppName = AppName.Unknown;
-    const match = (/(?:my)?chayns\/(?<version>\d+).*(?<siteId>\d{5}-\d{5})/i).exec(userAgent);
-    const customMatch = (/\s(?<name>intercom|sidekick|team|cityApp|electron-chayns|electron-d3sc)\/(?<version>\d+)/i).exec(userAgent);
+    let appFlavor: AppFlavor = AppFlavor.None;
+    const match = (/(?:^|\s)(?:my)?chayns\/(?<version>\d+).*(?<siteId>\d{5}-\d{5})/i).exec(userAgent);
+    const customMatch = (/\s(?<name>intercom|sidekick|team|cityApp|electron-chayns|electron-d3sc|electron-team)\/(?<version>\d+)/i).exec(userAgent);
 
     if ((/\sintercom\/\d+/i).test(userAgent)) {
         appName = AppName.TobitChat;
+        appFlavor = AppFlavor.Chayns;
     } else if ((/\ssidekick\/\d+/i).test(userAgent)) {
         appName = AppName.Sidekick;
+        appFlavor = AppFlavor.Chayns;
     } else if((/\steam\/\d+/i).test(userAgent)) {
         appName = AppName.Team;
+        appFlavor = AppFlavor.Chayns;
     } else if((/\scityApp\/\d+/i).test(userAgent)) {
         appName = AppName.CityApp;
+        appFlavor = AppFlavor.Chayns;
     } else if (match?.groups?.siteId === '60021-08989') {
         appName = AppName.Chayns;
+        appFlavor = AppFlavor.Chayns;
     } else if (match?.groups?.siteId === '77892-10814') {
         appName = AppName.David;
+        appFlavor = AppFlavor.Chayns;
     } else if (match) {
         appName = AppName.Location;
+        appFlavor = AppFlavor.Chayns;
     } else if ((/dface|h96pp|h96max|jabiru|chaynsterminal|wayter|odroidn2p|chayns-runtime-custom/i).test(userAgent)) {
         appName = AppName.ChaynsLauncher;
+        appFlavor = AppFlavor.Chayns;
     } else if ((/electron-chayns|electron-d3sc/i).test(userAgent)) {
         appName = AppName.ElectronChayns;
+        appFlavor = AppFlavor.Electron;
+    } else if (/electron-team/i.test(userAgent)) {
+        appName = AppName.ElectronTeam;
+        appFlavor = AppFlavor.Electron;
     }
 
     let appVersion = match?.groups ? Number.parseInt(match.groups.version, 10) : NaN;
@@ -43,7 +56,7 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string, { imei }: { imei
     };
     result.app = {
         name: appName,
-        flavor: appName === AppName.Unknown || appName === AppName.ElectronChayns ? AppFlavor.None : AppFlavor.Chayns,
+        flavor: appFlavor,
         version: match?.groups ? Number.parseInt(match.groups.version, 10) : NaN,
         appVersion,
         callVersion: match?.groups ? Number.parseInt(match.groups.version, 10) : NaN,
@@ -59,7 +72,7 @@ const getDeviceInfo = (userAgent: string, acceptHeader: string, { imei }: { imei
     } else {
         // estimate size over user agent, very inaccurate, could be improved by setting a cookie with the screensize
         const screenSizeByUA = /mobi/i.test(userAgent) ? ScreenSize.SM : ScreenSize.XL;
-        result.screenSize = appName !== AppName.Unknown && appName !== AppName.ElectronChayns ? ScreenSize.XS : screenSizeByUA;
+        result.screenSize = appFlavor === AppFlavor.Chayns ? ScreenSize.XS : screenSizeByUA;
     }
 
     return result;

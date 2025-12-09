@@ -1,9 +1,9 @@
 import { getDevice } from '../calls';
-import { AppName } from '../types/IChaynsReact';
+import { AppFlavor } from '../types/IChaynsReact';
 
 export const isApp = () => {
-    return (getDevice().app?.name ?? AppName.Unknown) !== AppName.Unknown;
-}
+    return getDevice().app?.flavor === AppFlavor.Chayns;
+};
 
 export const isAppCallSupported = ({ minAndroidVersion = 1, minIOSVersion = 1 }) => {
     if (!isApp()) return false;
@@ -20,4 +20,8 @@ export const isAppCallSupported = ({ minAndroidVersion = 1, minIOSVersion = 1 })
     }
 
     return false;
-}
+};
+
+export const isElectron = () => {
+    return getDevice().app?.flavor === AppFlavor.Electron;
+};

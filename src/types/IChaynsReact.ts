@@ -277,7 +277,8 @@ export enum ScreenSize {
 
 export enum AppFlavor {
     None = 'none',
-    Chayns = 'chayns'
+    Chayns = 'chayns',
+    Electron = 'electron',
 }
 
 export type ChaynsApiDevice = {
@@ -996,6 +997,7 @@ export enum AppName {
     Team,
     CityApp,
     ElectronChayns,
+    ElectronTeam,
 }
 
 export enum BrowserName {
