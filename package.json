@@ -5,6 +5,9 @@
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
     "types": "dist/types/index.d.ts",
+    "repository": {
+        "url": "git+https://github.com/TobitSoftware/chayns-api.git"
+    },
     "exports": {
         ".": {
             "types": "./dist/types/index.d.ts",
