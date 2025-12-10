@@ -47,6 +47,7 @@ export const withCompatMode = <P extends Props>(Component: React.ComponentType<P
         }
 
         componentWillUnmount() {
+            clearTimeout(this.timeout);
             if (this.root) {
                 this.root.unmount();
             } else {
