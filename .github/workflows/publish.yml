@@ -6,6 +6,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  id-token: write  # Required for OIDC
+
 env:
   TAG: >-
     ${{ contains(github.ref_name, 'alpha') && 'alpha' || (contains(github.ref_name, '-') &&
