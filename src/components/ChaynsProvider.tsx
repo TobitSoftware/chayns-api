@@ -1,5 +1,5 @@
 import htmlEscape from 'htmlescape';
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { AppName, ChaynsReactFunctions, ChaynsReactValues, IChaynsReact } from '../types/IChaynsReact';
 import getDeviceInfo from '../util/deviceHelper';
 import { AppWrapper } from '../wrapper/AppWrapper';
@@ -92,7 +92,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         }
     }, [customFunctions, isModule]);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         addModuleWrapper(customWrapper.current);
         return () => {
             removeModuleWrapper(customWrapper.current);
