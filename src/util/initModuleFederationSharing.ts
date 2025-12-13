@@ -21,7 +21,7 @@ export const initModuleFederationSharing = ({ name }) => {
         componentMap: {},
     }
 
-    const { init } = globalThis.moduleFederationRuntime;
+    const { createInstance } = globalThis.moduleFederationRuntime;
 
     const shared = {
         react: {
@@ -43,7 +43,7 @@ export const initModuleFederationSharing = ({ name }) => {
         }
     }
 
-    init({
+    createInstance({
         name: name ?? '',
         remotes: [],
         shared,

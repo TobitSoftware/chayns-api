@@ -1,7 +1,4 @@
 import React from "react";
-import type { FederationHost } from '@module-federation/enhanced/runtime'
-
-type ShareScopeMap = FederationHost["shareScopeMap"];
 
 export const loadModule = (scope: string, module: string, url: string, preventSingleton = false) => {
     if (!globalThis.moduleFederationRuntime || !globalThis.moduleFederationScopes) {
@@ -60,7 +57,7 @@ const loadComponent = (scope: string, module: string, url: string, skipCompatMod
         throw new Error('[chayns-api] moduleFederationSharing has not been initialized. Make sure to call initModuleFederationSharing.');
     }
 
-    const { loadShareSync, getInstance } = globalThis.moduleFederationRuntime;
+    const { getInstance } = globalThis.moduleFederationRuntime;
     const { componentMap, registeredScopes } = globalThis.moduleFederationScopes;
 
     if (!componentMap[scope]) {
@@ -73,19 +70,7 @@ const loadComponent = (scope: string, module: string, url: string, skipCompatMod
                 return Module;
             }
 
-            const shareScopes: ShareScopeMap = typeof getInstance === 'function' ? getInstance().shareScopeMap : await new Promise(resolve => {
-                loadShareSync('react', {
-                    resolver: (shareOptions) => {
-                        const optionsMap = shareOptions.reduce((p, e) => {
-                            p[e.version] = e;
-                            e.version;
-                            return p;
-                        }, {});
-                        resolve({ 'chayns-api': optionsMap });
-                        return shareOptions[0];
-                    },
-                });
-            });
+            const shareScopes = getInstance()!.shareScopeMap;
 
             const sharedReact = shareScopes['chayns-api'].react?.[React.version];
             const matchReactVersion = sharedReact && sharedReact.useIn.includes(scope) && sharedReact.lib?.() === React;

@@ -1,9 +1,9 @@
-import type { FederationRuntimePlugin } from '@module-federation/enhanced/runtime';
+import type { ModuleFederationRuntimePlugin } from '@module-federation/enhanced/runtime';
 
 /**
  * Plugin to prevent parallel loading of shared dependencies
  */
-export const SequentialLoadPlugin: () => FederationRuntimePlugin = () => {
+export const SequentialLoadPlugin: () => ModuleFederationRuntimePlugin = () => {
     return {
         name: 'sequential-load',
         async beforeInitContainer(args) {

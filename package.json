@@ -50,7 +50,7 @@
         "extends": "@chayns-toolkit"
     },
     "dependencies": {
-        "@module-federation/enhanced": "^0.10.0",
+        "@module-federation/enhanced": "^0.21.6",
         "comlink": "4.3.1",
         "htmlescape": "^1.1.1",
         "lodash.throttle": "^4.1.1",
@@ -84,5 +84,10 @@
     "peerDependencies": {
         "react": "^16.8 || ^17.0.1 || ^18.0.0 || ^19.0.0",
         "react-dom": "^16.8 || ^17.0.1 || ^18.0.0 || ^19.0.0"
+    },
+    "overrides": {
+        "chayns-toolkit": {
+            "@module-federation/enhanced": "^0.21.6"
+        }
     }
 }
