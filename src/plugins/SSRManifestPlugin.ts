@@ -1,9 +1,9 @@
-import type { FederationRuntimePlugin } from '@module-federation/enhanced/runtime';
+import type { ModuleFederationRuntimePlugin } from '@module-federation/enhanced/runtime';
 
 /**
  * Adds SSR metadata and resolves public path when using manifest
  */
-export const SSRManifestPlugin: () => FederationRuntimePlugin = () => {
+export const SSRManifestPlugin: () => ModuleFederationRuntimePlugin = () => {
     return {
         name: 'ssr-manifest',
         loadRemoteSnapshot(args) {
