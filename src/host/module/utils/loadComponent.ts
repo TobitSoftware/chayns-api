@@ -1,12 +1,11 @@
 import React from "react";
 
 export const loadModule = (scope: string, module: string, url: string, preventSingleton = false) => {
-    if (!globalThis.moduleFederationRuntime || !globalThis.moduleFederationScopes) {
+    if (!globalThis.moduleFederationScopes) {
         throw new Error('[chayns-api] moduleFederationSharing has not been initialized. Make sure to call initModuleFederationSharing.');
     }
 
-    const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
-    const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
+    const { registeredScopes, moduleMap, componentMap, getInstance } = globalThis.moduleFederationScopes;
     try {
         // try simplifying url to avoid force when url is semantically the same, e.g.
         // https://example.com/remoteEntry.js and https://example.com/js/../remoteEntry.js
@@ -18,7 +17,7 @@ export const loadModule = (scope: string, module: string, url: string, preventSi
         if (scope in registeredScopes) {
             console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${url}`);
         }
-        registerRemotes([
+        getInstance().registerRemotes([
             {
                 shareScope: url.endsWith('v2.remoteEntry.js') || url.endsWith('mf-manifest.json') ? 'chayns-api' : 'default',
                 name: scope,
@@ -35,7 +34,7 @@ export const loadModule = (scope: string, module: string, url: string, preventSi
     if (!(module in moduleMap[scope])) {
         const path = `${scope}/${module.replace(/^\.\//, '')}`;
 
-        const promise = loadRemote(path);
+        const promise = getInstance().loadRemote(path);
 
         promise.catch((e) => {
             console.error("[chayns-api] Failed to load module", scope, url, e);
@@ -53,12 +52,11 @@ const loadComponent = (scope: string, module: string, url: string, skipCompatMod
         console.warn('[chayns-api] skipCompatMode-option is deprecated and is set automatically now');
     }
 
-    if (!globalThis.moduleFederationRuntime || !globalThis.moduleFederationScopes) {
+    if (!globalThis.moduleFederationScopes) {
         throw new Error('[chayns-api] moduleFederationSharing has not been initialized. Make sure to call initModuleFederationSharing.');
     }
 
-    const { getInstance } = globalThis.moduleFederationRuntime;
-    const { componentMap, registeredScopes } = globalThis.moduleFederationScopes;
+    const { componentMap, registeredScopes, getInstance } = globalThis.moduleFederationScopes;
 
     if (!componentMap[scope]) {
         componentMap[scope] = {};
@@ -70,7 +68,7 @@ const loadComponent = (scope: string, module: string, url: string, skipCompatMod
                 return Module;
             }
 
-            const shareScopes = getInstance()!.shareScopeMap;
+            const shareScopes = getInstance().shareScopeMap;
 
             const sharedReact = shareScopes['chayns-api'].react?.[React.version];
             const matchReactVersion = sharedReact && sharedReact.useIn.includes(scope) && sharedReact.lib?.() === React;
