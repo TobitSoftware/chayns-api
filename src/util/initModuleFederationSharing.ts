@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import type { ModuleFederation } from '@module-federation/enhanced/runtime';
 import { SequentialLoadPlugin } from '../plugins/SequentialLoadPlugin';
 
 let ReactDOMClient;
@@ -37,12 +38,18 @@ export const initModuleFederationSharing = ({ name, plugins = [] }) => {
         };
     }
 
-    globalThis.moduleFederationRuntime = createInstance({
+    const instance: ModuleFederation = createInstance({
         name: name ?? '',
         remotes: [],
         shared,
         plugins: [SequentialLoadPlugin(), ...plugins],
     });
+
+    globalThis.moduleFederationRuntime = {
+        loadRemote: instance.loadRemote.bind(instance),
+        registerRemotes: instance.registerRemotes.bind(instance),
+        getInstance: () => instance,
+    };
 
     globalThis.moduleFederationScopes = {
         registeredScopes: {},

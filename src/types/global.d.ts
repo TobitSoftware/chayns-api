@@ -4,4 +4,8 @@ declare var moduleFederationScopes: {
     moduleMap: Record<string, any>;
 };
 
-declare var moduleFederationRuntime: import('@module-federation/enhanced/runtime').ModuleFederation;
+declare var moduleFederationRuntime: {
+    loadRemote: import('@module-federation/enhanced/runtime').ModuleFederation['loadRemote'];
+    registerRemotes: import('@module-federation/enhanced/runtime').ModuleFederation['registerRemotes'];
+    getInstance: () => import('@module-federation/enhanced/runtime').ModuleFederation;
+}

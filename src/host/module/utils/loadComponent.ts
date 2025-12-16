@@ -57,7 +57,7 @@ const loadComponent = (scope: string, module: string, url: string, skipCompatMod
         throw new Error('[chayns-api] moduleFederationSharing has not been initialized. Make sure to call initModuleFederationSharing.');
     }
 
-    const { shareScopeMap: shareScopes } = globalThis.moduleFederationRuntime;
+    const { getInstance } = globalThis.moduleFederationRuntime;
     const { componentMap, registeredScopes } = globalThis.moduleFederationScopes;
 
     if (!componentMap[scope]) {
@@ -69,6 +69,8 @@ const loadComponent = (scope: string, module: string, url: string, skipCompatMod
             if (typeof Module.default === 'function') {
                 return Module;
             }
+
+            const shareScopes = getInstance().shareScopeMap;
 
             const sharedReact = shareScopes['chayns-api'].react?.[React.version];
             const matchReactVersion = sharedReact && sharedReact.useIn.includes(scope) && sharedReact.lib?.() === React;
