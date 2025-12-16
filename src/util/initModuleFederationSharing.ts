@@ -15,9 +15,7 @@ export const initModuleFederationSharing = ({ name, plugins = [] }) => {
         return;
     }
 
-    const runtime = require('@module-federation/enhanced/runtime');
-    globalThis.moduleFederationRuntime = runtime;
-    const { init } = runtime;
+    const { createInstance } = require('@module-federation/enhanced/runtime');
 
     const shared = {
         react: {
@@ -39,7 +37,7 @@ export const initModuleFederationSharing = ({ name, plugins = [] }) => {
         };
     }
 
-    const instance = init({
+    globalThis.moduleFederationRuntime = createInstance({
         name: name ?? '',
         remotes: [],
         shared,
@@ -50,6 +48,5 @@ export const initModuleFederationSharing = ({ name, plugins = [] }) => {
         registeredScopes: {},
         moduleMap: {},
         componentMap: {},
-        getInstance: () => instance,
     };
 };
