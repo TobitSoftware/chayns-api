@@ -11,6 +11,17 @@ export let HydrationContext: React.Context<HydrationContextValueType<object>>;
 if (!globalThis.window && globalThis._hydrationContext) {
     HydrationContext = globalThis._hydrationContext;
 } else {
-    HydrationContext = createContext({});
+    const emptyReadonly = new Proxy({}, {
+        set() {
+            return true;
+        },
+        defineProperty() {
+            return true;
+        },
+        deleteProperty() {
+            return true;
+        }
+    });
+    HydrationContext = createContext(emptyReadonly);
     globalThis._hydrationContext = HydrationContext;
 }

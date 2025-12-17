@@ -8,6 +8,17 @@ export let ModuleContext: React.Context<ModuleContextValueType>;
 if (!globalThis.window && globalThis._moduleContext) {
     ModuleContext = globalThis._moduleContext;
 } else {
-    ModuleContext = createContext({});
+    const emptyReadonly = new Proxy({}, {
+        set() {
+            return true;
+        },
+        defineProperty() {
+            return true;
+        },
+        deleteProperty() {
+            return true;
+        }
+    });
+    ModuleContext = createContext(emptyReadonly);
     globalThis._moduleContext = ModuleContext;
 }
