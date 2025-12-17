@@ -1,6 +1,6 @@
 import { ModuleContextValueType } from '../constants';
 
-export const collectCssChunks = async (modules: ModuleContextValueType) => {
+export const collectCssChunks = (modules: ModuleContextValueType) => {
     const instance = globalThis.moduleFederationRuntime.getInstance();
     const p = Object.values(modules).map((module) => {
         const info = instance.snapshotHandler.manifestCache.get(module.url);
