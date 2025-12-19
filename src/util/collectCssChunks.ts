@@ -35,6 +35,12 @@ const loadRemoteInfo = async (url: string) => {
     throw new Error(`Could not load remote info from ${url}`);
 }
 
+/**
+ * Collects the css chunks from all modules rendered during SSR
+ * @experimental Handling for async chunks is not final and subject to change.
+ * Eventually a parameter for the rendered html might be added to analyze the async chunks
+ * @param modules
+ */
 export const collectCssChunks = async (modules: ModuleContextValueType) => {
     const p = Object.values(modules).map(async (module) => {
         const info = await loadRemoteInfo(module.url);
@@ -43,9 +49,13 @@ export const collectCssChunks = async (modules: ModuleContextValueType) => {
         info?.exposes.forEach((exposes) => {
             if (module.modules.has(exposes.path)) {
                 const { sync = [], async = [] } = exposes.assets?.css ?? {};
-                [...sync, ...async].forEach((chunk) => {
+                sync.forEach((chunk) => {
                     const url = new URL(chunk, module.url);
                     chunks.push(`<link rel="stylesheet" href="${url}">`)
+                });
+                async.forEach((chunk) => {
+                    const url = new URL(chunk, module.url);
+                    chunks.push(`<link rel="preload" href="${url}" as="style" onload="this.rel='stylesheet'">`)
                 });
             }
         })
