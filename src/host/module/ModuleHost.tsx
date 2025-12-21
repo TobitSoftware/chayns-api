@@ -53,11 +53,12 @@ const System: FC<SystemPropTypes> = ({
     const Component = useMemo(() => loadComponent(system.scope, system.module, globalThis.window ? system.url : system.serverUrl as string, undefined, system.preventSingleton), [system.scope, system.module, system.url, system.serverUrl, system.preventSingleton]);
     if (!globalThis.window) {
         const moduleContext = useContext(ModuleContext);
-        moduleContext[system.scope] ??= {
+        const info = moduleContext[system.scope] ?? {
             url: system.url,
             modules: new Set(),
         };
-        moduleContext[system.scope].modules.add(system.module);
+        info.modules.add(system.module);
+        moduleContext[system.scope] = info;
     }
 
     return (
