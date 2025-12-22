@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import type { ModuleFederation } from '@module-federation/enhanced/runtime';
 import { SequentialLoadPlugin } from '../plugins/SequentialLoadPlugin';
+
 let ReactDOMClient;
 try {
     ReactDOMClient = require('react-dom/client');
@@ -8,20 +10,13 @@ try {
     // do nothing
 }
 
-export const initModuleFederationSharing = ({ name }) => {
+export const initModuleFederationSharing = ({ name, plugins = [] }) => {
     // forces single instance of module federation runtime
-    if(globalThis.moduleFederationRuntime) {
+    if (globalThis.moduleFederationScopes) {
         return;
     }
 
-    globalThis.moduleFederationRuntime = require('@module-federation/enhanced/runtime');
-    globalThis.moduleFederationScopes = {
-        registeredScopes: {},
-        moduleMap: {},
-        componentMap: {},
-    }
-
-    const { init } = globalThis.moduleFederationRuntime;
+    const { createInstance } = require('@module-federation/enhanced/runtime');
 
     const shared = {
         react: {
@@ -39,14 +34,26 @@ export const initModuleFederationSharing = ({ name }) => {
         shared['react-dom/client'] = {
             version: React.version,
             scope: 'chayns-api',
-            lib: () => ReactDOMClient
-        }
+            lib: () => ReactDOMClient,
+        };
     }
 
-    init({
+    const instance: ModuleFederation = createInstance({
         name: name ?? '',
         remotes: [],
         shared,
-        plugins: [SequentialLoadPlugin()],
+        plugins: [SequentialLoadPlugin(), ...plugins],
     });
-}
+
+    globalThis.moduleFederationRuntime = {
+        loadRemote: instance.loadRemote.bind(instance),
+        registerRemotes: instance.registerRemotes.bind(instance),
+        getInstance: () => instance,
+    };
+
+    globalThis.moduleFederationScopes = {
+        registeredScopes: {},
+        moduleMap: {},
+        componentMap: {},
+    };
+};
