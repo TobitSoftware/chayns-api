@@ -76,14 +76,16 @@ export interface DialogAlert {
 }
 
 export interface BaseDialog {
-    text?: string,
-    buttons?: DialogButton[],
-    width?: string | number,
+    text?: string;
+    buttons?: DialogButton[];
+    width?: string | number;
     animation?: {
-        type: DialogAnimation,
-        config?: any
-    },
-    hideDragHandle?: boolean,
+        type: DialogAnimation;
+        config?: any;
+    };
+    hideDragHandle?: boolean;
+    onLinkClick?: (attributes: { [key: string]: string }) => void;
+    footer?: string;
 }
 
 export type Dialog<T = object> = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule<T> | DialogIFrame<T> | DialogSelect | DialogDate | DialogToast | DialogSignature | DialogFileSelect);
