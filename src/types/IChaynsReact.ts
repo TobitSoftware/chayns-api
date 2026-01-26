@@ -422,6 +422,9 @@ export interface ChaynsReactFunctions {
     scrollByY: (position: number, duration?: number) => Promise<void>;
     // findSite: () => Promise<void>; // TODO: Maybe unused
     // findPerson: () => Promise<void>; // TODO: Maybe unused
+    /**
+     * @deprecated This call will be removed soon. Use dialogs instead.
+     */
     setOverlay: (value: ShowOverlay, callback: () => void) => Promise<void>;
     // public interface to create dialogs
     createDialog(config: BaseDialog & (DialogAlert | DialogConfirm | DialogToast)): DialogHandler<void>;
@@ -431,8 +434,8 @@ export interface ChaynsReactFunctions {
     createDialog(config: BaseDialog & DialogDate): DialogHandler<Date>;
     createDialog(config: BaseDialog & DialogFileSelect): DialogHandler<DialogResultFile[]>;
     createDialog<Input = any, Result = unknown>(config: BaseDialog & (DialogModule<Input> | DialogIFrame<Input>)): DialogHandler<Result>;
-    // Adding union type as last overload improves error message since typescript only shows details for last overload
-    createDialog<Input = any, Result = unknown>(config: BaseDialog & (DialogAlert | DialogConfirm | DialogToast | DialogInput | DialogSignature | DialogSelect | DialogDate | DialogFileSelect | DialogIFrame<Input> | DialogModule<Input>)): any;
+    // Adding union type as last overload improves error message since TypeScript only shows details for last overload
+    createDialog<Input = any, Result = unknown>(config: BaseDialog & (DialogAlert | DialogConfirm | DialogToast | DialogInput | DialogSignature | DialogSelect | DialogDate | DialogFileSelect | DialogIFrame<Input> | DialogModule<Input>)): DialogHandler<any>;
     // used internally by createDialog
     openDialog: (value, callback: (data: any) => any) => Promise<any>;
     // used internally by createDialog
