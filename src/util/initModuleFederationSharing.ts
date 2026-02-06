@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import type { ModuleFederation } from '@module-federation/enhanced/runtime';
+import type { ModuleFederation, ModuleFederationRuntimePlugin } from '@module-federation/enhanced/runtime';
 import { SequentialLoadPlugin } from '../plugins/SequentialLoadPlugin';
 
 let ReactDOMClient;
@@ -10,7 +10,20 @@ try {
     // do nothing
 }
 
-export const initModuleFederationSharing = ({ name, plugins = [] }) => {
+export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
+    /**
+     * Module Federation scope; should be identical to the package name in package.json, formatted in snake_case.
+     */
+    scope: string,
+    /**
+     * @deprecated use `scope` instead
+     */
+    name?: string,
+    /**
+     * Additional runtime plugins
+     */
+    plugins: ModuleFederationRuntimePlugin[]
+}) => {
     // forces single instance of module federation runtime
     if (globalThis.moduleFederationScopes) {
         return;
@@ -39,7 +52,7 @@ export const initModuleFederationSharing = ({ name, plugins = [] }) => {
     }
 
     const instance: ModuleFederation = createInstance({
-        name: name ?? '',
+        name: scope ?? name ?? '',
         remotes: [],
         shared,
         plugins: [SequentialLoadPlugin(), ...plugins],
