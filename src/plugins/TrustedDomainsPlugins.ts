@@ -1,7 +1,8 @@
 import { ModuleFederationRuntimePlugin } from '@module-federation/enhanced/runtime';
 
 class TrustedDomainsError extends Error {
-    public readonly name = 'TrustedDomainsError';
+    public readonly name = 'TrustedDomainsError' as const;
+    public readonly isTrustedDomainsError = true as const;
 
     constructor(entry: string) {
         super('Remote entry ' + entry + ' is not in trusted domains');
@@ -24,3 +25,7 @@ export const TrustedDomainsPlugin = (trustedDomains: string[] = []): ModuleFeder
         },
     };
 };
+
+export function isTrustedDomainsError(error: unknown): error is TrustedDomainsError {
+    return error instanceof Error && error.name === 'TrustedDomainsError' && 'isTrustedDomainsError' in error && error.isTrustedDomainsError === true;
+}
