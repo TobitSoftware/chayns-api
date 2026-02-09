@@ -61,6 +61,7 @@ export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
     globalThis.moduleFederationRuntime = {
         loadRemote: instance.loadRemote.bind(instance),
         registerRemotes: instance.registerRemotes.bind(instance),
+        loadShareSync: instance.loadShareSync.bind(instance),
         getInstance: () => instance,
     };
 

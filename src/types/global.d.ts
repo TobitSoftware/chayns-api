@@ -7,5 +7,6 @@ declare var moduleFederationScopes: {
 declare var moduleFederationRuntime: {
     loadRemote: import('@module-federation/enhanced/runtime').ModuleFederation['loadRemote'];
     registerRemotes: import('@module-federation/enhanced/runtime').ModuleFederation['registerRemotes'];
+    loadShareSync: import('@module-federation/enhanced/runtime').ModuleFederation['loadShareSync'];
     getInstance: () => import('@module-federation/enhanced/runtime').ModuleFederation;
 }
