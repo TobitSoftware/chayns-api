@@ -22,7 +22,7 @@ export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
     /**
      * Additional runtime plugins
      */
-    plugins: ModuleFederationRuntimePlugin[]
+    plugins?: ModuleFederationRuntimePlugin[]
 }) => {
     // forces single instance of module federation runtime
     if (globalThis.moduleFederationScopes) {
