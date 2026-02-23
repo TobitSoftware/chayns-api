@@ -9,14 +9,20 @@ export const useGeoLocationListener = () => {
     const removeListener = useFunctionsSelector(f => f.removeGeoLocationListener);
     const promiseRef = useRef<Promise<number>>();
 
-    return useCallback(((value: { timeout?: number, silent?: boolean }, callback: (result: GeoLocation) => void) => {
-        promiseRef.current = addListener(value, callback);
+    return useCallback(
+        (
+            value: { timeout?: number; silent?: boolean; enableHighAccuracy?: boolean },
+            callback: (result: GeoLocation) => void,
+        ) => {
+            promiseRef.current = addListener(value, callback);
 
-        return () => {
-            void promiseRef.current?.then(removeListener);
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }), []);
+            return () => {
+                void promiseRef.current?.then(removeListener);
+            };
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+        },
+        [],
+    );
 };
 /**
  * @category Hooks

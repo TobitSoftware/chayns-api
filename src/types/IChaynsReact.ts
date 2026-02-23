@@ -371,7 +371,7 @@ export interface DialogResultFile {
  * @ignore
  */
 export interface ChaynsReactFunctions {
-    addGeoLocationListener: (value: { timeout?: number, silent?: boolean }, callback: (geoLocation: GeoLocation) => void) => Promise<number>;
+    addGeoLocationListener: (value: { timeout?: number, silent?: boolean, enableHighAccuracy?: boolean }, callback: (geoLocation: GeoLocation) => void) => Promise<number>;
     addScrollListener: (value: { throttle?: number }, callback: (result: ScrollListenerResult) => void) => Promise<number>;
     addVisibilityChangeListener: (callback: (result: VisibilityChangeListenerResult) => void) => Promise<number>;
     addToolbarChangeListener: (callback: (result: ToolbarChangeListenerResult) => void) => Promise<number>;
