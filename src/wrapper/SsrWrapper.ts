@@ -19,6 +19,8 @@ export class SsrWrapper implements IChaynsReact {
 
     listeners: (() => void)[] =  [];
 
+    chaynsApiId: string = null!;
+
     constructor(values: ChaynsReactValues, functions: ChaynsReactFunctions, customFunctions?: IChaynsReact["customFunctions"]) {
         this.initialData = values;
         this.values = values;

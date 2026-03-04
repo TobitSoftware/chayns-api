@@ -3,7 +3,7 @@ import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { ChaynsContext } from '../components/ChaynsContext';
 import { IChaynsReact } from '../types/IChaynsReact';
 
-const createChaynsSelector = <T extends 'values' | 'functions' | 'customFunctions'>(key: T) => <Result>(selector: (value: IChaynsReact[T]) => Result): Result => {
+const createChaynsSelector = <T extends 'values' | 'functions' | 'customFunctions' | 'chaynsApiId'>(key: T) => <Result>(selector: (value: IChaynsReact[T]) => Result): Result => {
     const store = useContext(ChaynsContext);
 
     if (!store) {
@@ -18,3 +18,4 @@ const createChaynsSelector = <T extends 'values' | 'functions' | 'customFunction
 export const useValuesSelector = createChaynsSelector('values');
 export const useFunctionsSelector = createChaynsSelector('functions');
 export const useCustomFunctionsSelector = createChaynsSelector('customFunctions');
+export const useChaynsApiIdSelector = createChaynsSelector('chaynsApiId');

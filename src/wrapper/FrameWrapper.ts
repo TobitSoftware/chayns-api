@@ -32,6 +32,8 @@ export class FrameWrapper implements IChaynsReact {
 
     values: ChaynsReactValues = null!;
 
+    chaynsApiId: string = null!;
+
     listeners: (() => void)[] =  [];
 
     functions: ChaynsReactFunctions = {

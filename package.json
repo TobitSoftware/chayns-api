@@ -44,7 +44,8 @@
     "prettier": {
         "proseWrap": "always",
         "singleQuote": true,
-        "tabWidth": 4
+        "tabWidth": 4,
+        "printWidth": 2000
     },
     "eslintConfig": {
         "extends": "@chayns-toolkit"

@@ -20,6 +20,8 @@ export class ModuleFederationWrapper implements IChaynsReact {
 
     listeners: (() => void)[] =  [];
 
+    chaynsApiId: string = null!;
+
     constructor(values: ChaynsReactValues, functions: ChaynsReactFunctions, customFunctions?: IChaynsReact["customFunctions"]) {
         this.values = values;
         this.functions = {} as ChaynsReactFunctions;

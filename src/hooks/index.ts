@@ -23,3 +23,4 @@ export { useDialogState, useDialogData } from './useDialogState';
 export { useCustomCallbackFunction } from './useCustomCallbackFunction';
 export { useCustomFunction } from './useCustomFunction';
 export { useStyleSettings } from './useStyleSettings';
+export { useChaynsApiId } from './useChaynsApiId';

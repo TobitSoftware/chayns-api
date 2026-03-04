@@ -8,7 +8,7 @@ import { FrameWrapper } from '../wrapper/FrameWrapper';
 import { ModuleFederationWrapper } from '../wrapper/ModuleFederationWrapper';
 import { SsrWrapper } from '../wrapper/SsrWrapper';
 import { ChaynsContext } from './ChaynsContext';
-import { addModuleWrapper, moduleWrapper, removeModuleWrapper } from './moduleWrapper';
+import { addModuleWrapper, chaynsApis, moduleWrapper, removeModuleWrapper } from './moduleWrapper';
 
 const isServer = typeof window === 'undefined';
 
@@ -28,6 +28,7 @@ export type ChaynsProviderProps = {
     renderedByServer?: boolean,
     isModule?: boolean,
     children?: ReactNode,
+    chaynsApiId?: string
 }
 
 const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
@@ -37,8 +38,10 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     customFunctions,
     renderedByServer,
     isModule,
+    chaynsApiId
 }) => {
     const customWrapper = useRef<IChaynsReact>(null!);
+    const idRef = useRef(chaynsApiId ?? crypto?.randomUUID() ?? Math.random().toString());
 
     if (!customWrapper.current) {
         if (isModule) {
@@ -63,6 +66,8 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
             }
         }
         moduleWrapper.current = customWrapper.current;
+        chaynsApis[idRef.current] = customWrapper.current.functions;
+        customWrapper.current.chaynsApiId = idRef.current;
     }
 
     const [isInitialized, setIsInitialized] = useState<boolean>(!!customWrapper.current?.values);

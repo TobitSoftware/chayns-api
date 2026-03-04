@@ -188,6 +188,8 @@ export class AppWrapper implements IChaynsReact {
     constructor() {
     }
 
+    chaynsApiId: string;
+
     notImplemented(call: string) {
         console.warn(`call ${call} not implement in app`);
     }

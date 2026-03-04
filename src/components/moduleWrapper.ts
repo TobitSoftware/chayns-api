@@ -1,4 +1,4 @@
-import { IChaynsReact } from '../types/IChaynsReact';
+import { ChaynsReactFunctions, IChaynsReact } from '../types/IChaynsReact';
 
 const moduleWrapperStack: IChaynsReact[] = [];
 let current: IChaynsReact = undefined!;
@@ -13,7 +13,13 @@ export const moduleWrapper: { current: IChaynsReact } = {
     set current(chayns: IChaynsReact) {
         current = chayns;
     }
- }
+}
+
+export const chaynsApis: Record<string, ChaynsReactFunctions> = {};
+
+export const getChaynsApi = (id: string) => {
+    return chaynsApis[id];
+}
 
 export const addModuleWrapper = (chayns: IChaynsReact) => {
     moduleWrapperStack.push(chayns);

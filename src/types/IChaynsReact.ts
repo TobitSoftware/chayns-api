@@ -352,6 +352,7 @@ export interface ChaynsReactValues {
     customData: any,
     dialog: { dialogInput: any, isClosingRequested: boolean },
     styleSettings?: ChaynsStyleSettings,
+    chaynsApiId: string
 }
 
 export interface DialogResultFile {
@@ -698,6 +699,7 @@ export interface IChaynsReact {
     getInitialData: () => ChaynsReactValues;
     subscribe: (listener: () => void) => () => void;
     emitChange: () => void;
+    chaynsApiId: string;
 }
 
 export interface OpenUrl {
