@@ -610,7 +610,8 @@ export class AppWrapper implements IChaynsReact {
         },
         createDialog: <I, R>(config: Dialog<I>) => {
             if (config.type === DialogType.INPUT && typeof config.formatter === 'function') {
-                config.formatter = config.formatter.toString();
+                console.warn('[chayns-api] passing a function as formatter is not supported in the app environment, the formatter will be ignored');
+                delete config.formatter;
             }
 
             return new DialogHandler<R>(config, this.functions.openDialog, this.functions.closeDialog, this.functions.dispatchEventToDialogClient, this.functions.addDialogClientEventListener);
