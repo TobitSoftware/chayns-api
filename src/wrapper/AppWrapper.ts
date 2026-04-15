@@ -609,6 +609,10 @@ export class AppWrapper implements IChaynsReact {
             void this.appCall(19, value, { awaitResult: false });
         },
         createDialog: <I, R>(config: Dialog<I>) => {
+            if (config.type === DialogType.INPUT && typeof config.formatter === 'function') {
+                config.formatter = config.formatter.toString();
+            }
+
             return new DialogHandler<R>(config, this.functions.openDialog, this.functions.closeDialog, this.functions.dispatchEventToDialogClient, this.functions.addDialogClientEventListener);
         },
         openDialog: async (config, callback) => {

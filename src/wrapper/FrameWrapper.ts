@@ -1,4 +1,7 @@
- import * as comlink from 'comlink';
+import * as comlink from 'comlink';
+import getUserInfo from '../calls/getUserInfo';
+import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
+import { addVisibilityChangeListener, removeVisibilityChangeListener } from '../calls/visibilityChangeListener';
 import DialogHandler from '../handler/DialogHandler';
 import {
     AccessToken,
@@ -6,14 +9,15 @@ import {
     ChaynsReactValues,
     CleanupCallback,
     DataChangeCallback,
-    DataChangeValue, Dialog, DialogButtonType,
+    DataChangeValue,
+    Dialog,
+    DialogButtonType,
+    DialogType,
     GeoLocation,
     IChaynsReact,
-    ScrollListenerResult, ToolbarChangeListenerResult,
+    ScrollListenerResult,
+    ToolbarChangeListenerResult,
 } from '../types/IChaynsReact';
-import { addVisibilityChangeListener, removeVisibilityChangeListener } from '../calls/visibilityChangeListener';
-import getUserInfo from '../calls/getUserInfo';
-import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { setTappHeight } from '../util/heightHelper';
 
 export class FrameWrapper implements IChaynsReact {
@@ -257,6 +261,10 @@ export class FrameWrapper implements IChaynsReact {
             return this.exposedFunctions.scrollByY(value, duration);
         },
         createDialog: <I, R>(config: Dialog<I>) => {
+            if (config.type === DialogType.INPUT && typeof config.formatter === 'function') {
+                config.formatter = comlink.proxy(config.formatter);
+            }
+
             return new DialogHandler<R>(config, this.functions.openDialog, this.exposedFunctions.closeDialog, this.functions.dispatchEventToDialogClient, this.functions.addDialogClientEventListener);
         },
         closeDialog: async (dialogId) => {
