@@ -16,9 +16,7 @@
             "default": "./dist/esm/index.js"
         }
     },
-    "sideEffects": [
-        "**/utils/transferNestedFunctions.*"
-    ],
+    "sideEffects": false,
     "keywords": [
         "chayns",
         "chayns-toolkit",

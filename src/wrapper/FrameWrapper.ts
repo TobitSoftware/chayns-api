@@ -19,6 +19,7 @@ import {
     ToolbarChangeListenerResult,
 } from '../types/IChaynsReact';
 import { setTappHeight } from '../util/heightHelper';
+import { initTransferNestedFunctions } from '../util/transferNestedFunctions';
 
 export class FrameWrapper implements IChaynsReact {
 
@@ -261,10 +262,6 @@ export class FrameWrapper implements IChaynsReact {
             return this.exposedFunctions.scrollByY(value, duration);
         },
         createDialog: <I, R>(config: Dialog<I>) => {
-            if (config.type === DialogType.INPUT && typeof config.formatter === 'function') {
-                config.formatter = comlink.proxy(config.formatter);
-            }
-
             return new DialogHandler<R>(config, this.functions.openDialog, this.exposedFunctions.closeDialog, this.functions.dispatchEventToDialogClient, this.functions.addDialogClientEventListener);
         },
         closeDialog: async (dialogId) => {
@@ -340,6 +337,8 @@ export class FrameWrapper implements IChaynsReact {
     initialized = false;
 
     constructor() {
+        initTransferNestedFunctions();
+
         const initialDataTag = document.querySelector('#__CHAYNS_DATA__');
         if (initialDataTag) {
             this.values = JSON.parse(initialDataTag.innerHTML) as ChaynsReactValues;

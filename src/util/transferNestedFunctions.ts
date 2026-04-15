@@ -1,32 +1,46 @@
 // @ts-nocheck
 import * as Comlink from 'comlink';
 
-Comlink.transferHandlers.set("FUNCTION", {
-    canHandle: obj => {
-        return obj && typeof obj === "object" && Object.values(obj).some(x => typeof x === 'function');
-    },
-    serialize(obj) {
-        obj._functionKeys = [];
-        const ports = [];
-        Object.entries(obj).forEach(([k,v]) => {
-            if(typeof v === 'function'){
-                const { port1, port2 } = new MessageChannel();
-                obj._functionKeys.push(k);
-                Comlink.expose(obj[k], port1);
-                obj[k] = port2;
-                ports.push(port2);
-            }
-        })
-        return [obj,ports];
-    },
-    deserialize(obj) {
-        obj._functionKeys.forEach((x) => {
-            // under certain conditions deserialize can be called more than once on same object
-            if (obj[x] instanceof MessagePort) {
-                obj[x].start();
-                obj[x] = Comlink.wrap(obj[x]);
-            }
-        })
-        return obj;
+const TRANSFER_HANDLER_NAME = 'FUNCTION';
+
+let isInitialized = false;
+
+export const initTransferNestedFunctions = () => {
+    if (isInitialized || Comlink.transferHandlers.has(TRANSFER_HANDLER_NAME)) {
+        isInitialized = true;
+        return;
     }
-});
+
+    Comlink.transferHandlers.set(TRANSFER_HANDLER_NAME, {
+        canHandle: obj => {
+            return obj && typeof obj === 'object' && Object.values(obj).some(x => typeof x === 'function');
+        },
+        serialize(obj) {
+            obj._functionKeys = [];
+            const ports = [];
+            Object.entries(obj).forEach(([k, v]) => {
+                if (typeof v === 'function') {
+                    const { port1, port2 } = new MessageChannel();
+                    obj._functionKeys.push(k);
+                    Comlink.expose(obj[k], port1);
+                    obj[k] = port2;
+                    ports.push(port2);
+                }
+            });
+            return [obj, ports];
+        },
+        deserialize(obj) {
+            obj._functionKeys.forEach((x) => {
+                // under certain conditions deserialize can be called more than once on same object
+                if (obj[x] instanceof MessagePort) {
+                    obj[x].start();
+                    obj[x] = Comlink.wrap(obj[x]);
+                }
+            });
+            return obj;
+        }
+    });
+
+    isInitialized = true;
+};
+
