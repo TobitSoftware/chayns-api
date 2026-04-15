@@ -67,7 +67,6 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         }
         moduleWrapper.current = customWrapper.current;
         if (customWrapper.current) {
-            chaynsApis[idRef.current] = customWrapper.current.functions;
             customWrapper.current.chaynsApiId = idRef.current;
         }
     }
@@ -101,9 +100,10 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     }, [customFunctions, isModule]);
 
     useIsomorphicLayoutEffect(() => {
-        addModuleWrapper(customWrapper.current);
+        const id = idRef.current;
+        addModuleWrapper(id, customWrapper.current);
         return () => {
-            removeModuleWrapper(customWrapper.current);
+            removeModuleWrapper(id, customWrapper.current);
         };
     }, []);
 
