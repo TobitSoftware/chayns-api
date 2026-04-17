@@ -1,7 +1,8 @@
 import htmlEscape from 'htmlescape';
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { useIsomorphicLayoutEffect } from '../hooks/useIsomorphicLayoutEffect';
 import { AppName, ChaynsReactFunctions, ChaynsReactValues, IChaynsReact } from '../types/IChaynsReact';
+import { IChaynsHistoryHandler } from '../types/history';
 import getDeviceInfo from '../util/deviceHelper';
 import { AppWrapper } from '../wrapper/AppWrapper';
 import { FrameWrapper } from '../wrapper/FrameWrapper';
@@ -28,7 +29,8 @@ export type ChaynsProviderProps = {
     renderedByServer?: boolean,
     isModule?: boolean,
     children?: ReactNode,
-    chaynsApiId?: string
+    chaynsApiId?: string,
+    history?: IChaynsHistoryHandler,
 }
 
 const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
@@ -38,8 +40,10 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     customFunctions,
     renderedByServer,
     isModule,
-    chaynsApiId
+    chaynsApiId,
+    history,
 }) => {
+    const parentContext = useContext(ChaynsContext);
     const customWrapper = useRef<IChaynsReact>(null!);
     const idRef = useRef(chaynsApiId ?? crypto?.randomUUID() ?? Math.random().toString());
 
@@ -68,6 +72,10 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         moduleWrapper.current = customWrapper.current;
         if (customWrapper.current) {
             customWrapper.current.chaynsApiId = idRef.current;
+            customWrapper.current.history = history ?? parentContext?.history ?? (!isServer
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                ? (require('../util/history/rootHistory') as typeof import('../util/history/rootHistory')).rootHistory
+                : undefined);
         }
     }
 

@@ -1,6 +1,7 @@
 import { IBrowser, IEngine } from 'ua-parser-js';
 import DialogHandler from '../handler/DialogHandler';
 import { DialogButtonOld, SelectDialogItem } from './dialog';
+import { IChaynsHistoryHandler } from './history';
 
 export type DialogButton = {
     type: DialogButtonType,
@@ -705,6 +706,7 @@ export interface IChaynsReact {
     subscribe: (listener: () => void) => () => void;
     emitChange: () => void;
     chaynsApiId: string;
+    history?: IChaynsHistoryHandler;
 }
 
 export interface OpenUrl {
