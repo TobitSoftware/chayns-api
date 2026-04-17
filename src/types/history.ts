@@ -46,4 +46,6 @@ export interface RootState extends BaseHistoryState {
 
 export interface IChaynsHistoryHandler<State extends BaseHistoryState = BaseHistoryState> extends HistoryFunctions<State> {
     createChild<ChildState extends BaseHistoryState = BaseHistoryState>(id: string | number, initialState: ChildState): IChaynsHistoryHandler<ChildState>;
+    /** Subscribe to all navigation changes (push, replace, back, forward). Returns a cleanup function. */
+    addChangeListener(callback: () => void): () => void;
 }

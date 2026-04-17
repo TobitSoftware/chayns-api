@@ -46,6 +46,8 @@ export class ChaynsHistoryHandler<State extends BaseHistoryState = BaseHistorySt
     private _popStateCallbacks: Set<PopStateCallback<BaseHistoryState>> = new Set();
     /** Cleanup function that removes the popstate subscription from the parent. */
     private _removePopStateListener: (() => void) | undefined;
+    /** Passive listeners notified after every successful navigation (push, replace, back/forward). */
+    private _changeListeners: Set<() => void> = new Set();
 
     constructor(initialState: State, historyFunctions: HistoryFunctions<State>) {
         this._historyFunctions = historyFunctions;
@@ -236,12 +238,18 @@ export class ChaynsHistoryHandler<State extends BaseHistoryState = BaseHistorySt
 
     pushState(location: string, state: State): Promise<boolean> {
         this._syncState(state);
-        return this._historyFunctions.pushState(location, state);
+        return this._historyFunctions.pushState(location, state).then((result) => {
+            if (result) this._changeListeners.forEach((cb) => cb());
+            return result;
+        });
     }
 
     replaceState(location: string, state: State): Promise<boolean> {
         this._syncState(state);
-        return this._historyFunctions.replaceState(location, state);
+        return this._historyFunctions.replaceState(location, state).then((result) => {
+            if (result) this._changeListeners.forEach((cb) => cb());
+            return result;
+        });
     }
 
     getLocation(): string {
@@ -270,5 +278,18 @@ export class ChaynsHistoryHandler<State extends BaseHistoryState = BaseHistorySt
 
     addPopStateListener(callback: PopStateCallback<State>): () => void {
         return this._historyFunctions.addPopStateListener(callback);
+    }
+
+    addChangeListener(callback: () => void): () => void {
+        this._changeListeners.add(callback);
+        // Also fire for back/forward navigation via popstate.
+        const removePopStateListener = this._historyFunctions.addPopStateListener(async () => {
+            callback();
+            return false;
+        });
+        return () => {
+            this._changeListeners.delete(callback);
+            removePopStateListener();
+        };
     }
 }

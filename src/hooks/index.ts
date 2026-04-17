@@ -24,3 +24,6 @@ export { useCustomCallbackFunction } from './useCustomCallbackFunction';
 export { useCustomFunction } from './useCustomFunction';
 export { useStyleSettings } from './useStyleSettings';
 export { useChaynsApiId } from './useChaynsApiId';
+export { useHistoryValues } from './useHistoryValues';
+export { useHistoryChild } from './useHistoryChild';
+export { useHistoryFunctions, type HistoryFunctions } from './useHistoryFunctions';
