@@ -30,3 +30,5 @@ export * from './util/appStorage';
 export * from './util/collectCssChunks';
 
 export { getChaynsApi } from './components/moduleWrapper';
+
+export { IChaynsHistoryHandler, BlockCallback, BaseHistoryState } from './types/history';
