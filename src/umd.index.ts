@@ -1,5 +1,3 @@
-import './util/transferNestedFunctions';
-
 export { default as getDeviceInfo, getScreenSize, getClientDeviceInfo } from './util/deviceHelper';
 export * from './calls';
 export * from './types/IChaynsReact';

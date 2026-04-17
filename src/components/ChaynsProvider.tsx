@@ -48,13 +48,13 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
             if (data && functions) {
                 customWrapper.current = new ModuleFederationWrapper(data, functions, customFunctions);
             } else {
-                console.warn('ModuleFederationWrapper requires data and functions');
+                console.error('[chayns-api] ModuleFederationWrapper requires data and functions');
             }
         } else if (isServer) {
             if (data && functions) {
                 customWrapper.current = new SsrWrapper(data, functions, customFunctions);
             } else {
-                console.warn('SsrWrapper requires data and functions');
+                console.error('[chayns-api] SsrWrapper requires data and functions');
             }
         } else {
             const deviceInfo = getDeviceInfo(navigator.userAgent, '');
@@ -66,8 +66,9 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
             }
         }
         moduleWrapper.current = customWrapper.current;
-        chaynsApis[idRef.current] = customWrapper.current.functions;
-        customWrapper.current.chaynsApiId = idRef.current;
+        if (customWrapper.current) {
+            customWrapper.current.chaynsApiId = idRef.current;
+        }
     }
 
     const [isInitialized, setIsInitialized] = useState<boolean>(!!customWrapper.current?.values);
@@ -99,9 +100,10 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     }, [customFunctions, isModule]);
 
     useIsomorphicLayoutEffect(() => {
-        addModuleWrapper(customWrapper.current);
+        const id = idRef.current;
+        addModuleWrapper(id, customWrapper.current);
         return () => {
-            removeModuleWrapper(customWrapper.current);
+            removeModuleWrapper(id, customWrapper.current);
         };
     }, []);
 

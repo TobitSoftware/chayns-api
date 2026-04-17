@@ -13,6 +13,7 @@ import {
 } from '../../types/IChaynsReact';
 import useUpdateData from './utils/useUpdateData';
 import { replaceStagingUrl } from "../../util/url";
+import { initTransferNestedFunctions } from '../../util/transferNestedFunctions';
 
 type HostIframeProps = {
     iFrameProps: { [key: string]: unknown, name: string },
@@ -109,6 +110,8 @@ const HostIframe: FC<HostIframeProps> = ({
     // region expose data and functions to iframe
     useEffect(() => {
         if (ref.current?.contentWindow) {
+            initTransferNestedFunctions();
+
             const obj = {
                 [iFrameProps.name]: {
                     functions: {

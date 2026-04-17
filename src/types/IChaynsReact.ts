@@ -132,6 +132,11 @@ export interface DialogInput {
     placeholder?: string,
     inputType?: DialogInputType,
     defaultValue?: string,
+    /**
+     * Formats the input value shown in the dialog.
+     * Not supported in app environments due to security reasons.
+     * @param input
+     */
     formatter?: (input: string) => string,
     regex?: string
 }

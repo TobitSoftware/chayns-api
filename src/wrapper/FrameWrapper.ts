@@ -1,4 +1,7 @@
- import * as comlink from 'comlink';
+import * as comlink from 'comlink';
+import getUserInfo from '../calls/getUserInfo';
+import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
+import { addVisibilityChangeListener, removeVisibilityChangeListener } from '../calls/visibilityChangeListener';
 import DialogHandler from '../handler/DialogHandler';
 import {
     AccessToken,
@@ -6,15 +9,17 @@ import {
     ChaynsReactValues,
     CleanupCallback,
     DataChangeCallback,
-    DataChangeValue, Dialog, DialogButtonType,
+    DataChangeValue,
+    Dialog,
+    DialogButtonType,
+    DialogType,
     GeoLocation,
     IChaynsReact,
-    ScrollListenerResult, ToolbarChangeListenerResult,
+    ScrollListenerResult,
+    ToolbarChangeListenerResult,
 } from '../types/IChaynsReact';
-import { addVisibilityChangeListener, removeVisibilityChangeListener } from '../calls/visibilityChangeListener';
-import getUserInfo from '../calls/getUserInfo';
-import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { setTappHeight } from '../util/heightHelper';
+import { initTransferNestedFunctions } from '../util/transferNestedFunctions';
 
 export class FrameWrapper implements IChaynsReact {
 
@@ -332,6 +337,8 @@ export class FrameWrapper implements IChaynsReact {
     initialized = false;
 
     constructor() {
+        initTransferNestedFunctions();
+
         const initialDataTag = document.querySelector('#__CHAYNS_DATA__');
         if (initialDataTag) {
             this.values = JSON.parse(initialDataTag.innerHTML) as ChaynsReactValues;

@@ -21,13 +21,15 @@ export const getChaynsApi = (id: string) => {
     return chaynsApis[id];
 }
 
-export const addModuleWrapper = (chayns: IChaynsReact) => {
+export const addModuleWrapper = (id: string, chayns: IChaynsReact) => {
     moduleWrapperStack.push(chayns);
+    chaynsApis[id] = chayns.functions;
 }
 
- export const removeModuleWrapper = (chayns: IChaynsReact) => {
+ export const removeModuleWrapper = (id: string, chayns: IChaynsReact) => {
     const index = moduleWrapperStack.indexOf(chayns);
     if (index > -1) {
         moduleWrapperStack.splice(index, 1);
     }
+    delete moduleWrapperStack[id];
  }
