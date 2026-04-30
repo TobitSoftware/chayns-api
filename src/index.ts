@@ -15,6 +15,8 @@ export { default as loadComponent, loadModule } from './host/module/utils/loadCo
 
 export { default as DialogHandler } from './handler/DialogHandler';
 
+export * from './handler/history';
+
 export * as dialog from './calls/dialogs/index';
 
 export * from './plugins';

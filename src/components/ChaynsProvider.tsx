@@ -9,6 +9,9 @@ import { ModuleFederationWrapper } from '../wrapper/ModuleFederationWrapper';
 import { SsrWrapper } from '../wrapper/SsrWrapper';
 import { ChaynsContext } from './ChaynsContext';
 import { addModuleWrapper, chaynsApis, moduleWrapper, removeModuleWrapper } from './moduleWrapper';
+import { HistoryLayerProvider, useHistoryLayerContext } from '../handler/history/react/HistoryLayerContext';
+import { getOrInitRootLayer } from '../handler/history/initRootLayer';
+import type { HistoryLayer } from '../handler/history/types';
 
 const isServer = typeof window === 'undefined';
 
@@ -28,7 +31,15 @@ export type ChaynsProviderProps = {
     renderedByServer?: boolean,
     isModule?: boolean,
     children?: ReactNode,
-    chaynsApiId?: string
+    chaynsApiId?: string,
+    /**
+     * Initial history configuration for the root layer.
+     * - `url`: Current page URL — browser defaults to `window.location.pathname`;
+     *   for SSR pass the request URL (e.g. `req.url` or `router.asPath`).
+     * - `segmentCount`: Number of URL path segments this application claims.
+     *   E.g. `segmentCount: 2` on `/shop/products/detail` → `getLayer().getRoute()` → `['shop', 'products']`.
+     */
+    history?: { url?: string; segmentCount?: number },
 }
 
 const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
@@ -38,10 +49,22 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     customFunctions,
     renderedByServer,
     isModule,
-    chaynsApiId
+    chaynsApiId,
+    history,
 }) => {
     const customWrapper = useRef<IChaynsReact>(null!);
     const idRef = useRef(chaynsApiId ?? crypto?.randomUUID() ?? Math.random().toString());
+
+    // Only inject root history layer when there is no parent layer (e.g. we are not
+    // inside a ChaynsHost that already provides a specific child layer).
+    const parentLayer = useHistoryLayerContext();
+    const rootLayerRef = useRef<HistoryLayer | null>(null);
+    if (!rootLayerRef.current && !parentLayer) {
+        rootLayerRef.current = getOrInitRootLayer(history?.url).rootLayer;
+        if (history?.segmentCount !== undefined) {
+            rootLayerRef.current.setSegmentCount(history.segmentCount);
+        }
+    }
 
     if (!customWrapper.current) {
         if (isModule) {
@@ -111,7 +134,11 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         <>
             {isInitialized && (
                 <ChaynsContext.Provider value={customWrapper.current}>
-                    {children}
+                    {rootLayerRef.current ? (
+                        <HistoryLayerProvider layer={rootLayerRef.current}>
+                            {children}
+                        </HistoryLayerProvider>
+                    ) : children}
                 </ChaynsContext.Provider>
             )}
             <InitialDataProvider data={customWrapper.current?.values} renderedByServer={renderedByServer}/>

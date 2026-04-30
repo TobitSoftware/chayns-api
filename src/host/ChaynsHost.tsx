@@ -10,6 +10,9 @@ import {
     IChaynsReact,
     Page,
 } from '../types/IChaynsReact';
+import { HistoryLayer } from '../handler/history/types';
+import { HistoryLayerProvider } from '../handler/history/react/HistoryLayerContext';
+import { getOrInitRootLayer } from '../handler/history/initRootLayer';
 
 type ChaynsHostType = {
     type: `${'client' | 'server'}-${'iframe' | 'module'}`,
@@ -34,6 +37,8 @@ type ChaynsHostType = {
     preventStagingReplacement?: boolean,
     dialog: ChaynsReactValues["dialog"],
     styleSettings?: ChaynsReactValues["styleSettings"],
+    /** History layer to provide to hosted children. Defaults to the root layer. */
+    layer?: HistoryLayer,
 } & ({
     type: `${'client' | 'server'}-iframe`,
     src: string,
@@ -66,6 +71,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
     preventStagingReplacement,
     dialog,
     styleSettings,
+    layer,
 }) => {
     const [isVisible, setIsVisible] = useState(type !== 'client-module' && (type !== 'server-module' || !!system?.serverUrl));
 
@@ -85,54 +91,60 @@ const ChaynsHost: FC<ChaynsHostType> = ({
         return null;
     }
 
+    const resolvedLayer = layer ?? getOrInitRootLayer().rootLayer;
+
     switch (type) {
         case 'client-iframe':
         case 'server-iframe':
             return (
-                <HostIframe
-                    iFrameRef={iFrameRef}
-                    iFrameProps={iFrameProps}
-                    pages={pages}
-                    isAdminModeActive={isAdminModeActive}
-                    site={site}
-                    user={user}
-                    device={device}
-                    currentPage={currentPage}
-                    functions={functions}
-                    customFunctions={customFunctions}
-                    src={src}
-                    postForm={type === 'server-iframe'}
-                    language={language}
-                    parameters={parameters}
-                    environment={environment}
-                    customData={customData}
-                    preventStagingReplacement={preventStagingReplacement}
-                    dialog={dialog}
-                    styleSettings={styleSettings}
-                />
+                <HistoryLayerProvider layer={resolvedLayer}>
+                    <HostIframe
+                        iFrameRef={iFrameRef}
+                        iFrameProps={iFrameProps}
+                        pages={pages}
+                        isAdminModeActive={isAdminModeActive}
+                        site={site}
+                        user={user}
+                        device={device}
+                        currentPage={currentPage}
+                        functions={functions}
+                        customFunctions={customFunctions}
+                        src={src}
+                        postForm={type === 'server-iframe'}
+                        language={language}
+                        parameters={parameters}
+                        environment={environment}
+                        customData={customData}
+                        preventStagingReplacement={preventStagingReplacement}
+                        dialog={dialog}
+                        styleSettings={styleSettings}
+                    />
+                </HistoryLayerProvider>
             )
         case 'client-module':
         case 'server-module':
             return (
-                <ModuleHost
-                    system={system}
-                    pages={pages}
-                    isAdminModeActive={isAdminModeActive}
-                    site={site}
-                    user={user}
-                    device={device}
-                    currentPage={currentPage}
-                    children={loadingComponent}
-                    functions={functions}
-                    customFunctions={customFunctions}
-                    language={language}
-                    parameters={parameters}
-                    customData={customData}
-                    environment={environment}
-                    preventStagingReplacement={preventStagingReplacement}
-                    dialog={dialog}
-                    styleSettings={styleSettings}
-                />
+                <HistoryLayerProvider layer={resolvedLayer}>
+                    <ModuleHost
+                        system={system}
+                        pages={pages}
+                        isAdminModeActive={isAdminModeActive}
+                        site={site}
+                        user={user}
+                        device={device}
+                        currentPage={currentPage}
+                        children={loadingComponent}
+                        functions={functions}
+                        customFunctions={customFunctions}
+                        language={language}
+                        parameters={parameters}
+                        customData={customData}
+                        environment={environment}
+                        preventStagingReplacement={preventStagingReplacement}
+                        dialog={dialog}
+                        styleSettings={styleSettings}
+                    />
+                </HistoryLayerProvider>
             );
         default:
             return null;

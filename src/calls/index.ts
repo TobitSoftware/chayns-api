@@ -1,4 +1,5 @@
 import { moduleWrapper } from '../components/moduleWrapper';
+import { getCurrentLayer } from '../handler/history/react/HistoryLayerContext';
 import {
     ChaynsApiDevice,
     ChaynsApiSite,
@@ -240,6 +241,12 @@ export const addAnonymousAccount = () => moduleWrapper.current.functions.addAnon
  * @category User functions
  */
 export const getUser = () => moduleWrapper.current.values.user;
+/**
+ * Returns the innermost currently mounted HistoryLayer. Falls back to the
+ * root layer when called outside any HistoryLayerProvider.
+ */
+export const getLayer = () => getCurrentLayer();
+
 export const getSite = () => moduleWrapper.current.values.site;
 export const getCurrentPage = () => moduleWrapper.current.values.currentPage;
 export const getDevice = () => moduleWrapper.current.values.device;
