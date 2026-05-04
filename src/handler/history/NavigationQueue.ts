@@ -14,6 +14,8 @@ export type NavOp =
     layerId: string;
     segments: string[];
     opts: NavigateOptions;
+    /** @internal Force a change notification even when segments appear unchanged (bootstrap via setSegmentCount). */
+    _notifyEvenIfUnchanged?: true;
 }
     | {
     kind: 'setState';
@@ -51,10 +53,6 @@ export type NavOp =
     | {
     kind: 'popstate';
     rawState: unknown;
-}
-    | {
-    kind: 'sentinelCorrection';
-    direction: 'back' | 'forward';
 };
 
 export type NavResult =
@@ -88,10 +86,19 @@ export interface NavigationQueueDeps {
     diffIncomingState: (raw: unknown) => { changedLayerIds: Set<string> };
     /** Apply an incoming raw `__chaynsHistory` state onto the memory tree. Returns affected layer ids. */
     applyIncomingState: (raw: unknown) => { changedLayerIds: Set<string> };
-    /** Push a sentinel entry directly after a real push, given the projected state. */
-    pushSentinel: (projectedState: Record<string, unknown>, entryId: string) => void;
-    /** Move history without triggering our normal popstate handling (used for sentinel corrections). */
+    /** Move history without triggering our normal popstate handling (used to undo blocked navigations). */
     silentGo: (delta: number) => Promise<void>;
+    /** Returns the current navigation index (incremented on every push). */
+    getCurrentIdx: () => number;
+    /** Increments the navigation index and returns the new value. */
+    incrementIdx: () => number;
+    /**
+     * Re-parse segments from `window.location.pathname` and apply them to each
+     * layer in the active chain based on its `segmentCount`. Called after
+     * `applyIncomingState` so the active chain reflects the new `activeChild`.
+     * Returns the ids of layers whose segments actually changed.
+     */
+    applyUrlSegments: () => { changedLayerIds: Set<string> };
 }
 
 // -----------------------------------------------------------------------------
@@ -159,8 +166,6 @@ export class NavigationQueue {
                 return this.processNavigate(op);
             case 'popstate':
                 return this.processPopstate(op);
-            case 'sentinelCorrection':
-                return this.processSentinelCorrection(op);
             default: {
                 const _exhaustive: never = op;
                 return { isOk: false, reason: 'error', error: new Error('Unknown op') };
@@ -188,6 +193,7 @@ export class NavigationQueue {
         if (op.opts.hash !== undefined) layer._setOwnHashSilent(op.opts.hash);
 
         const changed =
+            op._notifyEvenIfUnchanged === true ||
             !shallowEqualArr(prevSegments, op.segments) ||
             (op.opts.params !== undefined && !shallowEqualObj(prevParams, op.opts.params)) ||
             (op.opts.hash !== undefined && prevHash !== op.opts.hash);
@@ -266,11 +272,12 @@ export class NavigationQueue {
         layer._setActiveChildSilent(op.childId);
 
         // Apply optional initial route/state to the (now active) child.
+        let childDataChanged = false;
         if (op.childId && op.init) {
             const child = layer.getChildLayer(op.childId);
             if (child) {
-                if (op.init.route) child._setOwnSegmentsSilent(op.init.route);
-                if (op.init.state) child._setOwnStateSilent(op.init.state);
+                if (op.init.route) { child._setOwnSegmentsSilent(op.init.route); childDataChanged = true; }
+                if (op.init.state) { child._setOwnStateSilent(op.init.state); childDataChanged = true; }
             }
         }
 
@@ -282,6 +289,7 @@ export class NavigationQueue {
                 const bootstrapSegs = root._consumeBootstrapSegments(child.getSegmentCount());
                 if (bootstrapSegs) {
                     child._setOwnSegmentsSilent(bootstrapSegs);
+                    childDataChanged = true;
                 }
             }
         }
@@ -289,6 +297,13 @@ export class NavigationQueue {
         if (previousId !== op.childId) {
             this.commit(false);
             layer._emit('change'); // own-prop changed
+        }
+
+        // Notify the child's own subscribers when its data was seeded here so that
+        // hooks like useRoute() on the child layer re-render with the correct values.
+        if (childDataChanged && op.childId) {
+            const child = layer.getChildLayer(op.childId);
+            if (child) child._emit('change');
         }
         return { isOk: true };
     }
@@ -324,14 +339,30 @@ export class NavigationQueue {
 
     private async processPopstate(op: Extract<NavOp, { kind: 'popstate' }>): Promise<NavResult> {
         // 1. Dry-run diff to find which layers would change — without mutating tree.
+        //    a) State blob diff (ownState / params / hash / activeChild).
         const { changedLayerIds } = this.deps.diffIncomingState(op.rawState);
+
+        //    b) URL segment diff: segments live in the URL, not the state blob.
+        //       window.location already reflects the new URL at popstate time.
+        //       We compare the current in-memory projected URL vs the browser URL
+        //       to find layers whose segments would change.
+        //       Note: applyUrlSegments mutates the tree, so we run it after the block check.
+        //       Instead, we detect whether ANY segment change is pending by comparing URLs.
+        const currentProjectedUrl = this.deps.projectUrl();
+        const browserPathname = hasWindow() ? window.location.pathname : '';
+        if (browserPathname && browserPathname !== new URL(currentProjectedUrl, 'http://x').pathname) {
+            // At least one layer's segments differ. Since we can't know WHICH layer without
+            // running parseFromUrl (which needs the post-apply active chain), we conservatively
+            // target the root layer so blocks registered anywhere in the tree are checked.
+            changedLayerIds.add(this.deps.getRoot().id);
+        }
 
         // 2. Block-check at the lowest common affected layer BEFORE applying.
         const target = this.resolveLowestCommonLayer(changedLayerIds);
         if (target) {
             const allowed = await this.deps.checkBlocks(target);
             if (!allowed) {
-                // Blocked: revert browser position back one step to the sentinel.
+                // Blocked: revert browser position back one step.
                 await this.deps.silentGo(+1);
                 return { isOk: false, reason: 'blocked' };
             }
@@ -340,24 +371,17 @@ export class NavigationQueue {
         // 3. Apply the incoming state to the tree.
         const { changedLayerIds: applied } = this.deps.applyIncomingState(op.rawState);
 
-        // 4. Fire popstate events on affected layers.
-        for (const id of applied) {
+        // 4. Re-parse segments from the new URL — segments live in the URL, not in the
+        //    history state blob. Must run after applyIncomingState so that activeChild
+        //    is up to date and getActiveChain() returns the correct layers.
+        const { changedLayerIds: urlChanged } = this.deps.applyUrlSegments();
+        const allChanged = new Set([...applied, ...urlChanged]);
+
+        // 5. Fire popstate events on affected layers.
+        for (const id of allChanged) {
             const layer = this.deps.findLayer(id);
             if (layer) layer._emit('popstate');
         }
-        return { isOk: true };
-    }
-
-    private async processSentinelCorrection(
-        op: Extract<NavOp, { kind: 'sentinelCorrection' }>,
-    ): Promise<NavResult> {
-        // Navigate past the sentinel onto the real entry.
-        const delta = op.direction === 'back' ? -1 : +1;
-        await this.deps.silentGo(delta);
-        // After landing on the real entry, project a fresh sentinel ahead.
-        const state = this.deps.projectState();
-        const entryId = `real-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        this.deps.pushSentinel(state, entryId);
         return { isOk: true };
     }
 
@@ -421,14 +445,13 @@ export class NavigationQueue {
         if (!hasWindow()) return;
         const url = this.deps.projectUrl();
         const state = this.deps.projectState();
-        const entryId = `real-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-        // Merge __idx and __entryId into the chayns state for direction tracking.
+        const idx = isReplace ? this.deps.getCurrentIdx() : this.deps.incrementIdx();
         const stateWithMeta = {
             ...state,
             __chaynsHistory: {
                 ...(state.__chaynsHistory as object | undefined),
-                __entryId: entryId,
+                __idx: idx,
             },
         };
 
@@ -437,6 +460,5 @@ export class NavigationQueue {
         } else {
             window.history.pushState(stateWithMeta, '', url);
         }
-        this.deps.pushSentinel(stateWithMeta, entryId);
     }
 }

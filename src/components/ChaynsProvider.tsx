@@ -60,10 +60,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     const parentLayer = useHistoryLayerContext();
     const rootLayerRef = useRef<HistoryLayer | null>(null);
     if (!rootLayerRef.current && !parentLayer) {
-        rootLayerRef.current = getOrInitRootLayer(history?.url).rootLayer;
-        if (history?.segmentCount !== undefined) {
-            rootLayerRef.current.setSegmentCount(history.segmentCount);
-        }
+        rootLayerRef.current = getOrInitRootLayer(history?.url, history?.segmentCount).rootLayer;
     }
 
     if (!customWrapper.current) {

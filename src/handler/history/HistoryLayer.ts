@@ -30,6 +30,8 @@ export interface HistoryLayerInit {
     parent: HistoryLayer | null;
     deps: HistoryLayerDeps;
     segmentCount?: number;
+    /** Initial URL segments for this layer (length must equal segmentCount). */
+    segments?: string[];
 }
 
 export class HistoryLayer implements IHistoryLayer {
@@ -82,6 +84,7 @@ export class HistoryLayer implements IHistoryLayer {
         this.depth = init.parent ? init.parent.depth + 1 : 0;
         this.deps = init.deps;
         this.segmentCount = init.segmentCount ?? 0;
+        this.segments = init.segments ?? [];
     }
 
 // ---------------------------------------------------------------------------
@@ -124,6 +127,10 @@ export class HistoryLayer implements IHistoryLayer {
                 layerId: this.id,
                 segments: [...this.segments],
                 opts: {},
+                // The synchronous assignment above may have already updated this.segments,
+                // so processSetRoute's diff would see no change. Force the notification so
+                // subscribers (e.g. useRoute) always learn about the bootstrapped segments.
+                _notifyEvenIfUnchanged: true,
             });
         }
     }
@@ -152,8 +159,9 @@ export class HistoryLayer implements IHistoryLayer {
         child.markDestroyed();
         this.children.delete(id);
         if (this.activeChildId === id) {
-            this.activeChildId = null;
-            // Enqueue a projection update so the URL/state reflects the loss.
+            // Do NOT set activeChildId to null here — let the queue op do it so that
+            // processSetActiveChild sees a real diff (destroyedId → null) and calls
+            // commit() + _emit('change') to update the URL and notify subscribers.
             void this.deps.getQueue().enqueue({
                 kind: 'setActiveChild',
                 layerId: this.id,
@@ -175,6 +183,7 @@ export class HistoryLayer implements IHistoryLayer {
         init?: { route?: string[]; state?: Record<string, unknown> },
     ): void {
         if (this.isDestroyed) return;
+
         void this.deps.getQueue().enqueue({
             kind: 'setActiveChild',
             layerId: this.id,
@@ -193,6 +202,7 @@ export class HistoryLayer implements IHistoryLayer {
 
     setRoute(segments: string[], opts?: NavigateOptions): void {
         if (this.isDestroyed) return;
+
         void this.deps.getQueue().enqueue({
             kind: 'setRoute',
             layerId: this.id,
@@ -211,6 +221,7 @@ export class HistoryLayer implements IHistoryLayer {
 
     setParams(params: Record<string, string>, opts?: NavigationCommitOptions): void {
         if (this.isDestroyed) return;
+
         void this.deps.getQueue().enqueue({
             kind: 'setParams',
             layerId: this.id,
@@ -231,6 +242,7 @@ export class HistoryLayer implements IHistoryLayer {
         if (this.isDestroyed) return;
         // Normalize: strip leading '#'
         const normalized = hash.startsWith('#') ? hash.slice(1) : hash;
+
         void this.deps.getQueue().enqueue({
             kind: 'setHash',
             layerId: this.id,
@@ -249,7 +261,8 @@ export class HistoryLayer implements IHistoryLayer {
 
     setState<T extends Record<string, unknown>>(state: T, opts?: NavigateOptions): void {
         if (this.isDestroyed) return;
-        const filtered = HistoryLayer.filterReservedKeys(state);
+        const filtered = HistoryLayer.filterReservedKeys(state)
+
         void this.deps.getQueue().enqueue({
             kind: 'setState',
             layerId: this.id,
@@ -261,6 +274,7 @@ export class HistoryLayer implements IHistoryLayer {
     navigate(opts: { route?: string[]; state?: Record<string, unknown> } & NavigateOptions): void {
         if (this.isDestroyed) return;
         const { route, state, params, hash, ...rest } = opts;
+
         void this.deps.getQueue().enqueue({
             kind: 'navigate',
             layerId: this.id,

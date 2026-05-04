@@ -2,21 +2,13 @@ import { HistoryLayer } from './HistoryLayer';
 import { NavigationQueue } from './NavigationQueue';
 import { BlockRegistry } from './BlockRegistry';
 import { findLayerById } from './LayerTree';
-import { projectToUrl } from './UrlProjector';
+import { projectToUrl, parseFromUrl } from './UrlProjector';
 import { projectToState, applyStateToTree, diffIncomingState, hasChaynsHistoryState } from './StateProjector';
-import {
-    initSentinelIdx,
-    pushSentinel,
-    isSentinel,
-    getSentinelData,
-    getSentinelDirection,
-    silentGo,
-    consumeSilent,
-    incrementIdx,
-} from './Sentinel';
+import { silentGo, consumeSilent, getCurrentIdx, incrementIdx } from './NavigationIndex';
 import { hasWindow } from './guards/ssr';
 import { devWarn } from './guards/devWarn';
 import { debugTree, debugQueue, installWindowDebugGlobal } from './debug';
+import { shallowEqualArr } from './diff';
 import {getSite} from "../../calls";
 
 /** Resolves the initial page pathname for bootstrap URL parsing.
@@ -38,6 +30,15 @@ function getInitialPathname(overrideUrl?: string): string {
     return '/';
 }
 
+/** Parses the URL into a flat segment array and returns the first `n` entries. */
+function resolveInitialSegments(overrideUrl: string | undefined, n: number): string[] {
+    const pathname = getInitialPathname(overrideUrl);
+    const all = pathname.replace(/^\//, '').split('/').filter(Boolean);
+    const taken = all.slice(0, n);
+    while (taken.length < n) taken.push('');
+    return taken;
+}
+
 export interface InitRootLayerOptions {
     /**
      * The current page URL used to seed initial route segments.
@@ -46,6 +47,12 @@ export interface InitRootLayerOptions {
      *   child layers receive the correct initial segments on the server.
      */
     url?: string;
+    /**
+     * Number of URL path segments the root layer owns.
+     * When provided, segments are resolved from the URL immediately at construction
+     * so that `getRoute()` is populated on the very first render.
+     */
+    segmentCount?: number;
 }
 
 export interface InitRootLayerResult {
@@ -82,7 +89,8 @@ export function initRootLayer(opts: InitRootLayerOptions = {}): InitRootLayerRes
         id: 'root',
         parent: null,
         deps,
-        segmentCount: 0,
+        segmentCount: opts.segmentCount ?? 0,
+        segments: opts.segmentCount ? resolveInitialSegments(opts.url, opts.segmentCount) : [],
     });
 
     queue = new NavigationQueue({
@@ -100,11 +108,24 @@ export function initRootLayer(opts: InitRootLayerOptions = {}): InitRootLayerRes
         },
         diffIncomingState: (raw) => diffIncomingState(rootLayer, raw),
         applyIncomingState: (raw) => applyStateToTree(rootLayer, raw),
-        pushSentinel: (projectedState, entryId) => {
-            incrementIdx();
-            pushSentinel(projectedState, entryId);
-        },
         silentGo: (delta) => silentGo(delta),
+        getCurrentIdx: () => getCurrentIdx(),
+        incrementIdx: () => incrementIdx(),
+        applyUrlSegments: () => {
+            if (!hasWindow()) return { changedLayerIds: new Set<string>() };
+            const { perLayerSegments } = parseFromUrl(window.location.pathname, rootLayer);
+            const changed = new Set<string>();
+            for (const [id, segs] of perLayerSegments) {
+                const layer = findLayerById(rootLayer, id);
+                if (!layer) continue;
+                const prev = layer._getOwnSegments();
+                if (!shallowEqualArr(prev, segs)) {
+                    layer._setOwnSegmentsSilent(segs);
+                    changed.add(id);
+                }
+            }
+            return { changedLayerIds: changed };
+        },
     });
 
 
@@ -115,9 +136,20 @@ export function initRootLayer(opts: InitRootLayerOptions = {}): InitRootLayerRes
         : null;
 
     if (!hasChaynsHistoryState(existingState)) {
-        // Register a lazy URL resolver so segments are parsed the first time a child
-        // layer needs them — by then moduleWrapper / getSite() will be available.
-        rootLayer._setBootstrapUrlResolver(() => getInitialPathname(opts.url));
+        // Seed the bootstrap pool for child layers. The root layer already has its
+        // segments set in the constructor, so the pool starts after those segments.
+        const segmentCount = opts.segmentCount ?? 0;
+        if (segmentCount > 0) {
+            // URL was already resolved synchronously — build the pool directly,
+            // skipping the segments the root layer already claimed.
+            const pathname = getInitialPathname(opts.url);
+            const all = pathname.replace(/^\//, '').split('/').filter(Boolean);
+            rootLayer._setBootstrapPool(all.slice(segmentCount));
+        } else {
+            // No segmentCount provided: register a lazy resolver so child layers
+            // can still consume segments when they set their segmentCount later.
+            rootLayer._setBootstrapUrlResolver(() => getInitialPathname(opts.url));
+        }
 
         // Eagerly bootstrap params/hash from the initial URL onto the root layer.
         // Unlike segments (which are distributed across layers), params/hash are
@@ -137,24 +169,19 @@ export function initRootLayer(opts: InitRootLayerOptions = {}): InitRootLayerRes
     }
 
     if (hasWindow()) {
-        initSentinelIdx();
-
         const existing = existingState;
 
         if (!hasChaynsHistoryState(existing)) {
-            // Write an initial state and sentinel.
+            // Write an initial state with __idx stamped on it.
             const foreign = { ...(existing ?? {}) };
             delete foreign.__chaynsHistory;
             const initialState = projectToState(rootLayer, foreign);
-            const entryId = `real-root-${Date.now()}`;
+            const idx = incrementIdx();
             window.history.replaceState(
-                { ...initialState, __chaynsHistory: { ...(initialState.__chaynsHistory as object), __entryId: entryId } },
+                { ...initialState, __chaynsHistory: { ...(initialState.__chaynsHistory as object), __idx: idx } },
                 '',
                 window.location.href,
             );
-            // Push initial sentinel.
-            incrementIdx();
-            pushSentinel(initialState, entryId);
         } else {
             // Restore tree from existing state.
             applyStateToTree(rootLayer, existing);
@@ -167,12 +194,7 @@ export function initRootLayer(opts: InitRootLayerOptions = {}): InitRootLayerRes
 
             const raw = event.state;
 
-            if (isSentinel(raw)) {
-                const data = getSentinelData(raw);
-                if (!data) return;
-                const direction = getSentinelDirection(data.idx);
-                void queue.enqueue({ kind: 'sentinelCorrection', direction });
-            } else if (!hasChaynsHistoryState(raw)) {
+            if (!hasChaynsHistoryState(raw)) {
                 // Foreign push — ignore and keep memory tree as truth.
                 devWarn(
                     'FOREIGN_POPSTATE',
@@ -204,10 +226,13 @@ let _rootLayerResult: InitRootLayerResult | null = null;
  *
  * @param url - On SSR, pass the current request URL (e.g. `req.url` or `router.asPath`)
  *   so child layers receive the correct initial route segments. Ignored after first call.
+ * @param segmentCount - Number of URL segments the root layer owns. When provided the
+ *   segments are resolved from the URL immediately so `getRoute()` is populated on the
+ *   very first render without any subsequent `setSegmentCount` call. Ignored after first call.
  */
-export function getOrInitRootLayer(url?: string): InitRootLayerResult {
+export function getOrInitRootLayer(url?: string, segmentCount?: number): InitRootLayerResult {
     if (!_rootLayerResult) {
-        _rootLayerResult = initRootLayer({ url });
+        _rootLayerResult = initRootLayer({ url, segmentCount });
     }
     return _rootLayerResult;
 }

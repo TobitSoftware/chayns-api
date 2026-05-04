@@ -201,11 +201,3 @@ export { extractNode as _extractNode };
 export function hasChaynsHistoryState(raw: unknown): boolean {
     return extractNode(raw) !== null;
 }
-
-/** Check whether segments diff changed, comparing old segments vs URL-parsed result. */
-export function diffSegments(
-    current: string[],
-    incoming: string[],
-): boolean {
-    return !shallowEqualArr(current, incoming);
-}

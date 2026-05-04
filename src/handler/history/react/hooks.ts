@@ -55,7 +55,7 @@ export function useRoute(): UseRouteResult {
     const layer = useHistoryLayer();
 
     const getSnapshot = useCallback(() => layer.getRoute(), [layer]);
-    const getServerSnapshot = useCallback((): string[] => [], []);
+    const getServerSnapshot = useCallback(() => layer.getRoute(), [layer]);
 
     // useSyncExternalStore needs stable snapshot references.
     const segRef = useRef<string[]>([]);
@@ -118,7 +118,7 @@ export function useHistoryState<T extends Record<string, unknown> = Record<strin
     );
 
     const getSnapshot = useCallback(() => layer.getState<T>(), [layer]);
-    const getServerSnapshot = useCallback((): T | undefined => undefined, []);
+    const getServerSnapshot = useCallback(() => layer.getState<T>(), [layer]);
 
     const rawState = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
@@ -177,7 +177,7 @@ export function useParams(): [
     );
 
     const getSnapshot = useCallback(() => layer.getParams(), [layer]);
-    const getServerSnapshot = useCallback((): Record<string, string> => ({}), []);
+    const getServerSnapshot = useCallback(() => layer.getParams(), [layer]);
 
     const rawParams = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
@@ -215,7 +215,7 @@ export function useHash(): [string, (hash: string, opts?: NavigationCommitOption
     );
 
     const getSnapshot = useCallback(() => layer.getHash(), [layer]);
-    const getServerSnapshot = useCallback((): string => '', []);
+    const getServerSnapshot = useCallback(() => layer.getHash(), [layer]);
 
     const hash = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
@@ -242,19 +242,20 @@ export interface UseHistoryBlockOptions extends BlockOptions {
  *
  * The caller is responsible for providing a stable `callback` reference
  * (e.g. via useCallback) — registrations only change when the reference changes.
+ * `scope` and `isBeforeUnload` are read when the block is registered; changes
+ * after mount are applied on the next registration cycle.
  */
 export function useHistoryBlock(
     callback: () => Promise<boolean>,
     opts: UseHistoryBlockOptions = {},
 ): void {
     const layer = useHistoryLayer();
-    const { isEnabled = true, ...blockOpts } = opts;
+    const { isEnabled = true, scope, isBeforeUnload } = opts;
 
     useEffect(() => {
         if (!isEnabled) return;
-        return layer.addBlock(callback, blockOpts);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [layer, callback, isEnabled]);
+        return layer.addBlock(callback, { scope, isBeforeUnload });
+    }, [layer, callback, isEnabled, scope, isBeforeUnload]);
 }
 
 // ---------------------------------------------------------------------------
@@ -322,9 +323,8 @@ export function useActiveChild(): UseActiveChildResult {
     );
 
     const getSnapshot = useCallback(() => layer.getActiveChildId(), [layer]);
-    const getServerSnapshot = useCallback((): string | null => null, []);
 
-    const activeChildId = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+    const activeChildId = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
     const setActiveChild = useCallback(
         (

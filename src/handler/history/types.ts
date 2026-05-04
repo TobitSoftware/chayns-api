@@ -18,7 +18,7 @@ export type HistoryLayerEvent = {
     type: 'change' | 'popstate';
     layerId: string;
     segments: string[];
-    state: Record<string, unknown> | undefined;
+    state: Record<string, unknown>;
     params: Record<string, string>;
     hash: string;
 };
