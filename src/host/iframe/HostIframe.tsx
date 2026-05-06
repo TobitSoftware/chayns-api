@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useRef } from 'react';
 import * as comlink from 'comlink';
-import postIframeForm from '../../util/postIframeForm';
+import postIframeForm from '../../utils/postIframeForm';
 import {
     ChaynsApiDevice,
     ChaynsApiSite,
@@ -12,9 +12,9 @@ import {
     Page,
 } from '../../types/IChaynsReact';
 import useUpdateData from './utils/useUpdateData';
-import { replaceStagingUrl } from "../../util/url";
-import { initTransferNestedFunctions } from '../../util/transferNestedFunctions';
-import type { ChaynsHistoryLayer } from '../../handler/history/types';
+import { replaceStagingUrl } from "../../utils/url";
+import { initTransferNestedFunctions } from '../../utils/transferNestedFunctions';
+import type { ChaynsHistoryLayer } from '../../types/history';
 
 type HostIframeProps = {
     iFrameProps: { [key: string]: unknown, name: string },

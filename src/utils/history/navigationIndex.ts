@@ -1,5 +1,4 @@
-import { hasWindow } from './guards/ssr';
-import { devWarn } from './guards/devWarn';
+import { hasWindowHistory } from './window';
 
 // ---------------------------------------------------------------------------
 // Singleton state (top window only)
@@ -41,7 +40,7 @@ export function getCurrentIdx(): number {
  * Returns a promise that resolves when the popstate for this go() fires.
  */
 export function silentGo(delta: number): Promise<void> {
-    if (!hasWindow()) return Promise.resolve();
+    if (!hasWindowHistory()) return Promise.resolve();
 
     return new Promise<void>((resolve) => {
         pendingSilentCount++;
@@ -52,7 +51,6 @@ export function silentGo(delta: number): Promise<void> {
         // pendingSilentCount elevated so the eventual late popstate is still
         // absorbed rather than processed as a real navigation.
         const timeout = setTimeout(() => {
-            devWarn('SILENT_GO_TIMEOUT', `silentGo(${delta}) did not fire popstate in 2s — may indicate a browser delay.`);
             silentResolve = null;
             resolve();
             // pendingSilentCount is intentionally NOT decremented here: the late

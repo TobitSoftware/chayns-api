@@ -1,4 +1,4 @@
-import type { ChaynsHistoryLayer } from './HistoryLayer';
+import type { ChaynsHistoryLayer } from '../../handler/history/HistoryLayer';
 
 /**
  * Returns the ordered chain of layers from root to the deepest active layer

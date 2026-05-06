@@ -6,7 +6,7 @@ import {
     DataChangeCallback,
     IChaynsReact,
 } from '../types/IChaynsReact';
-import getDeviceInfo from '../util/deviceHelper';
+import getDeviceInfo from '../utils/deviceHelper';
 import { AppWrapper } from './AppWrapper';
 import { FrameWrapper } from './FrameWrapper';
 import { ModuleFederationWrapper } from './ModuleFederationWrapper';

@@ -1,5 +1,5 @@
 import { VisibilityChangeListenerResult } from '../types/IChaynsReact';
-import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
+import { addApiListener, dispatchApiEvent, removeApiListener } from '../utils/apiListener';
 
 const key = 'visibilityChangeListener';
 

@@ -4,8 +4,8 @@ import type {
     ChaynsHistoryNavigationCommitOptions,
     ChaynsHistoryBlockOptions,
     ChaynsHistoryLayerEvent,
-} from './types';
-import { EventBus } from './EventBus';
+} from '../../types/history';
+import { EventBus } from '../../utils/EventBus';
 
 /**
  * Async bridge functions forwarded via comlink from the iframe (FrameWrapper) to

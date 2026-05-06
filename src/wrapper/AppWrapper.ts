@@ -7,7 +7,7 @@ import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../cal
 import { DefaultLoginDialogOptions } from '../constants';
 import { DeviceLanguage } from '../constants/languages';
 import DialogHandler from '../handler/DialogHandler';
-import { addApiListener, dispatchApiEvent, removeApiListener } from '../helper/apiListenerHelper';
+import { addApiListener, dispatchApiEvent, removeApiListener } from '../utils/apiListener';
 import {
     AppName,
     AvailableSharingServices,
@@ -31,10 +31,10 @@ import {
     ScanQrCodeResult,
     TappEvent,
 } from '../types/IChaynsReact';
-import invokeAppCall from '../util/appCall';
-import { addAppStorageListener, clearAppStorage, isAppStorageAvailable, setAppStorageItem } from '../util/appStorage';
-import getDeviceInfo, { getScreenSize } from '../util/deviceHelper';
-import { isAppCallSupported } from '../util/is';
+import invokeAppCall from '../utils/appCall';
+import { addAppStorageListener, clearAppStorage, isAppStorageAvailable, setAppStorageItem } from '../utils/appStorage';
+import getDeviceInfo, { getScreenSize } from '../utils/deviceHelper';
+import { isAppCallSupported } from '../utils/is';
 
 export class AppWrapper implements IChaynsReact {
 

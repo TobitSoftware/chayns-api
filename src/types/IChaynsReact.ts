@@ -1,7 +1,7 @@
 import { IBrowser, IEngine } from 'ua-parser-js';
 import DialogHandler from '../handler/DialogHandler';
 import { DialogButtonOld, SelectDialogItem } from './dialog';
-import type { ChaynsHistoryLayer } from '../handler/history/types';
+import type { ChaynsHistoryLayer } from './history';
 
 export type DialogButton = {
     type: DialogButtonType,

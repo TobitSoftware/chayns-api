@@ -1,7 +1,7 @@
 import React, { createContext, useContext, type FC, type ReactNode } from 'react';
-import type { ChaynsHistoryLayer } from '../types';
-import { useIsomorphicLayoutEffect } from '../../../hooks/useIsomorphicLayoutEffect';
-import { getOrInitRootChaynsHistoryLayer } from '../initRootLayer';
+import type { ChaynsHistoryLayer } from '../types/history';
+import { useIsomorphicLayoutEffect } from '../hooks/useIsomorphicLayoutEffect';
+import { getOrInitRootChaynsHistoryLayer } from '../utils/history/rootLayer';
 
 // ---------------------------------------------------------------------------
 // Module-level layer stack (mirrors moduleWrapper pattern)

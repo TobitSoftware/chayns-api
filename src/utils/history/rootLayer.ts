@@ -1,14 +1,12 @@
-import { ChaynsHistoryLayer } from './HistoryLayer';
+import { ChaynsHistoryLayer } from '../../handler/history/HistoryLayer';
 import { NavigationQueue } from './NavigationQueue';
 import { BlockRegistry } from './BlockRegistry';
-import { findChaynsHistoryLayerById } from './LayerTree';
-import { projectToUrl, parseFromUrl } from './UrlProjector';
-import { projectToState, applyStateToTree, diffIncomingState, hasChaynsHistoryState } from './StateProjector';
-import { silentGo, consumeSilent, getCurrentIdx, incrementIdx } from './NavigationIndex';
-import { hasWindow } from './guards/ssr';
-import { devWarn } from './guards/devWarn';
-import { debugTree, debugQueue, installWindowDebugGlobal } from './debug';
-import { shallowEqualArr } from './diff';
+import { findChaynsHistoryLayerById } from './layerTree';
+import { projectToUrl, parseFromUrl } from './url';
+import { projectToState, applyStateToTree, diffIncomingState, hasChaynsHistoryState } from './stateProjector';
+import { silentGo, consumeSilent, getCurrentIdx, incrementIdx } from './navigationIndex';
+import { hasWindowHistory } from './window';
+import { shallowEqualArr } from '../equality';
 import {getSite} from "../../calls";
 
 /** Resolves the initial page pathname for bootstrap URL parsing.
@@ -18,7 +16,7 @@ function getInitialPathname(overrideUrl?: string): string {
         try { return new URL(overrideUrl).pathname; } catch { /* relative path */ }
         return overrideUrl.startsWith('/') ? overrideUrl : `/${overrideUrl}`;
     }
-    if (hasWindow()) {
+    if (hasWindowHistory()) {
         return window.location.pathname;
     }
     try {
@@ -57,10 +55,6 @@ export interface InitRootChaynsHistoryLayerOptions {
 
 export interface InitRootChaynsHistoryLayerResult {
     rootLayer: ChaynsHistoryLayer;
-    /** Returns a JSON-serializable snapshot of the full layer tree (dev only). */
-    __debugTree: () => unknown;
-    /** Returns the pending ops in the navigation queue (dev only). */
-    __debugQueue: () => unknown[];
 }
 
 /**
@@ -99,7 +93,7 @@ export function initRootChaynsHistoryLayer(opts: InitRootChaynsHistoryLayerOptio
         checkBlocks: (target) => blockRegistry.checkBlocks(target),
         projectUrl: () => projectToUrl(rootLayer),
         projectState: () => {
-            const existing = hasWindow()
+            const existing = hasWindowHistory()
                 ? ({ ...(window.history.state as Record<string, unknown> | null ?? {}) })
                 : {};
             // Remove our own key before re-projecting so it doesn't get stale.
@@ -112,7 +106,7 @@ export function initRootChaynsHistoryLayer(opts: InitRootChaynsHistoryLayerOptio
         getCurrentIdx: () => getCurrentIdx(),
         incrementIdx: () => incrementIdx(),
         applyUrlSegments: () => {
-            if (!hasWindow()) return { changedLayerIds: new Set<string>() };
+            if (!hasWindowHistory()) return { changedLayerIds: new Set<string>() };
             const { perLayerSegments } = parseFromUrl(window.location.pathname, rootLayer);
             const changed = new Set<string>();
             for (const [id, segs] of perLayerSegments) {
@@ -131,7 +125,7 @@ export function initRootChaynsHistoryLayer(opts: InitRootChaynsHistoryLayerOptio
 
     // Bootstrap: sync memory tree from existing history state or initialize fresh.
     // Seed the bootstrap URL pool first (works in both browser and SSR).
-    const existingState = hasWindow()
+    const existingState = hasWindowHistory()
         ? (window.history.state as Record<string, unknown> | null)
         : null;
 
@@ -154,7 +148,7 @@ export function initRootChaynsHistoryLayer(opts: InitRootChaynsHistoryLayerOptio
         // Eagerly bootstrap params/hash from the initial URL onto the root layer.
         // Unlike segments (which are distributed across layers), params/hash are
         // global and assigned to root immediately.
-        const rawUrl = opts.url ?? (hasWindow() ? window.location.href : null);
+        const rawUrl = opts.url ?? (hasWindowHistory() ? window.location.href : null);
         if (rawUrl) {
             try {
                 const base = rawUrl.startsWith('http') ? rawUrl : `http://x${rawUrl.startsWith('/') ? rawUrl : '/' + rawUrl}`;
@@ -168,7 +162,7 @@ export function initRootChaynsHistoryLayer(opts: InitRootChaynsHistoryLayerOptio
         }
     }
 
-    if (hasWindow()) {
+    if (hasWindowHistory()) {
         const existing = existingState;
 
         if (!hasChaynsHistoryState(existing)) {
@@ -196,26 +190,13 @@ export function initRootChaynsHistoryLayer(opts: InitRootChaynsHistoryLayerOptio
 
             if (!hasChaynsHistoryState(raw)) {
                 // Foreign push — ignore and keep memory tree as truth.
-                devWarn(
-                    'FOREIGN_POPSTATE',
-                    'Received popstate without __chaynsHistory — ignoring. Memory tree is authoritative.',
-                );
             } else {
                 void queue.enqueue({ kind: 'popstate', rawState: raw });
             }
         });
-
-        // Install dev console globals.
-        installWindowDebugGlobal(rootLayer, queue);
     }
 
-    return {
-        rootLayer,
-        /** Returns a JSON-serializable snapshot of the full layer tree. */
-        __debugTree: () => debugTree(rootLayer),
-        /** Returns the pending ops in the navigation queue. */
-        __debugQueue: () => debugQueue(queue),
-    };
+    return { rootLayer };
 }
 
 let _rootLayerResult: InitRootChaynsHistoryLayerResult | null = null;

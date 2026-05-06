@@ -5,7 +5,7 @@ import { addVisibilityChangeListener, removeVisibilityChangeListener } from '../
 import DialogHandler from '../handler/DialogHandler';
 import { FrameHistoryLayer } from '../handler/history/FrameHistoryLayer';
 import type { HistoryInitialState } from '../handler/history/FrameHistoryLayer';
-import type { ChaynsHistoryLayerEvent } from '../handler/history/types';
+import type { ChaynsHistoryLayerEvent } from '../types/history';
 import {
     AccessToken,
     ChaynsReactFunctions,
@@ -21,8 +21,8 @@ import {
     ScrollListenerResult,
     ToolbarChangeListenerResult,
 } from '../types/IChaynsReact';
-import { setTappHeight } from '../util/heightHelper';
-import { initTransferNestedFunctions } from '../util/transferNestedFunctions';
+import { setTappHeight } from '../utils/heightHelper';
+import { initTransferNestedFunctions } from '../utils/transferNestedFunctions';
 
 export class FrameWrapper implements IChaynsReact {
 

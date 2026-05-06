@@ -1,6 +1,5 @@
-import type { ChaynsHistoryLayer } from './HistoryLayer';
-import type { ChaynsHistoryBlockOptions } from './types';
-import { devWarn } from './guards/devWarn';
+import type { ChaynsHistoryLayer } from '../../handler/history/HistoryLayer';
+import type { ChaynsHistoryBlockOptions } from '../../types/history';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -162,17 +161,12 @@ export class BlockRegistry {
                 entry.callback(),
                 new Promise<false>((resolve) =>
                     setTimeout(() => {
-                        devWarn(
-                            'BLOCK_TIMEOUT',
-                            `Block callback id="${entry.id}" timed out after ${BLOCK_TIMEOUT_MS}ms — navigation blocked.`,
-                        );
                         resolve(false);
                     }, BLOCK_TIMEOUT_MS),
                 ),
             ]);
             return result;
         } catch (err) {
-            devWarn('BLOCK_THREW', `Block callback id="${entry.id}" threw — navigation blocked.`, err);
             return false;
         }
     }

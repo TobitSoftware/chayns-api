@@ -4,11 +4,10 @@ import type {
     ChaynsHistoryNavigateOptions,
     ChaynsHistoryNavigationCommitOptions,
     ChaynsHistoryBlockOptions,
-} from './types';
-import { EventBus } from './EventBus';
-import { devWarn } from './guards/devWarn';
-import type { NavigationQueue } from './NavigationQueue';
-import type { BlockRegistry } from './BlockRegistry';
+} from '../../types/history';
+import { EventBus } from '../../utils/EventBus';
+import type { NavigationQueue } from '../../utils/history/NavigationQueue';
+import type { BlockRegistry } from '../../utils/history/BlockRegistry';
 
 /**
  * Reserved keys in a layer's state node. These are managed by the core
@@ -97,7 +96,6 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
 
     setSegmentCount(n: number): void {
         if (n < 0 || !Number.isInteger(n)) {
-            devWarn('SEGMENT_COUNT_INVALID', `Invalid segmentCount ${n}`);
             return;
         }
         const prev = this.segmentCount;
@@ -431,19 +429,11 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
 
     private static filterReservedKeys<T extends Record<string, unknown>>(input: T): Record<string, unknown> {
         const out: Record<string, unknown> = {};
-        let hasReservedKeys = false;
         for (const key of Object.keys(input)) {
             if ((RESERVED_STATE_KEYS as readonly string[]).includes(key)) {
-                hasReservedKeys = true;
                 continue;
             }
             out[key] = input[key];
-        }
-        if (hasReservedKeys) {
-            devWarn(
-                'STATE_RESERVED_KEYS',
-                `setState received reserved keys (${RESERVED_STATE_KEYS.join(', ')}) and stripped them.`,
-            );
         }
         return out;
     }

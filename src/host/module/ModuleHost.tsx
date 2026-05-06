@@ -1,5 +1,5 @@
 import React, { FC, ReactNode, useContext, useMemo } from 'react';
-import { ModuleContext } from '../../constants/moduleContext';
+import { ModuleContext } from '../../contexts/moduleContext';
 import loadComponent from './utils/loadComponent';
 import {
     ChaynsApiDevice,
@@ -9,8 +9,8 @@ import {
     ChaynsReactValues, IChaynsReact,
     Page,
 } from '../../types/IChaynsReact';
-import { replaceStagingUrl } from "../../util/url";
-import type { ChaynsHistoryLayer } from '../../handler/history/types';
+import { replaceStagingUrl } from "../../utils/url";
+import type { ChaynsHistoryLayer } from '../../types/history';
 
 export type TypeSystem = {
     scope: string,

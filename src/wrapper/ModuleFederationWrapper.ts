@@ -1,5 +1,5 @@
 import DialogHandler from '../handler/DialogHandler';
-import { getOrInitRootChaynsHistoryLayer } from '../handler/history/initRootLayer';
+import { getOrInitRootChaynsHistoryLayer } from '../utils/history/rootLayer';
 import {
     ChaynsReactFunctions,
     ChaynsReactValues,

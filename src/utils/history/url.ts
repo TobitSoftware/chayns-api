@@ -1,5 +1,5 @@
-import type { ChaynsHistoryLayer } from './HistoryLayer';
-import { getChaynsHistoryActiveChain } from './LayerTree';
+import type { ChaynsHistoryLayer } from '../../handler/history/HistoryLayer';
+import { getChaynsHistoryActiveChain } from './layerTree';
 
 /**
  * Concatenates all segments along the active chain into a URL with pathname,

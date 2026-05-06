@@ -10,9 +10,9 @@ import {
     IChaynsReact,
     Page,
 } from '../types/IChaynsReact';
-import { ChaynsHistoryLayer } from '../handler/history/types';
-import { ChaynsHistoryLayerProvider } from '../handler/history/react/HistoryLayerContext';
-import { getOrInitRootChaynsHistoryLayer } from '../handler/history/initRootLayer';
+import { ChaynsHistoryLayer } from '../types/history';
+import { ChaynsHistoryLayerProvider } from '../contexts/HistoryLayerContext';
+import { getOrInitRootChaynsHistoryLayer } from '../utils/history/rootLayer';
 
 type ChaynsHostType = {
     type: `${'client' | 'server'}-${'iframe' | 'module'}`,

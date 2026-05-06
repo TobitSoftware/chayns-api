@@ -1,5 +1,5 @@
 import { moduleWrapper } from '../components/moduleWrapper';
-import { getCurrentChaynsHistoryLayer } from '../handler/history/react/HistoryLayerContext';
+import { getCurrentChaynsHistoryLayer } from '../contexts/HistoryLayerContext';
 import {
     ChaynsApiDevice,
     ChaynsApiSite,

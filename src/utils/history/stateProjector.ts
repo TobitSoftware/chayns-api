@@ -1,6 +1,6 @@
-import type { ChaynsHistoryLayer } from './HistoryLayer';
-import type { ChaynsHistoryLayerStateNode } from './types';
-import { shallowEqualArr, shallowEqualObj } from './diff';
+import type { ChaynsHistoryLayer } from '../../handler/history/HistoryLayer';
+import type { ChaynsHistoryLayerStateNode } from '../../types/history';
+import { shallowEqualArr, shallowEqualObj } from '../equality';
 
 // ---------------------------------------------------------------------------
 // Internal constants

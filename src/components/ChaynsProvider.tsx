@@ -2,16 +2,16 @@ import htmlEscape from 'htmlescape';
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { useIsomorphicLayoutEffect } from '../hooks/useIsomorphicLayoutEffect';
 import { AppName, ChaynsReactFunctions, ChaynsReactValues, IChaynsReact } from '../types/IChaynsReact';
-import getDeviceInfo from '../util/deviceHelper';
+import getDeviceInfo from '../utils/deviceHelper';
 import { AppWrapper } from '../wrapper/AppWrapper';
 import { FrameWrapper } from '../wrapper/FrameWrapper';
 import { ModuleFederationWrapper } from '../wrapper/ModuleFederationWrapper';
 import { SsrWrapper } from '../wrapper/SsrWrapper';
 import { ChaynsContext } from './ChaynsContext';
 import { addModuleWrapper, chaynsApis, moduleWrapper, removeModuleWrapper } from './moduleWrapper';
-import { ChaynsHistoryLayerProvider, useChaynsHistoryLayerContext } from '../handler/history/react/HistoryLayerContext';
-import { getOrInitRootChaynsHistoryLayer } from '../handler/history/initRootLayer';
-import type { ChaynsHistoryLayer } from '../handler/history/types';
+import { ChaynsHistoryLayerProvider, useChaynsHistoryLayerContext } from '../contexts/HistoryLayerContext';
+import { getOrInitRootChaynsHistoryLayer } from '../utils/history/rootLayer';
+import type { ChaynsHistoryLayer } from '../types/history';
 
 const isServer = typeof window === 'undefined';
 

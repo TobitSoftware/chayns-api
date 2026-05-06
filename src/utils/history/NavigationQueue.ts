@@ -1,8 +1,7 @@
-import type { ChaynsHistoryLayer } from './HistoryLayer';
-import type { ChaynsHistoryNavigateOptions, ChaynsHistoryNavigationCommitOptions } from './types';
-import { devWarn } from './guards/devWarn';
-import { hasWindow } from './guards/ssr';
-import { shallowEqualArr, shallowEqualObj } from './diff';
+import type { ChaynsHistoryLayer } from '../../handler/history/HistoryLayer';
+import type { ChaynsHistoryNavigateOptions, ChaynsHistoryNavigationCommitOptions } from '../../types/history';
+import { hasWindowHistory } from './window';
+import { shallowEqualArr, shallowEqualObj } from '../equality';
 
 // -----------------------------------------------------------------------------
 // Op types
@@ -124,11 +123,6 @@ export class NavigationQueue {
         });
     }
 
-    /** @internal Returns a snapshot of pending ops for debug tooling. */
-    _debugQueueSnapshot(): NavOp[] {
-        return this.queue.map((e) => e.op);
-    }
-
     private async tick(): Promise<void> {
         if (this.isRunning) return;
         this.isRunning = true;
@@ -139,7 +133,6 @@ export class NavigationQueue {
                     const result = await this.process(entry.op);
                     entry.resolve(result);
                 } catch (error) {
-                    devWarn('QUEUE_OP_THREW', 'Navigation op threw', error);
                     entry.resolve({ isOk: false, reason: 'error', error });
                 }
             }
@@ -389,7 +382,7 @@ export class NavigationQueue {
         //       Note: applyUrlSegments mutates the tree, so we run it after the block check.
         //       Instead, we detect whether ANY segment change is pending by comparing URLs.
         const currentProjectedUrl = this.deps.projectUrl();
-        const browserPathname = hasWindow() ? window.location.pathname : '';
+        const browserPathname = hasWindowHistory() ? window.location.pathname : '';
         if (browserPathname && browserPathname !== new URL(currentProjectedUrl, 'http://x').pathname) {
             // At least one layer's segments differ. Since we can't know WHICH layer without
             // running parseFromUrl (which needs the post-apply active chain), we conservatively
@@ -432,15 +425,12 @@ export class NavigationQueue {
     private resolveActiveLayer(id: string): ChaynsHistoryLayer | undefined {
         const layer = this.deps.findLayer(id);
         if (!layer) {
-            devWarn('LAYER_STALE', `Layer "${id}" not found at op time.`);
             return undefined;
         }
         if (layer._isDestroyed()) {
-            devWarn('LAYER_DESTROYED', `Layer "${id}" was destroyed before op ran.`);
             return undefined;
         }
         if (!layer._isInActiveChain()) {
-            devWarn('LAYER_INACTIVE', `Layer "${id}" is not in active chain — op skipped.`);
             return undefined;
         }
         return layer;
@@ -482,7 +472,7 @@ export class NavigationQueue {
     }
 
     private commit(isReplace: boolean): void {
-        if (!hasWindow()) return;
+        if (!hasWindowHistory()) return;
         const url = this.deps.projectUrl();
         const state = this.deps.projectState();
 

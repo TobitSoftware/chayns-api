@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
-import type { ChaynsHistoryLayer, ChaynsHistoryNavigateOptions, ChaynsHistoryNavigationCommitOptions, ChaynsHistoryBlockOptions, ChaynsHistoryLayerEvent } from '../types';
-import { useChaynsHistoryLayerContext } from './HistoryLayerContext';
-import { devWarn } from '../guards/devWarn';
-import { shallowEqualObj } from '../diff';
+import type { ChaynsHistoryLayer, ChaynsHistoryNavigateOptions, ChaynsHistoryNavigationCommitOptions, ChaynsHistoryBlockOptions, ChaynsHistoryLayerEvent } from '../types/history';
+import { useChaynsHistoryLayerContext } from '../contexts/HistoryLayerContext';
+import { shallowEqualObj } from '../utils/equality';
 
 // ---------------------------------------------------------------------------
 // Utilities
@@ -28,11 +27,6 @@ export function useChaynsHistoryLayer(): ChaynsHistoryLayer {
 
     if (globalLayer) return globalLayer;
 
-    devWarn(
-        'NO_LAYER',
-        'useChaynsHistoryLayer: no ChaynsHistoryLayer found in context or chaynsHost. Wrap your component with <ChaynsHistoryLayerProvider>.',
-    );
-    // Return a dummy layer to avoid crashing outside dev.
     throw new Error(
         '[chaynsHistory] useChaynsHistoryLayer must be used inside a <ChaynsHistoryLayerProvider>.',
     );
@@ -352,4 +346,4 @@ function shallowEqualStateSnapshot<T extends object>(
 }
 
 // Re-export context pieces for convenience.
-export { ChaynsHistoryLayerProvider, useChaynsHistoryLayerContext } from './HistoryLayerContext';
+export { ChaynsHistoryLayerProvider, useChaynsHistoryLayerContext } from '../contexts/HistoryLayerContext';
