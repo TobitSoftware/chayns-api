@@ -23,7 +23,6 @@ export const loadModule = (scope: string, module: string, url: string, preventSi
                 shareScope: url.endsWith('v2.remoteEntry.js') || url.endsWith('mf-manifest.json') ? 'chayns-api' : 'default',
                 name: scope,
                 entry: url,
-                alias: scope,
             }
         ], { force: (scope in registeredScopes) || preventSingleton });
 
