@@ -1,9 +1,9 @@
 import type {
-    HistoryLayer as IHistoryLayer,
-    HistoryLayerEvent,
-    NavigateOptions,
-    NavigationCommitOptions,
-    BlockOptions,
+    ChaynsHistoryLayer as IChaynsHistoryLayer,
+    ChaynsHistoryLayerEvent,
+    ChaynsHistoryNavigateOptions,
+    ChaynsHistoryNavigationCommitOptions,
+    ChaynsHistoryBlockOptions,
 } from './types';
 import { EventBus } from './EventBus';
 import { devWarn } from './guards/devWarn';
@@ -16,32 +16,32 @@ import type { BlockRegistry } from './BlockRegistry';
  */
 const RESERVED_STATE_KEYS = ['activeChild', 'childState', '__params', '__hash'] as const;
 
-export interface HistoryLayerDeps {
+export interface ChaynsHistoryLayerDeps {
     /** Reference to the root layer for queue + block registry access. */
-    getRoot: () => HistoryLayer;
+    getRoot: () => ChaynsHistoryLayer;
     /** Top-window navigation queue (singleton). */
     getQueue: () => NavigationQueue;
     /** Top-window block registry (singleton). */
     getBlockRegistry: () => BlockRegistry;
 }
 
-export interface HistoryLayerInit {
+export interface ChaynsHistoryLayerInit {
     id: string;
-    parent: HistoryLayer | null;
-    deps: HistoryLayerDeps;
+    parent: ChaynsHistoryLayer | null;
+    deps: ChaynsHistoryLayerDeps;
     segmentCount?: number;
     /** Initial URL segments for this layer (length must equal segmentCount). */
     segments?: string[];
 }
 
-export class HistoryLayer implements IHistoryLayer {
+export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
     readonly id: string;
     readonly depth: number;
 
-    readonly parent: HistoryLayer | null;
+    readonly parent: ChaynsHistoryLayer | null;
 
     /** Insertion-ordered map of children. */
-    private readonly children = new Map<string, HistoryLayer>();
+    private readonly children = new Map<string, ChaynsHistoryLayer>();
 
     /** Currently active child id (null = no child active). */
     private activeChildId: string | null = null;
@@ -67,9 +67,9 @@ export class HistoryLayer implements IHistoryLayer {
     private _hash: string | undefined = undefined;
 
     /** Pub/sub for change + popstate events scoped to this layer. */
-    private readonly bus = new EventBus<HistoryLayerEvent>();
+    private readonly bus = new EventBus<ChaynsHistoryLayerEvent>();
 
-    private readonly deps: HistoryLayerDeps;
+    private readonly deps: ChaynsHistoryLayerDeps;
 
     /** Lazily-resolved bootstrap URL segments. Null = not yet initialised. */
     private _bootstrapPool: string[] | null = null;
@@ -78,7 +78,7 @@ export class HistoryLayer implements IHistoryLayer {
 
     private isDestroyed = false;
 
-    constructor(init: HistoryLayerInit) {
+    constructor(init: ChaynsHistoryLayerInit) {
         this.id = init.id;
         this.parent = init.parent;
         this.depth = init.parent ? init.parent.depth + 1 : 0;
@@ -139,11 +139,11 @@ export class HistoryLayer implements IHistoryLayer {
     // Children
     // ---------------------------------------------------------------------------
 
-    createChildLayer(id: string): HistoryLayer {
+    createChildLayer(id: string): ChaynsHistoryLayer {
         if (this.children.has(id)) {
             throw new Error(`[chaynsHistory] Child layer with id "${id}" already exists on layer "${this.id}".`);
         }
-        const child = new HistoryLayer({
+        const child = new ChaynsHistoryLayer({
             id,
             parent: this,
             deps: this.deps,
@@ -170,7 +170,7 @@ export class HistoryLayer implements IHistoryLayer {
         }
     }
 
-    getChildLayer(id: string): HistoryLayer | undefined {
+    getChildLayer(id: string): ChaynsHistoryLayer | undefined {
         return this.children.get(id);
     }
 
@@ -180,7 +180,7 @@ export class HistoryLayer implements IHistoryLayer {
 
     setActiveChild(
         id: string | null,
-        init?: { route?: string[]; state?: Record<string, unknown> },
+        init?: { route?: string | string[]; state?: Record<string, unknown> },
     ): void {
         if (this.isDestroyed) return;
 
@@ -188,7 +188,9 @@ export class HistoryLayer implements IHistoryLayer {
             kind: 'setActiveChild',
             layerId: this.id,
             childId: id,
-            init,
+            init: init
+                ? { ...init, route: init.route !== undefined ? ChaynsHistoryLayer.normalizeRoute(init.route) : undefined }
+                : undefined,
         });
     }
 
@@ -200,13 +202,13 @@ export class HistoryLayer implements IHistoryLayer {
         return [...this.segments];
     }
 
-    setRoute(segments: string[], opts?: NavigateOptions): void {
+    setRoute(route: string | string[], opts?: ChaynsHistoryNavigateOptions): void {
         if (this.isDestroyed) return;
 
         void this.deps.getQueue().enqueue({
             kind: 'setRoute',
             layerId: this.id,
-            segments: [...segments],
+            segments: ChaynsHistoryLayer.normalizeRoute(route),
             opts: opts ?? {},
         });
     }
@@ -219,7 +221,7 @@ export class HistoryLayer implements IHistoryLayer {
         return { ...this._params };
     }
 
-    setParams(params: Record<string, string>, opts?: NavigationCommitOptions): void {
+    setParams(params: Record<string, string>, opts?: ChaynsHistoryNavigationCommitOptions): void {
         if (this.isDestroyed) return;
 
         void this.deps.getQueue().enqueue({
@@ -238,7 +240,7 @@ export class HistoryLayer implements IHistoryLayer {
         return this._hash ?? '';
     }
 
-    setHash(hash: string, opts?: NavigationCommitOptions): void {
+    setHash(hash: string, opts?: ChaynsHistoryNavigationCommitOptions): void {
         if (this.isDestroyed) return;
         // Normalize: strip leading '#'
         const normalized = hash.startsWith('#') ? hash.slice(1) : hash;
@@ -255,13 +257,13 @@ export class HistoryLayer implements IHistoryLayer {
     // State
     // ---------------------------------------------------------------------------
 
-    getState<T = Record<string, unknown>>(): T | undefined {
+    getState<T extends object = Record<string, unknown>>(): T | undefined {
         return { ...this.ownState } as unknown as T;
     }
 
-    setState<T extends Record<string, unknown>>(state: T, opts?: NavigateOptions): void {
+    setState<T extends object>(state: T, opts?: ChaynsHistoryNavigateOptions): void {
         if (this.isDestroyed) return;
-        const filtered = HistoryLayer.filterReservedKeys(state)
+        const filtered = ChaynsHistoryLayer.filterReservedKeys(state as Record<string, unknown>)
 
         void this.deps.getQueue().enqueue({
             kind: 'setState',
@@ -271,17 +273,21 @@ export class HistoryLayer implements IHistoryLayer {
         });
     }
 
-    navigate(opts: { route?: string[]; state?: Record<string, unknown> } & NavigateOptions): void {
+    navigate(opts: { route?: string | string[]; state?: Record<string, unknown>; activeChild?: string | null; activeChildInit?: { route?: string | string[]; state?: Record<string, unknown> } } & ChaynsHistoryNavigateOptions): void {
         if (this.isDestroyed) return;
-        const { route, state, params, hash, ...rest } = opts;
+        const { route, state, params, hash, activeChild, activeChildInit, ...rest } = opts;
 
         void this.deps.getQueue().enqueue({
             kind: 'navigate',
             layerId: this.id,
-            route: route ? [...route] : undefined,
-            state: state ? HistoryLayer.filterReservedKeys(state) : undefined,
+            route: route !== undefined ? ChaynsHistoryLayer.normalizeRoute(route) : undefined,
+            state: state ? ChaynsHistoryLayer.filterReservedKeys(state) : undefined,
             params,
             hash: hash !== undefined ? (hash.startsWith('#') ? hash.slice(1) : hash) : undefined,
+            activeChild,
+            activeChildInit: activeChildInit
+                ? { ...activeChildInit, route: activeChildInit.route !== undefined ? ChaynsHistoryLayer.normalizeRoute(activeChildInit.route) : undefined }
+                : undefined,
             opts: rest,
         });
     }
@@ -290,7 +296,7 @@ export class HistoryLayer implements IHistoryLayer {
     // Blocking
     // ---------------------------------------------------------------------------
 
-    addBlock(callback: () => Promise<boolean>, opts: BlockOptions = {}): () => void {
+    addBlock(callback: () => Promise<boolean>, opts: ChaynsHistoryBlockOptions = {}): () => void {
         return this.deps.getBlockRegistry().add(this, callback, opts);
     }
 
@@ -300,7 +306,7 @@ export class HistoryLayer implements IHistoryLayer {
 
     addEventListener(
         type: 'popstate' | 'change',
-        handler: (e: HistoryLayerEvent) => void,
+        handler: (e: ChaynsHistoryLayerEvent) => void,
     ): () => void {
         return this.bus.on(type, handler);
     }
@@ -320,13 +326,13 @@ export class HistoryLayer implements IHistoryLayer {
     }
 
     /** @internal */
-    _getChildren(): ReadonlyMap<string, HistoryLayer> {
+    _getChildren(): ReadonlyMap<string, ChaynsHistoryLayer> {
         return this.children;
     }
 
     /** @internal Apply mutated own state without firing events (used by projectors). */
     _setOwnStateSilent(next: Record<string, unknown>): void {
-        this.ownState = HistoryLayer.filterReservedKeys(next);
+        this.ownState = ChaynsHistoryLayer.filterReservedKeys(next);
     }
 
     /** @internal Apply mutated segments without firing events. */
@@ -353,7 +359,7 @@ export class HistoryLayer implements IHistoryLayer {
 
     /** @internal Emit a typed event. Called by queue after diff confirms relevance. */
     _emit(type: 'change' | 'popstate'): void {
-        const event: HistoryLayerEvent = {
+        const event: ChaynsHistoryLayerEvent = {
             type,
             layerId: this.id,
             segments: [...this.segments],
@@ -366,7 +372,7 @@ export class HistoryLayer implements IHistoryLayer {
 
     /** @internal True if this layer is reachable via active chain from root. */
     _isInActiveChain(): boolean {
-        let node: HistoryLayer | null = this;
+        let node: ChaynsHistoryLayer | null = this;
         while (node && node.parent) {
             if (node.parent.activeChildId !== node.id) return false;
             node = node.parent;
@@ -416,6 +422,11 @@ export class HistoryLayer implements IHistoryLayer {
         }
         this.children.clear();
         this.bus.clear();
+    }
+
+    private static normalizeRoute(route: string | string[]): string[] {
+        if (Array.isArray(route)) return [...route];
+        return route.split('/').filter(Boolean);
     }
 
     private static filterReservedKeys<T extends Record<string, unknown>>(input: T): Record<string, unknown> {

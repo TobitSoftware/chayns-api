@@ -76,6 +76,7 @@ class StaticChaynsApi implements ChaynsReactFunctions {
     addAccessTokenChangeListener!: ChaynsReactFunctions['addAccessTokenChangeListener'];
     removeAccessTokenChangeListener!: ChaynsReactFunctions['removeAccessTokenChangeListener'];
     redirect!: ChaynsReactFunctions['redirect'];
+    getHistoryLayer!: ChaynsReactFunctions['getHistoryLayer'];
 
     ready: Promise<void>;
     addDataListener: (cb: DataChangeCallback) => () => void;

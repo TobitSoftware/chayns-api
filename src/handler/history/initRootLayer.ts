@@ -1,7 +1,7 @@
-import { HistoryLayer } from './HistoryLayer';
+import { ChaynsHistoryLayer } from './HistoryLayer';
 import { NavigationQueue } from './NavigationQueue';
 import { BlockRegistry } from './BlockRegistry';
-import { findLayerById } from './LayerTree';
+import { findChaynsHistoryLayerById } from './LayerTree';
 import { projectToUrl, parseFromUrl } from './UrlProjector';
 import { projectToState, applyStateToTree, diffIncomingState, hasChaynsHistoryState } from './StateProjector';
 import { silentGo, consumeSilent, getCurrentIdx, incrementIdx } from './NavigationIndex';
@@ -39,7 +39,7 @@ function resolveInitialSegments(overrideUrl: string | undefined, n: number): str
     return taken;
 }
 
-export interface InitRootLayerOptions {
+export interface InitRootChaynsHistoryLayerOptions {
     /**
      * The current page URL used to seed initial route segments.
      * - **Browser**: defaults to `window.location.pathname` — no need to set this.
@@ -55,8 +55,8 @@ export interface InitRootLayerOptions {
     segmentCount?: number;
 }
 
-export interface InitRootLayerResult {
-    rootLayer: HistoryLayer;
+export interface InitRootChaynsHistoryLayerResult {
+    rootLayer: ChaynsHistoryLayer;
     /** Returns a JSON-serializable snapshot of the full layer tree (dev only). */
     __debugTree: () => unknown;
     /** Returns the pending ops in the navigation queue (dev only). */
@@ -64,19 +64,19 @@ export interface InitRootLayerResult {
 }
 
 /**
- * Initializes the root HistoryLayer for the top window.
+ * Initializes the root ChaynsHistoryLayer for the top window.
  * - Reads `window.location.pathname` and `window.history.state`.
  * - If `__chaynsHistory` is absent, replaces the current state with an empty tree.
  * - Attaches the global `popstate` listener.
- * - Returns the root HistoryLayer instance.
+ * - Returns the root ChaynsHistoryLayer instance.
  *
  * Call once at application startup (top window only).
  */
-export function initRootLayer(opts: InitRootLayerOptions = {}): InitRootLayerResult {
+export function initRootChaynsHistoryLayer(opts: InitRootChaynsHistoryLayerOptions = {}): InitRootChaynsHistoryLayerResult {
     const blockRegistry = new BlockRegistry();
 
     // Wired lazily so queue and root can reference each other.
-    let rootLayer: HistoryLayer;
+    let rootLayer: ChaynsHistoryLayer;
     let queue: NavigationQueue;
 
     const deps = {
@@ -85,7 +85,7 @@ export function initRootLayer(opts: InitRootLayerOptions = {}): InitRootLayerRes
         getBlockRegistry: () => blockRegistry,
     };
 
-    rootLayer = new HistoryLayer({
+    rootLayer = new ChaynsHistoryLayer({
         id: 'root',
         parent: null,
         deps,
@@ -95,7 +95,7 @@ export function initRootLayer(opts: InitRootLayerOptions = {}): InitRootLayerRes
 
     queue = new NavigationQueue({
         getRoot: () => rootLayer,
-        findLayer: (id) => findLayerById(rootLayer, id),
+        findLayer: (id) => findChaynsHistoryLayerById(rootLayer, id),
         checkBlocks: (target) => blockRegistry.checkBlocks(target),
         projectUrl: () => projectToUrl(rootLayer),
         projectState: () => {
@@ -116,7 +116,7 @@ export function initRootLayer(opts: InitRootLayerOptions = {}): InitRootLayerRes
             const { perLayerSegments } = parseFromUrl(window.location.pathname, rootLayer);
             const changed = new Set<string>();
             for (const [id, segs] of perLayerSegments) {
-                const layer = findLayerById(rootLayer, id);
+                const layer = findChaynsHistoryLayerById(rootLayer, id);
                 if (!layer) continue;
                 const prev = layer._getOwnSegments();
                 if (!shallowEqualArr(prev, segs)) {
@@ -218,10 +218,10 @@ export function initRootLayer(opts: InitRootLayerOptions = {}): InitRootLayerRes
     };
 }
 
-let _rootLayerResult: InitRootLayerResult | null = null;
+let _rootLayerResult: InitRootChaynsHistoryLayerResult | null = null;
 
 /**
- * Returns the singleton root HistoryLayer for the current window.
+ * Returns the singleton root ChaynsHistoryLayer for the current window.
  * Creates it on first call; subsequent calls return the same instance.
  *
  * @param url - On SSR, pass the current request URL (e.g. `req.url` or `router.asPath`)
@@ -230,9 +230,9 @@ let _rootLayerResult: InitRootLayerResult | null = null;
  *   segments are resolved from the URL immediately so `getRoute()` is populated on the
  *   very first render without any subsequent `setSegmentCount` call. Ignored after first call.
  */
-export function getOrInitRootLayer(url?: string, segmentCount?: number): InitRootLayerResult {
+export function getOrInitRootChaynsHistoryLayer(url?: string, segmentCount?: number): InitRootChaynsHistoryLayerResult {
     if (!_rootLayerResult) {
-        _rootLayerResult = initRootLayer({ url, segmentCount });
+        _rootLayerResult = initRootChaynsHistoryLayer({ url, segmentCount });
     }
     return _rootLayerResult;
 }

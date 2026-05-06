@@ -1,5 +1,5 @@
-import type { HistoryLayer } from './HistoryLayer';
-import type { BlockOptions } from './types';
+import type { ChaynsHistoryLayer } from './HistoryLayer';
+import type { ChaynsHistoryBlockOptions } from './types';
 import { devWarn } from './guards/devWarn';
 
 // ---------------------------------------------------------------------------
@@ -9,7 +9,7 @@ import { devWarn } from './guards/devWarn';
 interface BlockEntry {
     readonly id: string;
     readonly callback: () => Promise<boolean>;
-    readonly opts: Required<BlockOptions>;
+    readonly opts: Required<ChaynsHistoryBlockOptions>;
 }
 
 // ---------------------------------------------------------------------------
@@ -39,9 +39,9 @@ export class BlockRegistry {
     // -------------------------------------------------------------------------
 
     add(
-        layer: HistoryLayer,
+        layer: ChaynsHistoryLayer,
         callback: () => Promise<boolean>,
-        opts: BlockOptions = {},
+        opts: ChaynsHistoryBlockOptions = {},
     ): () => void {
         const entry: BlockEntry = {
             id: String(_nextId++),
@@ -98,7 +98,7 @@ export class BlockRegistry {
      * - `global` blocks: those registered on `targetLayer` or any of its
      *   **active-chain descendants** (not inactive subtrees).
      */
-    collectApplicableBlocks(targetLayer: HistoryLayer): BlockEntry[] {
+    collectApplicableBlocks(targetLayer: ChaynsHistoryLayer): BlockEntry[] {
         const result: BlockEntry[] = [];
 
         // Local blocks on the target layer.
@@ -116,7 +116,7 @@ export class BlockRegistry {
     }
 
     private collectGlobalFromActiveDescendants(
-        layer: HistoryLayer,
+        layer: ChaynsHistoryLayer,
         out: BlockEntry[],
     ): void {
         const activeChildId = layer.getActiveChildId();
@@ -146,7 +146,7 @@ export class BlockRegistry {
      * Returns `true` if navigation is allowed (no block), `false` otherwise.
      * Callbacks that throw or time out count as blocked (with dev-warn).
      */
-    async checkBlocks(targetLayer: HistoryLayer): Promise<boolean> {
+    async checkBlocks(targetLayer: ChaynsHistoryLayer): Promise<boolean> {
         const blocks = this.collectApplicableBlocks(targetLayer);
         if (blocks.length === 0) return true;
 

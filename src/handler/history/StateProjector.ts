@@ -1,5 +1,5 @@
-import type { HistoryLayer } from './HistoryLayer';
-import type { LayerStateNode } from './types';
+import type { ChaynsHistoryLayer } from './HistoryLayer';
+import type { ChaynsHistoryLayerStateNode } from './types';
 import { shallowEqualArr, shallowEqualObj } from './diff';
 
 // ---------------------------------------------------------------------------
@@ -14,10 +14,10 @@ const SCHEMA_VERSION = 1;
 // ---------------------------------------------------------------------------
 
 /**
- * Recursively builds a `LayerStateNode` for `layer` and all its active descendants.
+ * Recursively builds a `ChaynsHistoryLayerStateNode` for `layer` and all its active descendants.
  */
-function buildNode(layer: HistoryLayer): LayerStateNode {
-    const node: LayerStateNode = { ...layer._getOwnState() };
+function buildNode(layer: ChaynsHistoryLayer): ChaynsHistoryLayerStateNode {
+    const node: ChaynsHistoryLayerStateNode = { ...layer._getOwnState() };
 
     const params = layer._getOwnParams();
     if (Object.keys(params).length > 0) node.__params = { ...params };
@@ -42,7 +42,7 @@ function buildNode(layer: HistoryLayer): LayerStateNode {
  * pre-existing foreign keys so we never overwrite other consumers' state.
  */
 export function projectToState(
-    root: HistoryLayer,
+    root: ChaynsHistoryLayer,
     existing: Record<string, unknown> = {},
 ): Record<string, unknown> {
     const tree = buildNode(root);
@@ -60,10 +60,10 @@ export function projectToState(
 // ---------------------------------------------------------------------------
 
 /**
- * Recursively applies a `LayerStateNode` onto the layer tree.
+ * Recursively applies a `ChaynsHistoryLayerStateNode` onto the layer tree.
  * Only mutates layers that exist in the current tree; unknown layers are skipped.
  */
-function applyNode(layer: HistoryLayer, node: LayerStateNode): void {
+function applyNode(layer: ChaynsHistoryLayer, node: ChaynsHistoryLayerStateNode): void {
     const { activeChild, childState, __params, __hash, ...ownProps } = node;
     layer._setOwnStateSilent(ownProps as Record<string, unknown>);
     layer._setOwnParamsSilent(__params ?? {});
@@ -86,7 +86,7 @@ function applyNode(layer: HistoryLayer, node: LayerStateNode): void {
  * Returns the set of layer ids whose segments OR ownState changed.
  */
 export function applyStateToTree(
-    root: HistoryLayer,
+    root: ChaynsHistoryLayer,
     raw: unknown,
 ): { changedLayerIds: Set<string> } {
     const node = extractNode(raw);
@@ -102,7 +102,7 @@ export function applyStateToTree(
  * Returns layer ids that WOULD change if the state were applied.
  */
 export function diffIncomingState(
-    root: HistoryLayer,
+    root: ChaynsHistoryLayer,
     raw: unknown,
 ): { changedLayerIds: Set<string> } {
     const node = extractNode(raw);
@@ -117,17 +117,17 @@ export function diffIncomingState(
 // Internal helpers
 // ---------------------------------------------------------------------------
 
-function extractNode(raw: unknown): LayerStateNode | null {
+function extractNode(raw: unknown): ChaynsHistoryLayerStateNode | null {
     if (!raw || typeof raw !== 'object') return null;
     const entry = (raw as Record<string, unknown>)[ROOT_KEY];
     if (!entry || typeof entry !== 'object') return null;
-    const { tree } = entry as { tree?: LayerStateNode };
+    const { tree } = entry as { tree?: ChaynsHistoryLayerStateNode };
     return tree ?? null;
 }
 
 function applyNodeTracked(
-    layer: HistoryLayer,
-    node: LayerStateNode,
+    layer: ChaynsHistoryLayer,
+    node: ChaynsHistoryLayerStateNode,
     changed: Set<string>,
 ): void {
     const { activeChild, childState, __params, __hash, ...ownProps } = node;
@@ -162,8 +162,8 @@ function applyNodeTracked(
 }
 
 function diffNodeTracked(
-    layer: HistoryLayer,
-    node: LayerStateNode,
+    layer: ChaynsHistoryLayer,
+    node: ChaynsHistoryLayerStateNode,
     changed: Set<string>,
 ): void {
     const { activeChild, childState, __params, __hash, ...ownProps } = node;

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
-import type { HistoryLayer, NavigateOptions, NavigationCommitOptions, BlockOptions, HistoryLayerEvent } from '../types';
-import { useHistoryLayerContext } from './HistoryLayerContext';
+import type { ChaynsHistoryLayer, ChaynsHistoryNavigateOptions, ChaynsHistoryNavigationCommitOptions, ChaynsHistoryBlockOptions, ChaynsHistoryLayerEvent } from '../types';
+import { useChaynsHistoryLayerContext } from './HistoryLayerContext';
 import { devWarn } from '../guards/devWarn';
 import { shallowEqualObj } from '../diff';
 
@@ -9,11 +9,11 @@ import { shallowEqualObj } from '../diff';
 // ---------------------------------------------------------------------------
 
 /**
- * Resolves the active HistoryLayer: context first, then
+ * Resolves the active ChaynsHistoryLayer: context first, then
  * `chaynsHost.history.getOwnLayer()` if available, then throws in dev.
  */
-export function useHistoryLayer(): HistoryLayer {
-    const ctx = useHistoryLayerContext();
+export function useChaynsHistoryLayer(): ChaynsHistoryLayer {
+    const ctx = useChaynsHistoryLayerContext();
     if (ctx) return ctx;
 
     // Fallback to chaynsHost global if available.
@@ -21,7 +21,7 @@ export function useHistoryLayer(): HistoryLayer {
         typeof window !== 'undefined'
             ? (
                   (window as unknown as Record<string, unknown>).__chaynsHost as
-                      | { history?: { getOwnLayer?: () => HistoryLayer } }
+                      | { history?: { getOwnLayer?: () => ChaynsHistoryLayer } }
                       | undefined
               )?.history?.getOwnLayer?.()
             : undefined;
@@ -30,185 +30,180 @@ export function useHistoryLayer(): HistoryLayer {
 
     devWarn(
         'NO_LAYER',
-        'useHistoryLayer: no HistoryLayer found in context or chaynsHost. Wrap your component with <HistoryLayerProvider>.',
+        'useChaynsHistoryLayer: no ChaynsHistoryLayer found in context or chaynsHost. Wrap your component with <ChaynsHistoryLayerProvider>.',
     );
     // Return a dummy layer to avoid crashing outside dev.
     throw new Error(
-        '[chaynsHistory] useHistoryLayer must be used inside a <HistoryLayerProvider>.',
+        '[chaynsHistory] useChaynsHistoryLayer must be used inside a <ChaynsHistoryLayerProvider>.',
     );
 }
 
 // ---------------------------------------------------------------------------
-// useRoute
+// useChaynsHistoryRoute
 // ---------------------------------------------------------------------------
 
-export interface UseRouteResult {
+export interface UseChaynsHistoryRouteResult {
     segments: string[];
-    setRoute: (segments: string[], opts?: NavigateOptions) => void;
+    setRoute: (route: string | string[], opts?: ChaynsHistoryNavigateOptions) => void;
 }
 
 /**
- * Returns the current route segments and a setter for the nearest HistoryLayer.
+ * Returns the current route segments and a setter for the nearest ChaynsHistoryLayer.
  * Re-renders only when the segments change.
  */
-export function useRoute(): UseRouteResult {
-    const layer = useHistoryLayer();
+export function useChaynsHistoryRoute(): UseChaynsHistoryRouteResult {
+    const layer = useChaynsHistoryLayer();
 
-    const getSnapshot = useCallback(() => layer.getRoute(), [layer]);
-    const getServerSnapshot = useCallback(() => layer.getRoute(), [layer]);
-
-    // useSyncExternalStore needs stable snapshot references.
+    // Cached snapshot ref — getSnapshot must return a stable reference between
+    // calls when the data hasn't changed, or useSyncExternalStore will loop.
     const segRef = useRef<string[]>([]);
+
+    const getSnapshot = useCallback(() => {
+        const next = layer.getRoute();
+        const prev = segRef.current;
+        if (prev.length === next.length && prev.every((s, i) => s === next[i])) return prev;
+        return (segRef.current = next);
+    }, [layer]);
 
     const subscribe = useCallback(
         (notify: () => void) => {
-            const unsub1 = layer.addEventListener('change', notify as (e: HistoryLayerEvent) => void);
-            const unsub2 = layer.addEventListener('popstate', notify as (e: HistoryLayerEvent) => void);
+            const unsub1 = layer.addEventListener('change', notify as (e: ChaynsHistoryLayerEvent) => void);
+            const unsub2 = layer.addEventListener('popstate', notify as (e: ChaynsHistoryLayerEvent) => void);
             return () => { unsub1(); unsub2(); };
         },
         [layer],
     );
 
-    const rawSegments = useSyncExternalStore(
-        subscribe,
-        getSnapshot,
-        getServerSnapshot,
-    );
-
-    // Memoize array reference to avoid re-renders when content is identical.
-    const prev = segRef.current;
-    if (
-        prev.length !== rawSegments.length ||
-        prev.some((s, i) => s !== rawSegments[i])
-    ) {
-        segRef.current = rawSegments;
-    }
+    const segments = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
     const setRoute = useCallback(
-        (segs: string[], opts?: NavigateOptions) => layer.setRoute(segs, opts),
+        (route: string | string[], opts?: ChaynsHistoryNavigateOptions) => layer.setRoute(route, opts),
         [layer],
     );
 
-    return { segments: segRef.current, setRoute };
+    return { segments, setRoute };
 }
 
 // ---------------------------------------------------------------------------
-// useHistoryState
+// useChaynsHistoryState
 // ---------------------------------------------------------------------------
 
 /**
  * Returns the current layer state and a setter.
  * Re-renders only when the own-state changes (shallow comparison performed by layer).
  */
-export function useHistoryState<T extends Record<string, unknown> = Record<string, unknown>>(): [
+export function useChaynsHistoryState<T extends object = Record<string, unknown>>(): [
     T | undefined,
-    (state: T, opts?: NavigateOptions) => void,
+    (state: T, opts?: ChaynsHistoryNavigateOptions) => void,
 ] {
-    const layer = useHistoryLayer();
+    const layer = useChaynsHistoryLayer();
 
     const stateRef = useRef<T | undefined>(undefined);
 
+    const getSnapshot = useCallback(() => {
+        const next = layer.getState<T>();
+        if (shallowEqualStateSnapshot(stateRef.current, next)) return stateRef.current;
+        return (stateRef.current = next);
+    }, [layer]);
+
     const subscribe = useCallback(
         (notify: () => void) => {
-            const unsub1 = layer.addEventListener('change', notify as (e: HistoryLayerEvent) => void);
-            const unsub2 = layer.addEventListener('popstate', notify as (e: HistoryLayerEvent) => void);
+            const unsub1 = layer.addEventListener('change', notify as (e: ChaynsHistoryLayerEvent) => void);
+            const unsub2 = layer.addEventListener('popstate', notify as (e: ChaynsHistoryLayerEvent) => void);
             return () => { unsub1(); unsub2(); };
         },
         [layer],
     );
 
-    const getSnapshot = useCallback(() => layer.getState<T>(), [layer]);
-    const getServerSnapshot = useCallback(() => layer.getState<T>(), [layer]);
-
-    const rawState = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-
-    // Stable reference: only update if shallowly different.
-    const prev = stateRef.current;
-    if (!shallowEqualStateSnapshot(prev, rawState)) {
-        stateRef.current = rawState;
-    }
+    const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
     const setState = useCallback(
-        (s: T, opts?: NavigateOptions) => layer.setState(s, opts),
+        (s: T, opts?: ChaynsHistoryNavigateOptions) => layer.setState(s, opts),
         [layer],
     );
 
-    return [stateRef.current, setState];
+    return [state, setState];
 }
 
 // ---------------------------------------------------------------------------
-// useNavigate
+// useChaynsHistoryNavigate
 // ---------------------------------------------------------------------------
 
 /**
- * Returns a stable `navigate` function for the nearest HistoryLayer.
+ * Returns a stable `navigate` function for the nearest ChaynsHistoryLayer.
  */
-export function useNavigate(): (
-    opts: { route?: string[]; state?: Record<string, unknown> } & NavigateOptions,
+export function useChaynsHistoryNavigate(): (
+    opts: {
+        route?: string | string[];
+        state?: Record<string, unknown>;
+        /** Switch the active child as part of this navigation. Auto-creates the child if needed. */
+        activeChild?: string | null;
+        /** Initial route/state to seed the child with when it is first activated. */
+        activeChildInit?: { route?: string | string[]; state?: Record<string, unknown> };
+    } & ChaynsHistoryNavigateOptions,
 ) => void {
-    const layer = useHistoryLayer();
+    const layer = useChaynsHistoryLayer();
     return useCallback((opts) => layer.navigate(opts), [layer]);
 }
 
 // ---------------------------------------------------------------------------
-// useParams
+// useChaynsHistoryParams
 // ---------------------------------------------------------------------------
 
 /**
- * Returns the current query params and a setter for the nearest HistoryLayer.
+ * Returns the current query params and a setter for the nearest ChaynsHistoryLayer.
  * Setter replaces all params on this layer; merge manually if needed:
  * `setParams({ ...params, newKey: 'val' })`.
  * Re-renders only when params change.
  */
-export function useParams(): [
+export function useChaynsHistoryParams(): [
     Record<string, string>,
-    (params: Record<string, string>, opts?: NavigationCommitOptions) => void,
+    (params: Record<string, string>, opts?: ChaynsHistoryNavigationCommitOptions) => void,
 ] {
-    const layer = useHistoryLayer();
+    const layer = useChaynsHistoryLayer();
     const paramsRef = useRef<Record<string, string>>({});
+
+    const getSnapshot = useCallback(() => {
+        const next = layer.getParams();
+        if (shallowEqualObj(paramsRef.current, next)) return paramsRef.current;
+        return (paramsRef.current = next);
+    }, [layer]);
 
     const subscribe = useCallback(
         (notify: () => void) => {
-            const unsub1 = layer.addEventListener('change', notify as (e: HistoryLayerEvent) => void);
-            const unsub2 = layer.addEventListener('popstate', notify as (e: HistoryLayerEvent) => void);
+            const unsub1 = layer.addEventListener('change', notify as (e: ChaynsHistoryLayerEvent) => void);
+            const unsub2 = layer.addEventListener('popstate', notify as (e: ChaynsHistoryLayerEvent) => void);
             return () => { unsub1(); unsub2(); };
         },
         [layer],
     );
 
-    const getSnapshot = useCallback(() => layer.getParams(), [layer]);
-    const getServerSnapshot = useCallback(() => layer.getParams(), [layer]);
-
-    const rawParams = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-
-    if (!shallowEqualObj(paramsRef.current, rawParams)) {
-        paramsRef.current = rawParams;
-    }
+    const params = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
     const setParams = useCallback(
-        (p: Record<string, string>, opts?: NavigationCommitOptions) => layer.setParams(p, opts),
+        (p: Record<string, string>, opts?: ChaynsHistoryNavigationCommitOptions) => layer.setParams(p, opts),
         [layer],
     );
 
-    return [paramsRef.current, setParams];
+    return [params, setParams];
 }
 
 // ---------------------------------------------------------------------------
-// useHash
+// useChaynsHistoryHash
 // ---------------------------------------------------------------------------
 
 /**
- * Returns the current hash fragment (without `#`) and a setter for the nearest HistoryLayer.
+ * Returns the current hash fragment (without `#`) and a setter for the nearest ChaynsHistoryLayer.
  * Pass `''` to explicitly clear the hash.
  * Re-renders only when the hash changes.
  */
-export function useHash(): [string, (hash: string, opts?: NavigationCommitOptions) => void] {
-    const layer = useHistoryLayer();
+export function useChaynsHistoryHash(): [string, (hash: string, opts?: ChaynsHistoryNavigationCommitOptions) => void] {
+    const layer = useChaynsHistoryLayer();
 
     const subscribe = useCallback(
         (notify: () => void) => {
-            const unsub1 = layer.addEventListener('change', notify as (e: HistoryLayerEvent) => void);
-            const unsub2 = layer.addEventListener('popstate', notify as (e: HistoryLayerEvent) => void);
+            const unsub1 = layer.addEventListener('change', notify as (e: ChaynsHistoryLayerEvent) => void);
+            const unsub2 = layer.addEventListener('popstate', notify as (e: ChaynsHistoryLayerEvent) => void);
             return () => { unsub1(); unsub2(); };
         },
         [layer],
@@ -220,7 +215,7 @@ export function useHash(): [string, (hash: string, opts?: NavigationCommitOption
     const hash = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
     const setHash = useCallback(
-        (h: string, opts?: NavigationCommitOptions) => layer.setHash(h, opts),
+        (h: string, opts?: ChaynsHistoryNavigationCommitOptions) => layer.setHash(h, opts),
         [layer],
     );
 
@@ -228,10 +223,10 @@ export function useHash(): [string, (hash: string, opts?: NavigationCommitOption
 }
 
 // ---------------------------------------------------------------------------
-// useHistoryBlock
+// useChaynsHistoryBlock
 // ---------------------------------------------------------------------------
 
-export interface UseHistoryBlockOptions extends BlockOptions {
+export interface UseChaynsHistoryBlockOptions extends ChaynsHistoryBlockOptions {
     /** Only register the block when true. Default: true. */
     isEnabled?: boolean;
 }
@@ -245,11 +240,11 @@ export interface UseHistoryBlockOptions extends BlockOptions {
  * `scope` and `isBeforeUnload` are read when the block is registered; changes
  * after mount are applied on the next registration cycle.
  */
-export function useHistoryBlock(
+export function useChaynsHistoryBlock(
     callback: () => Promise<boolean>,
-    opts: UseHistoryBlockOptions = {},
+    opts: UseChaynsHistoryBlockOptions = {},
 ): void {
-    const layer = useHistoryLayer();
+    const layer = useChaynsHistoryLayer();
     const { isEnabled = true, scope, isBeforeUnload } = opts;
 
     useEffect(() => {
@@ -259,17 +254,17 @@ export function useHistoryBlock(
 }
 
 // ---------------------------------------------------------------------------
-// useHistoryEvent
+// useChaynsHistoryEvent
 // ---------------------------------------------------------------------------
 
 /**
  * Low-level subscription to `change` or `popstate` events on the nearest layer.
  */
-export function useHistoryEvent(
+export function useChaynsHistoryEvent(
     type: 'change' | 'popstate',
-    handler: (e: HistoryLayerEvent) => void,
+    handler: (e: ChaynsHistoryLayerEvent) => void,
 ): void {
-    const layer = useHistoryLayer();
+    const layer = useChaynsHistoryLayer();
 
     useEffect(() => {
         return layer.addEventListener(type, handler);
@@ -277,7 +272,7 @@ export function useHistoryEvent(
 }
 
 // ---------------------------------------------------------------------------
-// useChildLayer
+// useChaynsHistoryChildLayer
 // ---------------------------------------------------------------------------
 
 /**
@@ -285,8 +280,8 @@ export function useHistoryEvent(
  * doesn't already exist. Does NOT destroy the layer on unmount — the caller
  * must explicitly call `layer.destroyChildLayer(id)` to remove it.
  */
-export function useChildLayer(id: string): HistoryLayer {
-    const layer = useHistoryLayer();
+export function useChaynsHistoryChildLayer(id: string): ChaynsHistoryLayer {
+    const layer = useChaynsHistoryLayer();
 
     // Ensure the child exists synchronously (stable for the lifetime of the component).
     let child = layer.getChildLayer(id);
@@ -298,10 +293,10 @@ export function useChildLayer(id: string): HistoryLayer {
 }
 
 // ---------------------------------------------------------------------------
-// useActiveChild
+// useChaynsHistoryActiveChild
 // ---------------------------------------------------------------------------
 
-export interface UseActiveChildResult {
+export interface UseChaynsHistoryActiveChildResult {
     activeChildId: string | null;
     setActiveChild: (
         id: string | null,
@@ -312,12 +307,12 @@ export interface UseActiveChildResult {
 /**
  * Returns the active child id of the nearest layer and a setter.
  */
-export function useActiveChild(): UseActiveChildResult {
-    const layer = useHistoryLayer();
+export function useChaynsHistoryActiveChild(): UseChaynsHistoryActiveChildResult {
+    const layer = useChaynsHistoryLayer();
 
     const subscribe = useCallback(
         (notify: () => void) => {
-            return layer.addEventListener('change', notify as (e: HistoryLayerEvent) => void);
+            return layer.addEventListener('change', notify as (e: ChaynsHistoryLayerEvent) => void);
         },
         [layer],
     );
@@ -341,7 +336,7 @@ export function useActiveChild(): UseActiveChildResult {
 // Internal helpers
 // ---------------------------------------------------------------------------
 
-function shallowEqualStateSnapshot<T extends Record<string, unknown>>(
+function shallowEqualStateSnapshot<T extends object>(
     a: T | undefined,
     b: T | undefined,
 ): boolean {
@@ -357,4 +352,4 @@ function shallowEqualStateSnapshot<T extends Record<string, unknown>>(
 }
 
 // Re-export context pieces for convenience.
-export { HistoryLayerProvider, useHistoryLayerContext } from './HistoryLayerContext';
+export { ChaynsHistoryLayerProvider, useChaynsHistoryLayerContext } from './HistoryLayerContext';

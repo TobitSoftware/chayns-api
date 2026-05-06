@@ -3,6 +3,9 @@ import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { addVisibilityChangeListener, removeVisibilityChangeListener } from '../calls/visibilityChangeListener';
 import DialogHandler from '../handler/DialogHandler';
+import { FrameHistoryLayer } from '../handler/history/FrameHistoryLayer';
+import type { HistoryInitialState } from '../handler/history/FrameHistoryLayer';
+import type { ChaynsHistoryLayerEvent } from '../handler/history/types';
 import {
     AccessToken,
     ChaynsReactFunctions,
@@ -32,6 +35,8 @@ export class FrameWrapper implements IChaynsReact {
     private exposedCustomFunctionNames: string[] = [];
 
     private resizeListener: ((ev: UIEvent) => void) | null = null;
+
+    private _historyLayer: FrameHistoryLayer | null = null;
 
     ready = new Promise((res) => { this.resolve = res });
 
@@ -318,7 +323,13 @@ export class FrameWrapper implements IChaynsReact {
         redirect: async (options) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.redirect(options);
-        }
+        },
+        getHistoryLayer: () => {
+            if (!this._historyLayer) {
+                throw new Error('[chaynsHistory] No history layer available. Ensure historyLayer prop is set on the parent HostIframe.');
+            }
+            return this._historyLayer;
+        },
     };
 
     customFunctions = new Proxy({}, {
@@ -381,6 +392,38 @@ export class FrameWrapper implements IChaynsReact {
             p[e] = (...args) => this.exposedCustomFunctions[e](...args.map(a => typeof a === 'function' ? comlink.proxy(a) : a))
             return p;
         }, {});
+
+        // region history layer bridge
+        const exposedHistory = (exposed as unknown as { history?: any }).history;
+        if (exposedHistory) {
+            const initialState: HistoryInitialState | null = await exposedHistory.getInitialState();
+            if (initialState) {
+                this._historyLayer = new FrameHistoryLayer(
+                    {
+                        setRoute: (route, opts) => exposedHistory.setRoute(route, opts),
+                        setParams: (params, opts) => exposedHistory.setParams(params, opts),
+                        setHash: (hash, opts) => exposedHistory.setHash(hash, opts),
+                        setState: (state, opts) => exposedHistory.setState(state, opts),
+                        navigate: (opts) => exposedHistory.navigate(opts),
+                        setActiveChild: (id, init) => exposedHistory.setActiveChild(id, init),
+                        setSegmentCount: (n) => exposedHistory.setSegmentCount(n),
+                        addBlock: async (callback, opts) => {
+                            const remoteUnsub = await exposedHistory.addBlock(comlink.proxy(callback), opts);
+                            return () => void (remoteUnsub as any)();
+                        },
+                    },
+                    initialState,
+                );
+
+                await exposedHistory.addChangeListener(comlink.proxy((e: ChaynsHistoryLayerEvent) => {
+                    this._historyLayer!._applyAndEmit(e);
+                }));
+                await exposedHistory.addPopstateListener(comlink.proxy((e: ChaynsHistoryLayerEvent) => {
+                    this._historyLayer!._applyAndEmit(e);
+                }));
+            }
+        }
+        // endregion
 
         this.initialized = true;
         this.resolve(null);

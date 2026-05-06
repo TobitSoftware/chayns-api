@@ -1,4 +1,5 @@
 import DialogHandler from '../handler/DialogHandler';
+import { getOrInitRootChaynsHistoryLayer } from '../handler/history/initRootLayer';
 import {
     ChaynsReactFunctions,
     ChaynsReactValues,
@@ -47,6 +48,8 @@ export class ModuleFederationWrapper implements IChaynsReact {
         this.functions.createDialog = <I, R>(config: Dialog<I>) => {
             return new DialogHandler<R>(config, functions.openDialog, functions.closeDialog, functions.dispatchEventToDialogClient, functions.addDialogClientEventListener);
         }
+
+        this.functions.getHistoryLayer = () => getOrInitRootChaynsHistoryLayer().rootLayer;
     }
 
     async init() {

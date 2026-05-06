@@ -9,9 +9,9 @@ import { ModuleFederationWrapper } from '../wrapper/ModuleFederationWrapper';
 import { SsrWrapper } from '../wrapper/SsrWrapper';
 import { ChaynsContext } from './ChaynsContext';
 import { addModuleWrapper, chaynsApis, moduleWrapper, removeModuleWrapper } from './moduleWrapper';
-import { HistoryLayerProvider, useHistoryLayerContext } from '../handler/history/react/HistoryLayerContext';
-import { getOrInitRootLayer } from '../handler/history/initRootLayer';
-import type { HistoryLayer } from '../handler/history/types';
+import { ChaynsHistoryLayerProvider, useChaynsHistoryLayerContext } from '../handler/history/react/HistoryLayerContext';
+import { getOrInitRootChaynsHistoryLayer } from '../handler/history/initRootLayer';
+import type { ChaynsHistoryLayer } from '../handler/history/types';
 
 const isServer = typeof window === 'undefined';
 
@@ -33,7 +33,14 @@ export type ChaynsProviderProps = {
     children?: ReactNode,
     chaynsApiId?: string,
     /**
+     * Explicit history layer to provide to the React subtree.
+     * When set this layer is used directly and no root layer is auto-initialised.
+     * Use this when the parent already owns a layer and wants to scope children to it.
+     */
+    historyLayer?: ChaynsHistoryLayer,
+    /**
      * Initial history configuration for the root layer.
+     * Ignored when `layer` is provided explicitly.
      * - `url`: Current page URL — browser defaults to `window.location.pathname`;
      *   for SSR pass the request URL (e.g. `req.url` or `router.asPath`).
      * - `segmentCount`: Number of URL path segments this application claims.
@@ -50,18 +57,21 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     renderedByServer,
     isModule,
     chaynsApiId,
+    historyLayer,
     history,
 }) => {
     const customWrapper = useRef<IChaynsReact>(null!);
     const idRef = useRef(chaynsApiId ?? crypto?.randomUUID() ?? Math.random().toString());
 
-    // Only inject root history layer when there is no parent layer (e.g. we are not
-    // inside a ChaynsHost that already provides a specific child layer).
-    const parentLayer = useHistoryLayerContext();
-    const rootLayerRef = useRef<HistoryLayer | null>(null);
-    if (!rootLayerRef.current && !parentLayer) {
-        rootLayerRef.current = getOrInitRootLayer(history?.url, history?.segmentCount).rootLayer;
+    // Only auto-init the root layer when no explicit historyLayer prop is given and there
+    // is no parent layer already in context (e.g. from a wrapping ChaynsHost).
+    const parentLayer = useChaynsHistoryLayerContext();
+    const rootLayerRef = useRef<ChaynsHistoryLayer | null>(null);
+    if (!rootLayerRef.current && !historyLayer && !parentLayer) {
+        rootLayerRef.current = getOrInitRootChaynsHistoryLayer(history?.url, history?.segmentCount).rootLayer;
     }
+
+    const effectiveLayer = historyLayer ?? rootLayerRef.current;
 
     if (!customWrapper.current) {
         if (isModule) {
@@ -131,10 +141,10 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         <>
             {isInitialized && (
                 <ChaynsContext.Provider value={customWrapper.current}>
-                    {rootLayerRef.current ? (
-                        <HistoryLayerProvider layer={rootLayerRef.current}>
+                    {effectiveLayer ? (
+                        <ChaynsHistoryLayerProvider layer={effectiveLayer}>
                             {children}
-                        </HistoryLayerProvider>
+                        </ChaynsHistoryLayerProvider>
                     ) : children}
                 </ChaynsContext.Provider>
             )}

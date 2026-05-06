@@ -1,12 +1,12 @@
-import type { HistoryLayer } from './HistoryLayer';
-import { getActiveChain } from './LayerTree';
+import type { ChaynsHistoryLayer } from './HistoryLayer';
+import { getChaynsHistoryActiveChain } from './LayerTree';
 
 /**
  * Concatenates all segments along the active chain into a URL with pathname,
  * merged query params, and the deepest explicitly-set hash.
  */
-export function projectToUrl(root: HistoryLayer): string {
-    const chain = getActiveChain(root);
+export function projectToUrl(root: ChaynsHistoryLayer): string {
+    const chain = getChaynsHistoryActiveChain(root);
     const parts: string[] = [];
     const mergedParams: Record<string, string> = {};
     let hash: string | undefined;
@@ -38,14 +38,14 @@ export interface ParseResult {
  * Splits the incoming URL pathname onto layers based on each layer's `segmentCount`.
  * Traverses the active chain; excess segments go to `pendingSegments`.
  */
-export function parseFromUrl(url: string, root: HistoryLayer): ParseResult {
+export function parseFromUrl(url: string, root: ChaynsHistoryLayer): ParseResult {
     const perLayerSegments = new Map<string, string[]>();
 
     const pathname = url.startsWith('/') ? url.slice(1) : url;
     const all = pathname ? pathname.split('/') : [];
     let offset = 0;
 
-    const chain = getActiveChain(root);
+    const chain = getChaynsHistoryActiveChain(root);
     for (const layer of chain) {
         const count = layer.getSegmentCount();
         const slice = all.slice(offset, offset + count);

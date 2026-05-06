@@ -2,26 +2,26 @@
  * Debug helpers for the chaynsHistory system.
  * Only active when process.env.NODE_ENV !== 'production'.
  */
-import type { HistoryLayer } from '../types';
-import { HistoryLayer as HistoryLayerClass } from '../HistoryLayer';
+import type { ChaynsHistoryLayer } from '../types';
+import { ChaynsHistoryLayer as ChaynsHistoryLayerClass } from '../HistoryLayer';
 import type { NavigationQueue } from '../NavigationQueue';
 
 // ---------------------------------------------------------------------------
 // Tree snapshot
 // ---------------------------------------------------------------------------
 
-interface LayerDebugNode {
+interface ChaynsHistoryLayerDebugNode {
     id: string;
     depth: number;
     segmentCount: number;
     segments: string[];
     state: Record<string, unknown>;
     activeChildId: string | null;
-    children: Record<string, LayerDebugNode>;
+    children: Record<string, ChaynsHistoryLayerDebugNode>;
 }
 
-function snapshotLayer(layer: HistoryLayer): LayerDebugNode {
-    const node: LayerDebugNode = {
+function snapshotLayer(layer: ChaynsHistoryLayer): ChaynsHistoryLayerDebugNode {
+    const node: ChaynsHistoryLayerDebugNode = {
         id: layer.id,
         depth: layer.depth,
         segmentCount: layer.getSegmentCount(),
@@ -31,7 +31,7 @@ function snapshotLayer(layer: HistoryLayer): LayerDebugNode {
         children: {},
     };
 
-    if (layer instanceof HistoryLayerClass) {
+    if (layer instanceof ChaynsHistoryLayerClass) {
         for (const [, child] of layer._getChildren()) {
             node.children[child.id] = snapshotLayer(child);
         }
@@ -43,7 +43,7 @@ function snapshotLayer(layer: HistoryLayer): LayerDebugNode {
 /**
  * Returns a plain JSON-serializable snapshot of the full layer tree.
  */
-export function debugTree(rootLayer: HistoryLayer): LayerDebugNode {
+export function debugTree(rootLayer: ChaynsHistoryLayer): ChaynsHistoryLayerDebugNode {
     return snapshotLayer(rootLayer);
 }
 
@@ -59,7 +59,7 @@ export function debugQueue(queue: NavigationQueue): unknown[] {
 // ---------------------------------------------------------------------------
 
 export function installWindowDebugGlobal(
-    rootLayer: HistoryLayer,
+    rootLayer: ChaynsHistoryLayer,
     queue: NavigationQueue,
 ): void {
     if (typeof window === 'undefined') return;

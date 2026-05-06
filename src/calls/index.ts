@@ -1,5 +1,5 @@
 import { moduleWrapper } from '../components/moduleWrapper';
-import { getCurrentLayer } from '../handler/history/react/HistoryLayerContext';
+import { getCurrentChaynsHistoryLayer } from '../handler/history/react/HistoryLayerContext';
 import {
     ChaynsApiDevice,
     ChaynsApiSite,
@@ -245,7 +245,7 @@ export const getUser = () => moduleWrapper.current.values.user;
  * Returns the innermost currently mounted HistoryLayer. Falls back to the
  * root layer when called outside any HistoryLayerProvider.
  */
-export const getLayer = () => getCurrentLayer();
+export const getChaynsHistoryLayer = () => getCurrentChaynsHistoryLayer();
 
 export const getSite = () => moduleWrapper.current.values.site;
 export const getCurrentPage = () => moduleWrapper.current.values.currentPage;

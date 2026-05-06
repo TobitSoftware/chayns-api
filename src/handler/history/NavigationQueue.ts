@@ -1,5 +1,5 @@
-import type { HistoryLayer } from './HistoryLayer';
-import type { NavigateOptions, NavigationCommitOptions } from './types';
+import type { ChaynsHistoryLayer } from './HistoryLayer';
+import type { ChaynsHistoryNavigateOptions, ChaynsHistoryNavigationCommitOptions } from './types';
 import { devWarn } from './guards/devWarn';
 import { hasWindow } from './guards/ssr';
 import { shallowEqualArr, shallowEqualObj } from './diff';
@@ -13,7 +13,7 @@ export type NavOp =
     kind: 'setRoute';
     layerId: string;
     segments: string[];
-    opts: NavigateOptions;
+    opts: ChaynsHistoryNavigateOptions;
     /** @internal Force a change notification even when segments appear unchanged (bootstrap via setSegmentCount). */
     _notifyEvenIfUnchanged?: true;
 }
@@ -21,19 +21,19 @@ export type NavOp =
     kind: 'setState';
     layerId: string;
     state: Record<string, unknown>;
-    opts: NavigateOptions;
+    opts: ChaynsHistoryNavigateOptions;
 }
     | {
     kind: 'setParams';
     layerId: string;
     params: Record<string, string>;
-    opts: NavigationCommitOptions;
+    opts: ChaynsHistoryNavigationCommitOptions;
 }
     | {
     kind: 'setHash';
     layerId: string;
     hash: string;
-    opts: NavigationCommitOptions;
+    opts: ChaynsHistoryNavigationCommitOptions;
 }
     | {
     kind: 'setActiveChild';
@@ -48,7 +48,9 @@ export type NavOp =
     state?: Record<string, unknown>;
     params?: Record<string, string>;
     hash?: string;
-    opts: NavigationCommitOptions;
+    activeChild?: string | null;
+    activeChildInit?: { route?: string[]; state?: Record<string, unknown> };
+    opts: ChaynsHistoryNavigationCommitOptions;
 }
     | {
     kind: 'popstate';
@@ -70,11 +72,11 @@ interface QueuedEntry {
 
 export interface NavigationQueueDeps {
     /** Returns root layer (top window only). */
-    getRoot: () => HistoryLayer;
+    getRoot: () => ChaynsHistoryLayer;
     /** Find a layer by id starting at root. */
-    findLayer: (id: string) => HistoryLayer | undefined;
+    findLayer: (id: string) => ChaynsHistoryLayer | undefined;
     /** Run the block check pipeline for a target layer. Returns true if free to proceed. */
-    checkBlocks: (target: HistoryLayer) => Promise<boolean>;
+    checkBlocks: (target: ChaynsHistoryLayer) => Promise<boolean>;
     /** Project the current memory tree into the URL string. */
     projectUrl: () => string;
     /** Project the current memory tree into the history state object (merged with existing foreign keys). */
@@ -319,6 +321,7 @@ export class NavigationQueue {
         const prevState = layer._getOwnState();
         const prevParams = layer._getOwnParams();
         const prevHash = layer._getOwnHash();
+        const prevActiveChild = layer.getActiveChildId();
 
         if (op.route) layer._setOwnSegmentsSilent(op.route);
         if (op.state) layer._setOwnStateSilent(op.state);
@@ -330,10 +333,47 @@ export class NavigationQueue {
         const paramsChanged = op.params !== undefined ? !shallowEqualObj(prevParams, op.params) : false;
         const hashChanged = op.hash !== undefined ? prevHash !== op.hash : false;
 
-        if (segChanged || stateChanged || paramsChanged || hashChanged) {
+        // Handle activeChild switching inline — same logic as processSetActiveChild.
+        let activeChildChanged = false;
+        let childDataChanged = false;
+        if (op.activeChild !== undefined) {
+            if (op.activeChild !== null && !layer.getChildLayer(op.activeChild)) {
+                layer.createChildLayer(op.activeChild);
+            }
+            layer._setActiveChildSilent(op.activeChild);
+            activeChildChanged = prevActiveChild !== op.activeChild;
+
+            if (op.activeChild && op.activeChildInit) {
+                const child = layer.getChildLayer(op.activeChild);
+                if (child) {
+                    if (op.activeChildInit.route) { child._setOwnSegmentsSilent(op.activeChildInit.route); childDataChanged = true; }
+                    if (op.activeChildInit.state) { child._setOwnStateSilent(op.activeChildInit.state); childDataChanged = true; }
+                }
+            }
+
+            if (op.activeChild) {
+                const child = layer.getChildLayer(op.activeChild);
+                if (child && child._getOwnSegments().length === 0 && child.getSegmentCount() > 0) {
+                    const root = this.deps.getRoot();
+                    const bootstrapSegs = root._consumeBootstrapSegments(child.getSegmentCount());
+                    if (bootstrapSegs) {
+                        child._setOwnSegmentsSilent(bootstrapSegs);
+                        childDataChanged = true;
+                    }
+                }
+            }
+        }
+
+        if (segChanged || stateChanged || paramsChanged || hashChanged || activeChildChanged) {
             this.commit(op.opts.isReplace === true);
             layer._emit('change');
         }
+
+        if (childDataChanged && op.activeChild) {
+            const child = layer.getChildLayer(op.activeChild);
+            if (child) child._emit('change');
+        }
+
         return { isOk: true };
     }
 
@@ -389,7 +429,7 @@ export class NavigationQueue {
     // Helpers
     // ---------------------------------------------------------------------------
 
-    private resolveActiveLayer(id: string): HistoryLayer | undefined {
+    private resolveActiveLayer(id: string): ChaynsHistoryLayer | undefined {
         const layer = this.deps.findLayer(id);
         if (!layer) {
             devWarn('LAYER_STALE', `Layer "${id}" not found at op time.`);
@@ -406,17 +446,17 @@ export class NavigationQueue {
         return layer;
     }
 
-    private resolveLowestCommonLayer(ids: Set<string>): HistoryLayer | undefined {
+    private resolveLowestCommonLayer(ids: Set<string>): ChaynsHistoryLayer | undefined {
         if (ids.size === 0) return undefined;
 
         // Build ancestor lists for each changed layer, then find the lowest (deepest)
         // layer that is an ancestor of ALL changed layers.
-        const ancestorLists: HistoryLayer[][] = [];
+        const ancestorLists: ChaynsHistoryLayer[][] = [];
         for (const id of ids) {
             const layer = this.deps.findLayer(id);
             if (!layer) continue;
-            const ancestors: HistoryLayer[] = [];
-            let node: HistoryLayer | null = layer;
+            const ancestors: ChaynsHistoryLayer[] = [];
+            let node: ChaynsHistoryLayer | null = layer;
             while (node) {
                 ancestors.unshift(node);
                 node = node.parent ?? null;
@@ -428,7 +468,7 @@ export class NavigationQueue {
         if (ancestorLists.length === 1) return ancestorLists[0][ancestorLists[0].length - 1];
 
         // Walk the common prefix depth-by-depth.
-        let lca: HistoryLayer | undefined;
+        let lca: ChaynsHistoryLayer | undefined;
         const minLen = Math.min(...ancestorLists.map((a) => a.length));
         for (let d = 0; d < minLen; d++) {
             const candidate = ancestorLists[0][d];

@@ -10,6 +10,7 @@ import {
     Page,
 } from '../../types/IChaynsReact';
 import { replaceStagingUrl } from "../../util/url";
+import type { ChaynsHistoryLayer } from '../../handler/history/types';
 
 export type TypeSystem = {
     scope: string,
@@ -43,6 +44,7 @@ type ModulePropTypes = {
     dialog: ChaynsReactValues["dialog"],
     children?: ReactNode,
     styleSettings: ChaynsReactValues["styleSettings"],
+    historyLayer?: ChaynsHistoryLayer,
 }
 
 const System: FC<SystemPropTypes> = ({
@@ -87,6 +89,7 @@ const ModuleHost: FC<ModulePropTypes> = ({
     environment,
     preventStagingReplacement,
     styleSettings,
+    historyLayer,
 }) => {
     const data = useMemo(() => {
         const result = {
@@ -126,6 +129,7 @@ const ModuleHost: FC<ModulePropTypes> = ({
                 functions={functions}
                 customFunctions={customFunctions}
                 fallback={children}
+                historyLayer={historyLayer}
                 isModule
             />
         </>

@@ -3,20 +3,21 @@
 // ---------------------------------------------------------------------------
 
 export type {
-    HistoryLayer,
-    NavigateOptions,
-    NavigationCommitOptions,
-    BlockOptions,
-    HistoryLayerEvent,
-    LayerStateNode,
+    ChaynsHistoryLayer,
+    ChaynsHistoryNavigateOptions,
+    ChaynsHistoryNavigationCommitOptions,
+    ChaynsHistoryBlockOptions,
+    ChaynsHistoryLayerEvent,
+    ChaynsHistoryLayerStateNode,
 } from './types';
 
 // ---------------------------------------------------------------------------
 // Core
 // ---------------------------------------------------------------------------
 
-export { initRootLayer, getOrInitRootLayer, type InitRootLayerOptions, type InitRootLayerResult } from './initRootLayer';
-export { HistoryLayer as HistoryLayerClass } from './HistoryLayer';
+export { initRootChaynsHistoryLayer, getOrInitRootChaynsHistoryLayer, type InitRootChaynsHistoryLayerOptions, type InitRootChaynsHistoryLayerResult } from './initRootLayer';
+export { ChaynsHistoryLayer as ChaynsHistoryLayerClass } from './HistoryLayer';
+export { FrameHistoryLayer, type HistoryBridgeFunctions, type HistoryInitialState } from './FrameHistoryLayer';
 export { NavigationQueue } from './NavigationQueue';
 export { BlockRegistry } from './BlockRegistry';
 
@@ -25,25 +26,26 @@ export { BlockRegistry } from './BlockRegistry';
 // ---------------------------------------------------------------------------
 
 export {
-    HistoryLayerProvider,
-    type HistoryLayerProviderProps,
-    getCurrentLayer,
+    ChaynsHistoryLayerProvider,
+    ChaynsHistoryLayerOverrideProvider,
+    type ChaynsHistoryLayerProviderProps,
+    getCurrentChaynsHistoryLayer,
 } from './react/HistoryLayerContext';
 
 export {
-    useHistoryLayer,
-    useRoute,
-    useParams,
-    useHash,
-    useHistoryState,
-    useNavigate,
-    useHistoryBlock,
-    useHistoryEvent,
-    useChildLayer,
-    useActiveChild,
-    type UseRouteResult,
-    type UseActiveChildResult,
-    type UseHistoryBlockOptions,
+    useChaynsHistoryLayer,
+    useChaynsHistoryRoute,
+    useChaynsHistoryParams,
+    useChaynsHistoryHash,
+    useChaynsHistoryState,
+    useChaynsHistoryNavigate,
+    useChaynsHistoryBlock,
+    useChaynsHistoryEvent,
+    useChaynsHistoryChildLayer,
+    useChaynsHistoryActiveChild,
+    type UseChaynsHistoryRouteResult,
+    type UseChaynsHistoryActiveChildResult,
+    type UseChaynsHistoryBlockOptions,
 } from './react/hooks';
 
 // ---------------------------------------------------------------------------
@@ -57,7 +59,7 @@ export {
     diffIncomingState,
     hasChaynsHistoryState,
 } from './StateProjector';
-export { getActiveChain, findLayerById, isInActiveChain } from './LayerTree';
+export { getChaynsHistoryActiveChain, findChaynsHistoryLayerById, isInChaynsHistoryActiveChain } from './LayerTree';
 
 // ---------------------------------------------------------------------------
 // Debug (dev only)

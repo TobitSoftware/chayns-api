@@ -1,20 +1,20 @@
-export type NavigationCommitOptions = { isReplace?: boolean };
+export type ChaynsHistoryNavigationCommitOptions = { isReplace?: boolean };
 
-export type NavigateOptions = NavigationCommitOptions & {
+export type ChaynsHistoryNavigateOptions = ChaynsHistoryNavigationCommitOptions & {
     /** Query parameters to set on this layer. Replaces existing params for this layer. */
     params?: Record<string, string>;
     /** URL hash fragment (without leading `#`). Pass `''` to explicitly clear. */
     hash?: string;
 };
 
-export type BlockOptions = {
+export type ChaynsHistoryBlockOptions = {
     /** @default 'local' */
     scope?: 'local' | 'global';
     /** @default false */
     isBeforeUnload?: boolean;
 };
 
-export type HistoryLayerEvent = {
+export type ChaynsHistoryLayerEvent = {
     type: 'change' | 'popstate';
     layerId: string;
     segments: string[];
@@ -23,9 +23,9 @@ export type HistoryLayerEvent = {
     hash: string;
 };
 
-export type LayerStateNode = {
+export type ChaynsHistoryLayerStateNode = {
     activeChild?: string;
-    childState?: LayerStateNode;
+    childState?: ChaynsHistoryLayerStateNode;
     /** @internal Reserved — managed by history core. */
     __params?: Record<string, string>;
     /** @internal Reserved — managed by history core. `undefined` = unset, `''` = explicit clear. */
@@ -33,43 +33,50 @@ export type LayerStateNode = {
     [key: string]: unknown;
 };
 
-export interface HistoryLayer {
+export interface ChaynsHistoryLayer {
     readonly id: string;
     readonly depth: number;
 
     getSegmentCount(): number;
     setSegmentCount(n: number): void;
 
-    createChildLayer(id: string): HistoryLayer;
+    createChildLayer(id: string): ChaynsHistoryLayer;
     destroyChildLayer(id: string): void;
     setActiveChild(
         id: string | null,
-        init?: { route?: string[]; state?: Record<string, unknown> },
+        init?: { route?: string | string[]; state?: Record<string, unknown> },
     ): void;
     getActiveChildId(): string | null;
-    getChildLayer(id: string): HistoryLayer | undefined;
+    getChildLayer(id: string): ChaynsHistoryLayer | undefined;
 
     getRoute(): string[];
-    setRoute(segments: string[], opts?: NavigateOptions): void;
+    setRoute(route: string | string[], opts?: ChaynsHistoryNavigateOptions): void;
 
     getParams(): Record<string, string>;
-    setParams(params: Record<string, string>, opts?: NavigationCommitOptions): void;
+    setParams(params: Record<string, string>, opts?: ChaynsHistoryNavigationCommitOptions): void;
 
     getHash(): string;
-    setHash(hash: string, opts?: NavigationCommitOptions): void;
+    setHash(hash: string, opts?: ChaynsHistoryNavigationCommitOptions): void;
 
-    getState<T = Record<string, unknown>>(): T | undefined;
-    setState<T extends Record<string, unknown>>(state: T, opts?: NavigateOptions): void;
+    getState<T extends object = Record<string, unknown>>(): T | undefined;
+    setState<T extends object>(state: T, opts?: ChaynsHistoryNavigateOptions): void;
 
-    navigate(opts: { route?: string[]; state?: Record<string, unknown> } & NavigateOptions): void;
+    navigate(opts: {
+        route?: string | string[];
+        state?: Record<string, unknown>;
+        /** Switch the active child as part of this navigation. Auto-creates the child if needed. */
+        activeChild?: string | null;
+        /** Initial route/state to seed the child with when it is first activated. */
+        activeChildInit?: { route?: string | string[]; state?: Record<string, unknown> };
+    } & ChaynsHistoryNavigateOptions): void;
 
     addBlock(
         callback: () => Promise<boolean>,
-        opts?: BlockOptions,
+        opts?: ChaynsHistoryBlockOptions,
     ): () => void;
 
     addEventListener(
         type: 'popstate' | 'change',
-        handler: (e: HistoryLayerEvent) => void,
+        handler: (e: ChaynsHistoryLayerEvent) => void,
     ): () => void;
 }

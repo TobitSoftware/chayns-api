@@ -10,9 +10,9 @@ import {
     IChaynsReact,
     Page,
 } from '../types/IChaynsReact';
-import { HistoryLayer } from '../handler/history/types';
-import { HistoryLayerProvider } from '../handler/history/react/HistoryLayerContext';
-import { getOrInitRootLayer } from '../handler/history/initRootLayer';
+import { ChaynsHistoryLayer } from '../handler/history/types';
+import { ChaynsHistoryLayerProvider } from '../handler/history/react/HistoryLayerContext';
+import { getOrInitRootChaynsHistoryLayer } from '../handler/history/initRootLayer';
 
 type ChaynsHostType = {
     type: `${'client' | 'server'}-${'iframe' | 'module'}`,
@@ -38,7 +38,7 @@ type ChaynsHostType = {
     dialog: ChaynsReactValues["dialog"],
     styleSettings?: ChaynsReactValues["styleSettings"],
     /** History layer to provide to hosted children. Defaults to the root layer. */
-    layer?: HistoryLayer,
+    historyLayer?: ChaynsHistoryLayer,
 } & ({
     type: `${'client' | 'server'}-iframe`,
     src: string,
@@ -46,6 +46,13 @@ type ChaynsHostType = {
 } | {
     type: `${'client' | 'server'}-module`,
     system: TypeSystem,
+    /**
+     * ID for this module's dedicated child history layer.
+     * When set, a child layer with this ID is created (or reused) from the parent
+     * `historyLayer` and passed to the module — giving the module its own routing
+     * namespace. Activate it with `layer.navigate({ activeChild: historyChildId })`.
+     */
+    historyChildId?: string,
 });
 
 const ChaynsHost: FC<ChaynsHostType> = ({
@@ -71,7 +78,8 @@ const ChaynsHost: FC<ChaynsHostType> = ({
     preventStagingReplacement,
     dialog,
     styleSettings,
-    layer,
+    historyLayer,
+    ...rest
 }) => {
     const [isVisible, setIsVisible] = useState(type !== 'client-module' && (type !== 'server-module' || !!system?.serverUrl));
 
@@ -91,13 +99,13 @@ const ChaynsHost: FC<ChaynsHostType> = ({
         return null;
     }
 
-    const resolvedLayer = layer ?? getOrInitRootLayer().rootLayer;
+    const resolvedLayer = historyLayer ?? getOrInitRootChaynsHistoryLayer().rootLayer;
 
     switch (type) {
         case 'client-iframe':
         case 'server-iframe':
             return (
-                <HistoryLayerProvider layer={resolvedLayer}>
+                <ChaynsHistoryLayerProvider layer={resolvedLayer}>
                     <HostIframe
                         iFrameRef={iFrameRef}
                         iFrameProps={iFrameProps}
@@ -118,13 +126,18 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                         preventStagingReplacement={preventStagingReplacement}
                         dialog={dialog}
                         styleSettings={styleSettings}
+                        historyLayer={resolvedLayer}
                     />
-                </HistoryLayerProvider>
+                </ChaynsHistoryLayerProvider>
             )
         case 'client-module':
-        case 'server-module':
+        case 'server-module': {
+            const historyChildId = (rest as { historyChildId?: string }).historyChildId;
+            const moduleLayer = historyChildId
+                ? (resolvedLayer.getChildLayer(historyChildId) ?? resolvedLayer.createChildLayer(historyChildId))
+                : resolvedLayer;
             return (
-                <HistoryLayerProvider layer={resolvedLayer}>
+                <ChaynsHistoryLayerProvider layer={resolvedLayer}>
                     <ModuleHost
                         system={system}
                         pages={pages}
@@ -143,9 +156,11 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                         preventStagingReplacement={preventStagingReplacement}
                         dialog={dialog}
                         styleSettings={styleSettings}
+                        historyLayer={moduleLayer}
                     />
-                </HistoryLayerProvider>
+                </ChaynsHistoryLayerProvider>
             );
+        }
         default:
             return null;
     }
