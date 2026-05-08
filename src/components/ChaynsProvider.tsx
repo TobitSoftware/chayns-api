@@ -1,17 +1,17 @@
 import htmlEscape from 'htmlescape';
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
-import { useIsomorphicLayoutEffect } from '../hooks/useIsomorphicLayoutEffect';
-import { AppName, ChaynsReactFunctions, ChaynsReactValues, IChaynsReact } from '../types/IChaynsReact';
+import React, {ReactNode, useEffect, useRef, useState} from 'react';
+import {useIsomorphicLayoutEffect} from '../hooks/useIsomorphicLayoutEffect';
+import {AppName, ChaynsReactFunctions, ChaynsReactValues, IChaynsReact} from '../types/IChaynsReact';
 import getDeviceInfo from '../utils/deviceHelper';
-import { AppWrapper } from '../wrapper/AppWrapper';
-import { FrameWrapper } from '../wrapper/FrameWrapper';
-import { ModuleFederationWrapper } from '../wrapper/ModuleFederationWrapper';
-import { SsrWrapper } from '../wrapper/SsrWrapper';
-import { ChaynsContext } from './ChaynsContext';
-import { addModuleWrapper, chaynsApis, moduleWrapper, removeModuleWrapper } from './moduleWrapper';
-import { ChaynsHistoryLayerProvider, useChaynsHistoryLayerContext } from '../contexts/HistoryLayerContext';
-import { getOrInitRootChaynsHistoryLayer } from '../utils/history/rootLayer';
-import type { ChaynsHistoryLayer } from '../types/history';
+import {AppWrapper} from '../wrapper/AppWrapper';
+import {FrameWrapper} from '../wrapper/FrameWrapper';
+import {ModuleFederationWrapper} from '../wrapper/ModuleFederationWrapper';
+import {SsrWrapper} from '../wrapper/SsrWrapper';
+import {ChaynsContext} from './ChaynsContext';
+import {addModuleWrapper, moduleWrapper, removeModuleWrapper} from './moduleWrapper';
+import {ChaynsHistoryLayerProvider, useChaynsHistoryLayerContext} from '../contexts/HistoryLayerContext';
+import {getOrInitRootChaynsHistoryLayer} from '../utils/history/rootLayer';
+import type {ChaynsHistoryLayer} from '../types/history';
 
 const isServer = typeof window === 'undefined';
 
@@ -63,15 +63,9 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     const customWrapper = useRef<IChaynsReact>(null!);
     const idRef = useRef(chaynsApiId ?? crypto?.randomUUID() ?? Math.random().toString());
 
-    // Only auto-init the root layer when no explicit historyLayer prop is given and there
-    // is no parent layer already in context (e.g. from a wrapping ChaynsHost).
-    const parentLayer = useChaynsHistoryLayerContext();
+    const contextLayer = useChaynsHistoryLayerContext();
+    const parentLayerRef = useRef(contextLayer);
     const rootLayerRef = useRef<ChaynsHistoryLayer | null>(null);
-    if (!rootLayerRef.current && !historyLayer && !parentLayer) {
-        rootLayerRef.current = getOrInitRootChaynsHistoryLayer(history?.url, history?.segmentCount).rootLayer;
-    }
-
-    const effectiveLayer = historyLayer ?? rootLayerRef.current;
 
     if (!customWrapper.current) {
         if (isModule) {
@@ -101,6 +95,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         }
     }
 
+    const [effectiveLayer, setEffectiveLayer] = useState<ChaynsHistoryLayer | null>(null)
     const [isInitialized, setIsInitialized] = useState<boolean>(!!customWrapper.current?.values);
 
     useEffect(() => {
@@ -109,6 +104,17 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
             customWrapper.current.addDataListener(({ type, value }) => {
                 customWrapper.current.emitChange();
             });
+
+            parentLayerRef.current = customWrapper.current.functions.getHistoryLayer() ?? contextLayer;
+
+            // Only auto-init the root layer when no explicit historyLayer prop is given and there
+            // is no parent layer already in context (e.g. from a wrapping ChaynsHost).
+            if (!rootLayerRef.current && !historyLayer && !parentLayerRef.current) {
+                rootLayerRef.current = getOrInitRootChaynsHistoryLayer(history?.url, history?.segmentCount).rootLayer;
+            }
+
+            setEffectiveLayer(historyLayer ?? parentLayerRef.current ?? rootLayerRef.current)
+
             if (!isInitialized) {
                 setIsInitialized(true);
             }

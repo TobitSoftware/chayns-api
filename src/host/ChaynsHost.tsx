@@ -1,6 +1,6 @@
-import React, { FC, startTransition, useEffect, useState } from 'react';
+import React, {FC, startTransition, useEffect, useState} from 'react';
 import HostIframe from './iframe/HostIframe';
-import ModuleHost, { TypeSystem } from './module/ModuleHost';
+import ModuleHost, {TypeSystem} from './module/ModuleHost';
 import {
     ChaynsApiDevice,
     ChaynsApiSite,
@@ -10,9 +10,9 @@ import {
     IChaynsReact,
     Page,
 } from '../types/IChaynsReact';
-import { ChaynsHistoryLayer } from '../types/history';
-import { ChaynsHistoryLayerProvider } from '../contexts/HistoryLayerContext';
-import { getOrInitRootChaynsHistoryLayer } from '../utils/history/rootLayer';
+import {ChaynsHistoryLayer} from '../types/history';
+import {ChaynsHistoryLayerProvider} from '../contexts/HistoryLayerContext';
+import {getOrInitRootChaynsHistoryLayer} from '../utils/history/rootLayer';
 
 type ChaynsHostType = {
     type: `${'client' | 'server'}-${'iframe' | 'module'}`,
@@ -39,13 +39,6 @@ type ChaynsHostType = {
     styleSettings?: ChaynsReactValues["styleSettings"],
     /** History layer to provide to hosted children. Defaults to the root layer. */
     historyLayer?: ChaynsHistoryLayer,
-} & ({
-    type: `${'client' | 'server'}-iframe`,
-    src: string,
-    iFrameProps: { [key: string]: unknown, name: string },
-} | {
-    type: `${'client' | 'server'}-module`,
-    system: TypeSystem,
     /**
      * ID for this module's dedicated child history layer.
      * When set, a child layer with this ID is created (or reused) from the parent
@@ -53,34 +46,41 @@ type ChaynsHostType = {
      * namespace. Activate it with `layer.navigate({ activeChild: historyChildId })`.
      */
     historyChildId?: string,
+} & ({
+    type: `${'client' | 'server'}-iframe`,
+    src: string,
+    iFrameProps: { [key: string]: unknown, name: string },
+} | {
+    type: `${'client' | 'server'}-module`,
+    system: TypeSystem,
 });
 
 const ChaynsHost: FC<ChaynsHostType> = ({
-    type,
-    iFrameProps,
-    functions,
-    customFunctions,
-    src,
-    iFrameRef = undefined,
-    loadingComponent = undefined,
-    system,
-    // shallow data
-    pages,
-    language,
-    isAdminModeActive,
-    site,
-    user,
-    currentPage,
-    device,
-    parameters,
-    customData,
-    environment,
-    preventStagingReplacement,
-    dialog,
-    styleSettings,
-    historyLayer,
-    ...rest
-}) => {
+                                            type,
+                                            iFrameProps,
+                                            functions,
+                                            customFunctions,
+                                            src,
+                                            iFrameRef = undefined,
+                                            loadingComponent = undefined,
+                                            system,
+                                            // shallow data
+                                            pages,
+                                            language,
+                                            isAdminModeActive,
+                                            site,
+                                            user,
+                                            currentPage,
+                                            device,
+                                            parameters,
+                                            customData,
+                                            environment,
+                                            preventStagingReplacement,
+                                            dialog,
+                                            styleSettings,
+                                            historyLayer,
+                                            historyChildId,
+                                        }) => {
     const [isVisible, setIsVisible] = useState(type !== 'client-module' && (type !== 'server-module' || !!system?.serverUrl));
 
     useEffect(() => {
@@ -100,6 +100,10 @@ const ChaynsHost: FC<ChaynsHostType> = ({
     }
 
     const resolvedLayer = historyLayer ?? getOrInitRootChaynsHistoryLayer().rootLayer;
+
+    const layer = historyChildId
+        ? (resolvedLayer.getChildLayer(historyChildId) ?? resolvedLayer.createChildLayer(historyChildId))
+        : resolvedLayer;
 
     switch (type) {
         case 'client-iframe':
@@ -126,16 +130,12 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                         preventStagingReplacement={preventStagingReplacement}
                         dialog={dialog}
                         styleSettings={styleSettings}
-                        historyLayer={resolvedLayer}
+                        historyLayer={layer}
                     />
                 </ChaynsHistoryLayerProvider>
             )
         case 'client-module':
         case 'server-module': {
-            const historyChildId = (rest as { historyChildId?: string }).historyChildId;
-            const moduleLayer = historyChildId
-                ? (resolvedLayer.getChildLayer(historyChildId) ?? resolvedLayer.createChildLayer(historyChildId))
-                : resolvedLayer;
             return (
                 <ChaynsHistoryLayerProvider layer={resolvedLayer}>
                     <ModuleHost
@@ -156,7 +156,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                         preventStagingReplacement={preventStagingReplacement}
                         dialog={dialog}
                         styleSettings={styleSettings}
-                        historyLayer={moduleLayer}
+                        historyLayer={layer}
                     />
                 </ChaynsHistoryLayerProvider>
             );
