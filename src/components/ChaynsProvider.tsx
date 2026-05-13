@@ -147,7 +147,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         <>
             {isInitialized && (
                 <ChaynsContext.Provider value={customWrapper.current}>
-                    {effectiveLayer ? (
+                    {effectiveLayer && !customWrapper.current.values.isHistoryDisabled ? (
                         <ChaynsHistoryLayerProvider layer={effectiveLayer}>
                             {children}
                         </ChaynsHistoryLayerProvider>

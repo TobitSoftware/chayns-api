@@ -38,6 +38,8 @@ type HostIframeProps = {
     dialog: ChaynsReactValues["dialog"],
     styleSettings: ChaynsReactValues["styleSettings"],
     historyLayer?: ChaynsHistoryLayer,
+    /** Whether the history is disabled for the children */
+    isHistoryDisabled?: boolean,
 }
 
 const HostIframe: FC<HostIframeProps> = ({
@@ -62,6 +64,7 @@ const HostIframe: FC<HostIframeProps> = ({
     dialog,
     styleSettings,
     historyLayer,
+    isHistoryDisabled,
 }) => {
     const eventTarget = useRef<EventTarget>();
     const ref = useRef<HTMLIFrameElement | null>();
@@ -85,6 +88,7 @@ const HostIframe: FC<HostIframeProps> = ({
     const initialData = {
         site,
         isAdminModeActive,
+        isHistoryDisabled,
         pages,
         currentPage,
         device,
@@ -188,6 +192,7 @@ const HostIframe: FC<HostIframeProps> = ({
     // endregion
 
     // region dispatch data update
+    useUpdateData(eventTarget.current, 'isHistoryDisabled', isHistoryDisabled);
     useUpdateData(eventTarget.current, 'isAdminModeActive', isAdminModeActive);
     useUpdateData(eventTarget.current, 'user', user);
     useUpdateData(eventTarget.current, 'site', site);

@@ -21,10 +21,10 @@ export function popChaynsHistoryLayer(layer: ChaynsHistoryLayer): void {
 }
 
 /** Returns the innermost currently mounted ChaynsHistoryLayer, or the root layer as fallback. */
-export function getCurrentChaynsHistoryLayer(): ChaynsHistoryLayer {
+export function getCurrentChaynsHistoryLayer(): ChaynsHistoryLayer | null {
     return _layerStack.length > 0
         ? _layerStack[_layerStack.length - 1]
-        : getOrInitRootChaynsHistoryLayer().rootLayer;
+        : null;
 }
 
 // ---------------------------------------------------------------------------

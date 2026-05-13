@@ -46,6 +46,8 @@ type ChaynsHostType = {
      * namespace. Activate it with `layer.navigate({ activeChild: historyChildId })`.
      */
     historyChildId?: string,
+    /** Whether the history is disabled for the children */
+    isHistoryDisabled?: boolean,
 } & ({
     type: `${'client' | 'server'}-iframe`,
     src: string,
@@ -80,6 +82,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                                             styleSettings,
                                             historyLayer,
                                             historyChildId,
+                                            isHistoryDisabled = true,
                                         }) => {
     const [isVisible, setIsVisible] = useState(type !== 'client-module' && (type !== 'server-module' || !!system?.serverUrl));
 
@@ -131,6 +134,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                         dialog={dialog}
                         styleSettings={styleSettings}
                         historyLayer={layer}
+                        isHistoryDisabled={isHistoryDisabled}
                     />
                 </ChaynsHistoryLayerProvider>
             )
@@ -157,6 +161,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                         dialog={dialog}
                         styleSettings={styleSettings}
                         historyLayer={layer}
+                        isHistoryDisabled={isHistoryDisabled}
                     />
                 </ChaynsHistoryLayerProvider>
             );

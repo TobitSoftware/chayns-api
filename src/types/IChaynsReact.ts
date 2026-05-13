@@ -331,6 +331,7 @@ export interface ChaynsReactValues {
     site: ChaynsApiSite;
     user: ChaynsApiUser | undefined;
     isAdminModeActive: boolean;
+    isHistoryDisabled?: boolean,
     pages: Page[];
     currentPage: {
         id: number;
