@@ -97,7 +97,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         }
     }
 
-    const [effectiveLayer, setEffectiveLayer] = useState<ChaynsHistoryLayer | null>(null)
+    const [effectiveLayer, setEffectiveLayer] = useState<ChaynsHistoryLayer | null>(historyLayer ?? null)
     const [isInitialized, setIsInitialized] = useState<boolean>(!!customWrapper.current?.values);
 
     useEffect(() => {
