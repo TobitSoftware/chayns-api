@@ -8,6 +8,7 @@ import type {
 import { EventBus } from '../../utils/EventBus';
 import type { NavigationQueue } from '../../utils/history/NavigationQueue';
 import type { BlockRegistry } from '../../utils/history/BlockRegistry';
+import { resolveSegmentsFrom } from '../../utils/history/rootLayer';
 
 /**
  * Reserved keys in a layer's state node. These are managed by the core
@@ -141,10 +142,15 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
         if (this.children.has(id)) {
             throw new Error(`[chaynsHistory] Child layer with id "${id}" already exists on layer "${this.id}".`);
         }
+
+        const segments = resolveSegmentsFrom(undefined, this.getCumulativeSegmentCount());
+
         const child = new ChaynsHistoryLayer({
             id,
             parent: this,
             deps: this.deps,
+            segments,
+            segmentCount: segments.length,
         });
         this.children.set(id, child);
         return child;
@@ -420,6 +426,18 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
         }
         this.children.clear();
         this.bus.clear();
+    }
+
+    private getCumulativeSegmentCount(): number {
+        let count = this.segmentCount;
+        let node = this.parent;
+
+        while (node) {
+            count += node.segmentCount;
+            node = node.parent;
+        }
+
+        return count;
     }
 
     private static normalizeRoute(route: string | string[]): string[] {

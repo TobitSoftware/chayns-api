@@ -206,3 +206,26 @@ describe('parseFromUrl', () => {
     });
 });
 
+describe('createChildLayer', () => {
+    it('uses the combined segmentCount of all parent layers for bootstrap segments', () => {
+        const previousUrl = window.location.href;
+
+        try {
+            window.history.replaceState({}, '', 'http://localhost/a/b/c/d/e/f/g');
+
+            const { root } = makeTestTree();
+            root.setSegmentCount(3);
+
+            const child = root.createChildLayer('child');
+            child.setSegmentCount(2);
+
+            const grandchild = child.createChildLayer('grandchild');
+
+            expect(grandchild.getRoute()).toEqual(['f', 'g']);
+            expect(grandchild.getSegmentCount()).toBe(2);
+        } finally {
+            window.history.replaceState({}, '', previousUrl);
+        }
+    });
+});
+

@@ -37,6 +37,21 @@ function resolveInitialSegments(overrideUrl: string | undefined, n: number): str
     return taken;
 }
 
+/** Parses the URL into a flat segment array and returns all entries after the first `startIndex` entries. */
+export function resolveSegmentsFrom(
+    overrideUrl: string | undefined,
+    startIndex: number,
+): string[] {
+    const pathname = getInitialPathname(overrideUrl);
+
+    const all = pathname
+        .replace(/^\//, '')
+        .split('/')
+        .filter(Boolean);
+
+    return all.slice(startIndex);
+}
+
 export interface InitRootChaynsHistoryLayerOptions {
     /**
      * The current page URL used to seed initial route segments.

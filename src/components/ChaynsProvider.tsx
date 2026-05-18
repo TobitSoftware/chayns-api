@@ -47,6 +47,7 @@ export type ChaynsProviderProps = {
      *   E.g. `segmentCount: 2` on `/shop/products/detail` → `getLayer().getRoute()` → `['shop', 'products']`.
      */
     history?: { url?: string; segmentCount?: number },
+    segmentCount?: number
 }
 
 const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
@@ -59,6 +60,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     chaynsApiId,
     historyLayer,
     history,
+    segmentCount,
 }) => {
     const customWrapper = useRef<IChaynsReact>(null!);
     const idRef = useRef(chaynsApiId ?? crypto?.randomUUID() ?? Math.random().toString());
@@ -113,7 +115,13 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
                 rootLayerRef.current = getOrInitRootChaynsHistoryLayer(history?.url, history?.segmentCount).rootLayer;
             }
 
-            setEffectiveLayer(historyLayer ?? parentLayerRef.current ?? rootLayerRef.current)
+            const layer = historyLayer ?? parentLayerRef.current ?? rootLayerRef.current
+
+            if(typeof segmentCount === 'number'){
+                layer.setSegmentCount(segmentCount)
+            }
+
+            setEffectiveLayer(layer)
 
             if (!isInitialized) {
                 setIsInitialized(true);
