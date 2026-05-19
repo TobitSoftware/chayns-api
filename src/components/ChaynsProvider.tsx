@@ -48,6 +48,7 @@ export type ChaynsProviderProps = {
      */
     history?: { url?: string; segmentCount?: number },
     segmentCount?: number
+    isHistoryDisabled?: boolean,
 }
 
 const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
@@ -60,6 +61,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     chaynsApiId,
     historyLayer,
     history,
+    isHistoryDisabled,
     segmentCount,
 }) => {
     const customWrapper = useRef<IChaynsReact>(null!);
@@ -151,11 +153,16 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         };
     }, []);
 
+    const isExternallyProvidedRootLayer = historyLayer?.id === 'root';
+    const isDisabled = isExternallyProvidedRootLayer
+        ? false
+        : Boolean(customWrapper.current.values.isHistoryDisabled) || Boolean(isHistoryDisabled);
+
     return (
         <>
             {isInitialized && (
                 <ChaynsContext.Provider value={customWrapper.current}>
-                    {effectiveLayer && !customWrapper.current.values.isHistoryDisabled ? (
+                    {effectiveLayer && !isDisabled ? (
                         <ChaynsHistoryLayerProvider layer={effectiveLayer}>
                             {children}
                         </ChaynsHistoryLayerProvider>
