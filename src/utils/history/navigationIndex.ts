@@ -71,6 +71,7 @@ export function silentGo(delta: number): Promise<void> {
  */
 export function consumeSilent(): boolean {
     if (pendingSilentCount <= 0) return false;
+
     pendingSilentCount--;
     const res = silentResolve;
     silentResolve = null;

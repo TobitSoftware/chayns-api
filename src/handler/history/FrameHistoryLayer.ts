@@ -7,6 +7,8 @@ import type {
     ChaynsHistoryActionResult,
 } from '../../types/history';
 import { EventBus } from '../../utils/EventBus';
+import { shallowEqualArr } from '../../utils/equality';
+import { normalizeHistoryRouteInput, normalizeHistorySegments } from '../../utils/history/segments';
 
 /**
  * Async bridge functions forwarded via comlink from the iframe (FrameWrapper) to
@@ -67,7 +69,7 @@ export class FrameHistoryLayer implements ChaynsHistoryLayer {
     constructor(bridge: HistoryBridgeFunctions, initial: HistoryInitialState) {
         this.id = initial.id;
         this.depth = initial.depth;
-        this._segments = initial.segments;
+        this._segments = normalizeHistorySegments(initial.segments);
         this._params = initial.params;
         this._hash = initial.hash;
         this._state = initial.state;
@@ -83,6 +85,11 @@ export class FrameHistoryLayer implements ChaynsHistoryLayer {
     }
 
     setSegmentCount(n: number): void {
+        if (n === this._segmentCount) {
+            return;
+        }
+
+        this._segmentCount = n;
         void this.bridge.setSegmentCount(n);
     }
 
@@ -120,7 +127,11 @@ export class FrameHistoryLayer implements ChaynsHistoryLayer {
     }
 
     setRoute(route: string | string[], opts?: ChaynsHistoryNavigateOptions): void {
-        void this.bridge.setRoute(route, opts);
+        const normalizedRoute = normalizeHistoryRouteInput(route);
+        if (shallowEqualArr(this._segments, normalizedRoute)) {
+            return;
+        }
+        void this.bridge.setRoute(normalizedRoute, opts);
     }
 
     // endregion
@@ -192,7 +203,7 @@ export class FrameHistoryLayer implements ChaynsHistoryLayer {
      * Updates the local cache and re-emits the event to all registered listeners.
      */
     _applyAndEmit(e: ChaynsHistoryLayerEvent): void {
-        this._segments = e.segments;
+        this._segments = normalizeHistorySegments(e.segments);
         this._params = e.params;
         this._hash = e.hash;
         this._state = e.state;

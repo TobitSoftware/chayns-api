@@ -1,6 +1,6 @@
 import type { ChaynsHistoryLayer } from '../../handler/history/HistoryLayer';
 import type { ChaynsHistoryLayerStateNode } from '../../types/history';
-import { shallowEqualArr, shallowEqualObj } from '../equality';
+import { shallowEqualObj } from '../equality';
 
 // ---------------------------------------------------------------------------
 // Internal constants
@@ -145,6 +145,7 @@ function applyNodeTracked(
     const activeChildChanged = prevActiveChild !== (activeChild ?? null);
     const paramsChanged = !shallowEqualObj(prevParams, incomingParams);
     const hashChanged = prevHash !== incomingHash;
+    const child = activeChild ? layer.getChildLayer(activeChild) : undefined;
 
     layer._setOwnStateSilent(ownPropsClean);
     layer._setActiveChildSilent(activeChild ?? null);
@@ -156,7 +157,6 @@ function applyNodeTracked(
     }
 
     if (activeChild && childState) {
-        const child = layer.getChildLayer(activeChild);
         if (child) applyNodeTracked(child, childState, changed);
     }
 }
@@ -181,13 +181,13 @@ function diffNodeTracked(
     const activeChildChanged = prevActiveChild !== (activeChild ?? null);
     const paramsChanged = !shallowEqualObj(prevParams, incomingParams);
     const hashChanged = prevHash !== incomingHash;
+    const child = activeChild ? layer.getChildLayer(activeChild) : undefined;
 
     if (stateChanged || activeChildChanged || paramsChanged || hashChanged) {
         changed.add(layer.id);
     }
 
     if (activeChild && childState) {
-        const child = layer.getChildLayer(activeChild);
         if (child) diffNodeTracked(child, childState, changed);
     }
 }

@@ -15,6 +15,8 @@ export type NavOp =
     opts: ChaynsHistoryNavigateOptions;
     /** @internal Force a change notification even when segments appear unchanged (bootstrap via setSegmentCount). */
     _notifyEvenIfUnchanged?: true;
+    /** @internal Notify subscribers without mutating the browser history (used for segment ownership/bootstrap updates). */
+    _skipCommit?: true;
 }
     | {
     kind: 'setState';
@@ -192,7 +194,9 @@ export class NavigationQueue {
             (op.opts.hash !== undefined && prevHash !== op.opts.hash);
 
         if (changed) {
-            this.commit(op.opts.isReplace === true);
+            if (op._skipCommit !== true) {
+                this.commit(op.opts.isReplace === true);
+            }
             layer._emit('change');
         }
         return { isOk: true };
@@ -257,6 +261,7 @@ export class NavigationQueue {
         const allowed = await this.deps.checkBlocks(layer);
         if (!allowed) return { isOk: false, reason: 'blocked' };
 
+        const previousUrl = this.deps.projectUrl();
         const previousId = layer.getActiveChildId();
         if (op.childId !== null && !layer.getChildLayer(op.childId)) {
             // Auto-create on demand. Documented behavior.
@@ -288,7 +293,9 @@ export class NavigationQueue {
         }
 
         if (previousId !== op.childId) {
-            this.commit(false);
+            const nextUrl = this.deps.projectUrl();
+            const shouldReplace = previousUrl === nextUrl;
+            this.commit(shouldReplace);
             layer._emit('change'); // own-prop changed
         }
 

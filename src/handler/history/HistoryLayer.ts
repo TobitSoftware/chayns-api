@@ -10,6 +10,7 @@ import { EventBus } from '../../utils/EventBus';
 import type { NavigationQueue } from '../../utils/history/NavigationQueue';
 import type { BlockRegistry } from '../../utils/history/BlockRegistry';
 import { resolveSegmentsFrom } from '../../utils/history/rootLayer';
+import { normalizeHistoryRouteInput, normalizeHistorySegments } from '../../utils/history/segments';
 
 /**
  * Reserved keys in a layer's state node. These are managed by the core
@@ -85,7 +86,7 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
         this.depth = init.parent ? init.parent.depth + 1 : 0;
         this.deps = init.deps;
         this.segmentCount = init.segmentCount ?? 0;
-        this.segments = init.segments ?? [];
+        this.segments = normalizeHistorySegments(init.segments ?? []);
     }
 
 // ---------------------------------------------------------------------------
@@ -101,6 +102,10 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
             return;
         }
         const prev = this.segmentCount;
+        if (n === prev) {
+            return;
+        }
+
         this.segmentCount = n;
 
         if (this._isInActiveChain()) {
@@ -118,7 +123,7 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
                 const root = this.deps.getRoot();
                 const bootstrapSegs = root._consumeBootstrapSegments(n);
                 if (bootstrapSegs) {
-                    this.segments = bootstrapSegs;
+                    this.segments = normalizeHistorySegments(bootstrapSegs);
                 }
             }
             // Request a re-projection through the queue.
@@ -131,6 +136,9 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
                 // so processSetRoute's diff would see no change. Force the notification so
                 // subscribers (e.g. useRoute) always learn about the bootstrapped segments.
                 _notifyEvenIfUnchanged: true,
+                // segmentCount changes only redistribute ownership of the current URL;
+                // they must not create a new browser history entry.
+                _skipCommit: true,
             });
         }
     }
@@ -342,7 +350,7 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
 
     /** @internal Apply mutated segments without firing events. */
     _setOwnSegmentsSilent(next: string[]): void {
-        this.segments = [...next];
+        this.segments = normalizeHistorySegments(next);
     }
 
     /** @internal */
@@ -442,8 +450,7 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
     }
 
     private static normalizeRoute(route: string | string[]): string[] {
-        if (Array.isArray(route)) return [...route];
-        return route.split('/').filter(Boolean);
+        return normalizeHistoryRouteInput(route);
     }
 
     private static filterReservedKeys<T extends Record<string, unknown>>(input: T): Record<string, unknown> {

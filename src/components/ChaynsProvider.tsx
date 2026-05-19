@@ -119,7 +119,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
 
             const layer = historyLayer ?? parentLayerRef.current ?? rootLayerRef.current
 
-            if(typeof segmentCount === 'number'){
+            if(typeof segmentCount === 'number' && layer.getSegmentCount() !== segmentCount){
                 layer.setSegmentCount(segmentCount)
             }
 

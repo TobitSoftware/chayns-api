@@ -1,5 +1,6 @@
 import type { ChaynsHistoryLayer } from '../../handler/history/HistoryLayer';
 import { getChaynsHistoryActiveChain } from './layerTree';
+import { normalizeHistorySegments } from './segments';
 
 /**
  * Concatenates all segments along the active chain into a URL with pathname,
@@ -12,7 +13,7 @@ export function projectToUrl(root: ChaynsHistoryLayer): string {
     let hash: string | undefined;
 
     for (const layer of chain) {
-        for (const seg of layer._getOwnSegments()) {
+        for (const seg of normalizeHistorySegments(layer._getOwnSegments())) {
             parts.push(seg);
         }
         Object.assign(mergedParams, layer._getOwnParams());

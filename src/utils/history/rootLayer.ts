@@ -4,10 +4,11 @@ import { BlockRegistry } from './BlockRegistry';
 import { findChaynsHistoryLayerById } from './layerTree';
 import { projectToUrl, parseFromUrl } from './url';
 import { projectToState, applyStateToTree, diffIncomingState, hasChaynsHistoryState } from './stateProjector';
-import { silentGo, consumeSilent, getCurrentIdx, incrementIdx } from './navigationIndex';
+import { silentGo, consumeSilent, incrementIdx } from './navigationIndex';
 import { hasWindowHistory } from './window';
 import { shallowEqualArr } from '../equality';
 import {getSite} from "../../calls";
+import { normalizeHistorySegments } from './segments';
 
 /** Resolves the initial page pathname for bootstrap URL parsing.
  *  Priority: explicit `url` option → window.location (browser) → getSite().url (SSR fallback). */
@@ -127,9 +128,10 @@ export function initRootChaynsHistoryLayer(opts: InitRootChaynsHistoryLayerOptio
             for (const [id, segs] of perLayerSegments) {
                 const layer = findChaynsHistoryLayerById(rootLayer, id);
                 if (!layer) continue;
+                const normalizedSegs = normalizeHistorySegments(segs);
                 const prev = layer._getOwnSegments();
-                if (!shallowEqualArr(prev, segs)) {
-                    layer._setOwnSegmentsSilent(segs);
+                if (!shallowEqualArr(prev, normalizedSegs)) {
+                    layer._setOwnSegmentsSilent(normalizedSegs);
                     changed.add(id);
                 }
             }
