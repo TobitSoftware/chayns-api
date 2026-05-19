@@ -153,10 +153,15 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         };
     }, []);
 
-    const isExternallyProvidedRootLayer = historyLayer?.id === 'root';
-    const isDisabled = isExternallyProvidedRootLayer
-        ? false
-        : Boolean(customWrapper.current.values.isHistoryDisabled) || Boolean(isHistoryDisabled);
+    let isDisabled = Boolean(customWrapper.current.values?.isHistoryDisabled)
+
+    if (typeof isHistoryDisabled === 'boolean' && !isDisabled) {
+        isDisabled = isHistoryDisabled
+    }
+
+    if (historyLayer?.id === 'root') {
+        isDisabled = false
+    }
 
     return (
         <>
