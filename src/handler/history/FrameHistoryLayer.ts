@@ -4,6 +4,7 @@ import type {
     ChaynsHistoryNavigationCommitOptions,
     ChaynsHistoryBlockOptions,
     ChaynsHistoryLayerEvent,
+    ChaynsHistoryActionResult,
 } from '../../types/history';
 import { EventBus } from '../../utils/EventBus';
 
@@ -20,8 +21,8 @@ export interface HistoryBridgeFunctions {
     setParams(params: Record<string, string>, opts?: ChaynsHistoryNavigationCommitOptions): Promise<void>;
     setHash(hash: string, opts?: ChaynsHistoryNavigationCommitOptions): Promise<void>;
     setState(state: Record<string, unknown>, opts?: ChaynsHistoryNavigateOptions): Promise<void>;
-    navigate(opts: { route?: string | string[]; state?: Record<string, unknown>; activeChild?: string | null; activeChildInit?: { route?: string | string[]; state?: Record<string, unknown> } } & ChaynsHistoryNavigateOptions): Promise<void>;
-    setActiveChild(id: string | null, init?: { route?: string | string[]; state?: Record<string, unknown> }): Promise<void>;
+    navigate(opts: { route?: string | string[]; state?: Record<string, unknown>; activeChild?: string | null; activeChildInit?: { route?: string | string[]; state?: Record<string, unknown> } } & ChaynsHistoryNavigateOptions): Promise<ChaynsHistoryActionResult>;
+    setActiveChild(id: string | null, init?: { route?: string | string[]; state?: Record<string, unknown> }): Promise<ChaynsHistoryActionResult>;
     setSegmentCount(n: number): Promise<void>;
     /** Callback must be wrapped with comlink.proxy by FrameWrapper. Returns an async unsubscribe fn. */
     addBlock(callback: () => Promise<boolean>, opts?: ChaynsHistoryBlockOptions): Promise<() => void>;
@@ -98,8 +99,8 @@ export class FrameHistoryLayer implements ChaynsHistoryLayer {
 
     destroyChildLayer(_id: string): void { /* no-op */ }
 
-    setActiveChild(id: string | null, init?: { route?: string | string[]; state?: Record<string, unknown> }): void {
-        void this.bridge.setActiveChild(id, init);
+    setActiveChild(id: string | null, init?: { route?: string | string[]; state?: Record<string, unknown> }): Promise<ChaynsHistoryActionResult> {
+        return this.bridge.setActiveChild(id, init);
     }
 
     getActiveChildId(): string | null {
@@ -162,8 +163,8 @@ export class FrameHistoryLayer implements ChaynsHistoryLayer {
 
     // region navigate
 
-    navigate(opts: { route?: string | string[]; state?: Record<string, unknown>; activeChild?: string | null; activeChildInit?: { route?: string | string[]; state?: Record<string, unknown> } } & ChaynsHistoryNavigateOptions): void {
-        void this.bridge.navigate(opts);
+    navigate(opts: { route?: string | string[]; state?: Record<string, unknown>; activeChild?: string | null; activeChildInit?: { route?: string | string[]; state?: Record<string, unknown> } } & ChaynsHistoryNavigateOptions): Promise<ChaynsHistoryActionResult> {
+        return this.bridge.navigate(opts);
     }
 
     // endregion

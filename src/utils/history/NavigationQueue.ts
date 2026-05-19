@@ -1,5 +1,5 @@
 import type { ChaynsHistoryLayer } from '../../handler/history/HistoryLayer';
-import type { ChaynsHistoryNavigateOptions, ChaynsHistoryNavigationCommitOptions } from '../../types/history';
+import type { ChaynsHistoryActionResult, ChaynsHistoryNavigateOptions, ChaynsHistoryNavigationCommitOptions } from '../../types/history';
 import { hasWindowHistory } from './window';
 import { shallowEqualArr, shallowEqualObj } from '../equality';
 
@@ -56,9 +56,7 @@ export type NavOp =
     rawState: unknown;
 };
 
-export type NavResult =
-    | { isOk: true }
-    | { isOk: false; reason: 'blocked' | 'stale' | 'destroyed' | 'error'; error?: unknown };
+export type NavResult = ChaynsHistoryActionResult;
 
 interface QueuedEntry {
     op: NavOp;

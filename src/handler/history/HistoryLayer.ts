@@ -4,6 +4,7 @@ import type {
     ChaynsHistoryNavigateOptions,
     ChaynsHistoryNavigationCommitOptions,
     ChaynsHistoryBlockOptions,
+    ChaynsHistoryActionResult,
 } from '../../types/history';
 import { EventBus } from '../../utils/EventBus';
 import type { NavigationQueue } from '../../utils/history/NavigationQueue';
@@ -185,10 +186,10 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
     setActiveChild(
         id: string | null,
         init?: { route?: string | string[]; state?: Record<string, unknown> },
-    ): void {
-        if (this.isDestroyed) return;
+    ): Promise<ChaynsHistoryActionResult> {
+        if (this.isDestroyed) return Promise.resolve({ isOk: false, reason: 'destroyed' });
 
-        void this.deps.getQueue().enqueue({
+        return this.deps.getQueue().enqueue({
             kind: 'setActiveChild',
             layerId: this.id,
             childId: id,
@@ -277,11 +278,11 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
         });
     }
 
-    navigate(opts: { route?: string | string[]; state?: Record<string, unknown>; activeChild?: string | null; activeChildInit?: { route?: string | string[]; state?: Record<string, unknown> } } & ChaynsHistoryNavigateOptions): void {
-        if (this.isDestroyed) return;
+    navigate(opts: { route?: string | string[]; state?: Record<string, unknown>; activeChild?: string | null; activeChildInit?: { route?: string | string[]; state?: Record<string, unknown> } } & ChaynsHistoryNavigateOptions): Promise<ChaynsHistoryActionResult> {
+        if (this.isDestroyed) return Promise.resolve({ isOk: false, reason: 'destroyed' });
         const { route, state, params, hash, activeChild, activeChildInit, ...rest } = opts;
 
-        void this.deps.getQueue().enqueue({
+        return this.deps.getQueue().enqueue({
             kind: 'navigate',
             layerId: this.id,
             route: route !== undefined ? ChaynsHistoryLayer.normalizeRoute(route) : undefined,

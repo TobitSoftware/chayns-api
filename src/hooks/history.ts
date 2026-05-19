@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
-import type { ChaynsHistoryLayer, ChaynsHistoryNavigateOptions, ChaynsHistoryNavigationCommitOptions, ChaynsHistoryBlockOptions, ChaynsHistoryLayerEvent } from '../types/history';
+import type { ChaynsHistoryLayer, ChaynsHistoryNavigateOptions, ChaynsHistoryNavigationCommitOptions, ChaynsHistoryBlockOptions, ChaynsHistoryLayerEvent, ChaynsHistoryActionResult } from '../types/history';
 import { useChaynsHistoryLayerContext } from '../contexts/HistoryLayerContext';
 import { shallowEqualObj } from '../utils/equality';
 
@@ -135,7 +135,7 @@ export function useChaynsHistoryNavigate(): (
         /** Initial route/state to seed the child with when it is first activated. */
         activeChildInit?: { route?: string | string[]; state?: Record<string, unknown> };
     } & ChaynsHistoryNavigateOptions,
-) => void {
+) => Promise<ChaynsHistoryActionResult> {
     const layer = useChaynsHistoryLayer();
     return useCallback((opts) => layer.navigate(opts), [layer]);
 }

@@ -23,6 +23,10 @@ export type ChaynsHistoryLayerEvent = {
     hash: string;
 };
 
+export type ChaynsHistoryActionResult =
+    | { isOk: true }
+    | { isOk: false; reason: 'blocked' | 'stale' | 'destroyed' | 'error'; error?: unknown };
+
 export type ChaynsHistoryLayerStateNode = {
     activeChild?: string;
     childState?: ChaynsHistoryLayerStateNode;
@@ -45,7 +49,7 @@ export interface ChaynsHistoryLayer {
     setActiveChild(
         id: string | null,
         init?: { route?: string | string[]; state?: Record<string, unknown> },
-    ): void;
+    ): Promise<ChaynsHistoryActionResult>;
     getActiveChildId(): string | null;
     getChildLayer(id: string): ChaynsHistoryLayer | undefined;
 
@@ -68,7 +72,7 @@ export interface ChaynsHistoryLayer {
         activeChild?: string | null;
         /** Initial route/state to seed the child with when it is first activated. */
         activeChildInit?: { route?: string | string[]; state?: Record<string, unknown> };
-    } & ChaynsHistoryNavigateOptions): void;
+    } & ChaynsHistoryNavigateOptions): Promise<ChaynsHistoryActionResult>;
 
     addBlock(
         callback: () => Promise<boolean>,
