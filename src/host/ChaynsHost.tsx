@@ -104,9 +104,13 @@ const ChaynsHost: FC<ChaynsHostType> = ({
 
     const resolvedLayer = historyLayer ?? getOrInitRootChaynsHistoryLayer().rootLayer;
 
-    const layer = historyChildId
-        ? (resolvedLayer.getChildLayer(historyChildId) ?? resolvedLayer.createChildLayer(historyChildId))
-        : resolvedLayer;
+    let layer: ChaynsHistoryLayer | undefined;
+
+    if(!isHistoryDisabled) {
+        layer = historyChildId
+            ? (resolvedLayer.getChildLayer(historyChildId) ?? resolvedLayer.createChildLayer(historyChildId))
+            : resolvedLayer;
+    }
 
     switch (type) {
         case 'client-iframe':
