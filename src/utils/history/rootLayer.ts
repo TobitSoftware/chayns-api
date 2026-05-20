@@ -4,7 +4,7 @@ import { BlockRegistry } from './BlockRegistry';
 import { findChaynsHistoryLayerById } from './layerTree';
 import { projectToUrl, parseFromUrl } from './url';
 import { projectToState, applyStateToTree, diffIncomingState, hasChaynsHistoryState } from './stateProjector';
-import { silentGo, consumeSilent, incrementIdx } from './navigationIndex';
+import {silentGo, consumeSilent, incrementIdx, getCurrentIdx} from './navigationIndex';
 import { hasWindowHistory } from './window';
 import { shallowEqualArr } from '../equality';
 import {getSite} from "../../calls";
