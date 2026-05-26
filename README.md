@@ -47,6 +47,8 @@ For migration guides between major versions, please refer to the [migration docu
 
 More information to setup chayns-api can be found in the [documentation](https://tobitsoftware.github.io/chayns-api/docs).
 
+For advanced use cases like Module Federation, refer to the [Module Federation Guide](https://tobitsoftware.github.io/chayns-api/docs/module-federation).
+
 ## Troubleshooting
 
 ```
