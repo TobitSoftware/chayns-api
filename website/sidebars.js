@@ -1,6 +1,7 @@
 module.exports = {
 	docs: [
 		"getting-started",
+		"migration",
 		// {
 		// 	type: "category",
 		// 	label: "Features",
