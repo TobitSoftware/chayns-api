@@ -79,6 +79,30 @@ The `system` property defines the module to load:
 - **`serverUrl`** (optional): URL for server-side rendering
 - **`preventSingleton`** (optional): Prevents singleton behavior for this module
 
+### 3. Exporting Components for Module Federation
+
+When creating a component that will be loaded via Module Federation, you should:
+
+1. **Export it as default export**
+2. **Wrap it with `withCompatMode`** to ensure React version compatibility
+3. **Accept `ChaynsProviderProps` and spread them to `ChaynsProvider`**
+
+```tsx
+import { ChaynsProvider, withCompatMode, type ChaynsProviderProps } from 'chayns-api';
+
+const AppWrapper = (props: ChaynsProviderProps) => {
+    return (
+        <ChaynsProvider {...props}>
+            <div>My Module Federation Component</div>
+        </ChaynsProvider>
+    );
+};
+
+export default withCompatMode(AppWrapper);
+```
+
+The `withCompatMode` wrapper automatically handles React version differences between the host application and your module. This ensures your component works correctly even if the host uses a different React version.
+
 ## Registering a Module Federation Page
 
 To register a page that uses Module Federation in the chayns system, the process is similar to creating a regular page (as shown in the [Getting Started](/) guide). 
