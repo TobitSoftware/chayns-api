@@ -42,6 +42,14 @@ export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
             scope: 'chayns-api',
             lib: () => ReactDOM,
         },
+        'react-dom/server': {
+            version: React.version,
+            scope: 'chayns-api',
+            get: async () => {
+                const module = await import('react-dom/server')
+                return () => module;
+            },
+        }
     };
     if (ReactDOMClient) {
         shared['react-dom/client'] = {

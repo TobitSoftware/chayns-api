@@ -1,6 +1,6 @@
 {
     "name": "chayns-api",
-    "version": "2.7.0-beta.0",
+    "version": "3.0.0",
     "description": "new chayns api",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
@@ -55,8 +55,8 @@
         "comlink": "4.3.1",
         "htmlescape": "^1.1.1",
         "lodash.throttle": "^4.1.1",
-        "ua-parser-js": "^1.0.41",
-        "use-sync-external-store": "^1.6.0"
+        "react-compiler-runtime": "^1.0.0",
+        "ua-parser-js": "^1.0.41"
     },
     "devDependencies": {
         "@babel/cli": "^7.28.3",
@@ -73,7 +73,7 @@
         "@types/react": "^18.3.27",
         "@types/react-dom": "^18.3.7",
         "@types/ua-parser-js": "^0.7.39",
-        "@types/use-sync-external-store": "^1.5.0",
+        "babel-plugin-react-compiler": "^1.0.0",
         "@vitest/coverage-v8": "^4.1.5",
         "chayns-toolkit": "^4.0.0-beta.0",
         "concurrently": "^9.2.1",
@@ -88,7 +88,7 @@
     },
     "peerDependencies": {
         "@module-federation/enhanced": "^2.4.0",
-        "react": "^16.8 || ^17.0.1 || ^18.0.0 || ^19.0.0",
-        "react-dom": "^16.8 || ^17.0.1 || ^18.0.0 || ^19.0.0"
+        "react": "^18.0.0 || ^19.0.0",
+        "react-dom": "^18.0.0 || ^19.0.0"
     }
 }

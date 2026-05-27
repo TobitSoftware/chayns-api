@@ -1,4 +1,4 @@
-import React, {FC, startTransition, useEffect, useState} from 'react';
+import React, { FC, useDeferredValue, useSyncExternalStore } from 'react';
 import HostIframe from './iframe/HostIframe';
 import ModuleHost, {TypeSystem} from './module/ModuleHost';
 import {
@@ -57,46 +57,38 @@ type ChaynsHostType = {
     system: TypeSystem,
 });
 
+const subscribeToHydration = () => () => {};
+
 const ChaynsHost: FC<ChaynsHostType> = ({
-                                            type,
-                                            iFrameProps,
-                                            functions,
-                                            customFunctions,
-                                            src,
-                                            iFrameRef = undefined,
-                                            loadingComponent = undefined,
-                                            system,
-                                            // shallow data
-                                            pages,
-                                            language,
-                                            isAdminModeActive,
-                                            site,
-                                            user,
-                                            currentPage,
-                                            device,
-                                            parameters,
-                                            customData,
-                                            environment,
-                                            preventStagingReplacement,
-                                            dialog,
-                                            styleSettings,
-                                            historyLayer,
-                                            historyChildId,
-                                            isHistoryDisabled = true,
-                                        }) => {
-    const [isVisible, setIsVisible] = useState(type !== 'client-module' && (type !== 'server-module' || !!system?.serverUrl));
-
-    useEffect(() => {
-        if (isVisible) return;
-
-        if (typeof startTransition === 'function') {
-            startTransition(() => {
-                setIsVisible(true);
-            });
-        } else {
-            setIsVisible(true);
-        }
-    }, []);
+    type,
+    iFrameProps,
+    functions,
+    customFunctions,
+    src,
+    iFrameRef = undefined,
+    loadingComponent = undefined,
+    system,
+    // shallow data
+    pages,
+    language,
+    isAdminModeActive,
+    site,
+    user,
+    currentPage,
+    device,
+    parameters,
+    customData,
+    environment,
+    preventStagingReplacement,
+    dialog,
+    styleSettings,
+    historyLayer,
+    historyChildId,
+    isHistoryDisabled = true,
+}) => {
+    const isInitiallyVisible = type !== 'client-module' && (type !== 'server-module' || !!system?.serverUrl);
+    const isHydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
+    const isVisible = useDeferredValue(isInitiallyVisible || isHydrated);
 
     if (!isVisible) {
         return null;

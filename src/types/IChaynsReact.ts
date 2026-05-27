@@ -523,8 +523,12 @@ export type IntercomMessage = {
 
 export enum ScanQrCodeCodeType {
     QR = 0,
-    BARCODE = 0,
-    ALL = 2
+    BARCODE = 1,
+    /** @deprecated Use codeTypes and explicitly set all **/
+    ALL = 2,
+    CASH = 3,
+    DATA_MATRIX = 4,
+    PDF417 = 5
 }
 
 export enum ScanQrCodeCameraTypes {
@@ -544,7 +548,9 @@ export type ScanQrCodeRequest = {
     ccAnimation?: boolean,
     geoLocation?: boolean,
     showInput?: boolean,
+    /** @deprecated Use **codeTypes** instead **/
     codeType?: ScanQrCodeCodeType,
+    codeTypes?: ScanQrCodeCodeType[],
     codeFormats?: 4 | 5
 }
 
