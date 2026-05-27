@@ -12,6 +12,14 @@ Both chayns-api and chayns-toolkit have updated their `@module-federation/enhanc
 
 Please refer to the [chayns-toolkit migration guide](https://tobitsoftware.github.io/chayns-toolkit/docs/migrations/v3-to-v4) for detailed information on the toolkit upgrade.
 
+### Breaking Changes
+
+**React 16 and React 17 are no longer supported.** chayns-api@3 requires React 18 or higher. Make sure to update your React version before upgrading:
+
+```bash
+npm install react@^18 react-dom@^18
+```
+
 ## Migrate v1 to v2
 
 When updating to chayns-api@2 you should also update chayns-toolkit to 3.0.1 or higher (check migration guide [here](https://tobitsoftware.github.io/chayns-toolkit/docs/migrations/v2-to-v3)).
