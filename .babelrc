@@ -1,4 +1,16 @@
 {
+    "presets": [
+        "@babel/preset-react",
+        "@babel/preset-typescript"
+    ],
+    "plugins": [
+        [
+            "babel-plugin-react-compiler",
+            {
+                "target": "18"
+            }
+        ]
+    ],
     "env": {
         "esm": {
             "presets": [
@@ -8,9 +20,7 @@
                         "targets": ">0.5%, not dead, not op_mini all, chrome 71",
                         "modules": false
                     }
-                ],
-                "@babel/preset-react",
-                "@babel/preset-typescript"
+                ]
             ]
         },
         "cjs": {
@@ -21,9 +31,7 @@
                         "targets": { "node": 12 },
                         "modules": "commonjs"
                     }
-                ],
-                "@babel/preset-react",
-                "@babel/preset-typescript"
+                ]
             ]
         }
     },
