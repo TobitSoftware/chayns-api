@@ -123,7 +123,7 @@ export class AppWrapper implements IChaynsReact {
                 runtimeEnvironment: RuntimeEnviroment.App,
             },
             language: {
-                site: language,
+                site: AppInfo.Language || 'de',
                 translation: null,
                 device: language,
                 active: language,
