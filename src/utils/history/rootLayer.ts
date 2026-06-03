@@ -4,12 +4,11 @@ import { BlockRegistry } from './BlockRegistry';
 import { findChaynsHistoryLayerById } from './layerTree';
 import { projectToUrl, parseFromUrl } from './url';
 import { projectToState, applyStateToTree, diffIncomingState, hasChaynsHistoryState } from './stateProjector';
-import { silentGo, consumeSilent, incrementIdx, getCurrentIdx, syncCurrentIdxFromState } from './navigationIndex';
+import {silentGo, consumeSilent, incrementIdx, getCurrentIdx} from './navigationIndex';
 import { hasWindowHistory } from './window';
 import { shallowEqualArr } from '../equality';
-import { getSite } from '../../calls';
+import {getSite} from "../../calls";
 import { normalizeHistorySegments } from './segments';
-import { NativeBackHandler } from './nativeBackHandling';
 
 /** Resolves the initial page pathname for bootstrap URL parsing.
  *  Priority: explicit `url` option → window.location (browser) → getSite().url (SSR fallback). */
@@ -87,21 +86,16 @@ export function initRootChaynsHistoryLayer(opts: InitRootChaynsHistoryLayerOptio
     const blockRegistry = new BlockRegistry();
 
     // Wired lazily so queue and root can reference each other.
-    let queueRef: NavigationQueue | null = null;
+    let rootLayer: ChaynsHistoryLayer;
+    let queue: NavigationQueue;
 
     const deps = {
         getRoot: () => rootLayer,
-        getQueue: () => {
-            if (!queueRef) {
-                throw new Error('[chaynsHistory] NavigationQueue not initialized yet.');
-            }
-
-            return queueRef;
-        },
+        getQueue: () => queue,
         getBlockRegistry: () => blockRegistry,
     };
 
-    const rootLayer = new ChaynsHistoryLayer({
+    rootLayer = new ChaynsHistoryLayer({
         id: 'root',
         parent: null,
         deps,
@@ -109,10 +103,7 @@ export function initRootChaynsHistoryLayer(opts: InitRootChaynsHistoryLayerOptio
         segments: opts.segmentCount ? resolveInitialSegments(opts.url, opts.segmentCount) : [],
     });
 
-    const nativeBackHandler = new NativeBackHandler({ rootLayer, blockRegistry });
-    const syncNativeHandling = nativeBackHandler.sync;
-
-    const queue = new NavigationQueue({
+    queue = new NavigationQueue({
         getRoot: () => rootLayer,
         findLayer: (id) => findChaynsHistoryLayerById(rootLayer, id),
         checkBlocks: (target) => blockRegistry.checkBlocks(target),
@@ -130,7 +121,6 @@ export function initRootChaynsHistoryLayer(opts: InitRootChaynsHistoryLayerOptio
         silentGo: (delta) => silentGo(delta),
         getCurrentIdx: () => getCurrentIdx(),
         incrementIdx: () => incrementIdx(),
-        onCommit: syncNativeHandling,
         applyUrlSegments: () => {
             if (!hasWindowHistory()) return { changedLayerIds: new Set<string>() };
             const { perLayerSegments } = parseFromUrl(window.location.pathname, rootLayer);
@@ -149,16 +139,12 @@ export function initRootChaynsHistoryLayer(opts: InitRootChaynsHistoryLayerOptio
         },
     });
 
-    queueRef = queue;
-
 
     // Bootstrap: sync memory tree from existing history state or initialize fresh.
     // Seed the bootstrap URL pool first (works in both browser and SSR).
     const existingState = hasWindowHistory()
         ? (window.history.state as Record<string, unknown> | null)
         : null;
-
-    syncCurrentIdxFromState(existingState);
 
     if (!hasChaynsHistoryState(existingState)) {
         // Seed the bootstrap pool for child layers. The root layer already has its
@@ -201,7 +187,7 @@ export function initRootChaynsHistoryLayer(opts: InitRootChaynsHistoryLayerOptio
             const foreign = { ...(existing ?? {}) };
             delete foreign.__chaynsHistory;
             const initialState = projectToState(rootLayer, foreign);
-            const idx = getCurrentIdx();
+            const idx = incrementIdx();
             window.history.replaceState(
                 { ...initialState, __chaynsHistory: { ...(initialState.__chaynsHistory as object), __idx: idx } },
                 '',
@@ -210,46 +196,21 @@ export function initRootChaynsHistoryLayer(opts: InitRootChaynsHistoryLayerOptio
         } else {
             // Restore tree from existing state.
             applyStateToTree(rootLayer, existing);
-
-            if (syncCurrentIdxFromState(existing) === null) {
-                const foreign = { ...(existing ?? {}) };
-                delete foreign.__chaynsHistory;
-                const currentState = projectToState(rootLayer, foreign);
-                const idx = getCurrentIdx();
-                window.history.replaceState(
-                    { ...currentState, __chaynsHistory: { ...(currentState.__chaynsHistory as object), __idx: idx } },
-                    '',
-                    window.location.href,
-                );
-            }
         }
-
-        blockRegistry.subscribeToChanges(syncNativeHandling);
 
         // Attach popstate listener.
         window.addEventListener('popstate', (event: PopStateEvent) => {
-            syncCurrentIdxFromState(event.state);
-
             // If a silentGo is in progress, absorb this event.
-            if (consumeSilent()) {
-                syncNativeHandling();
-                return;
-            }
+            if (consumeSilent()) return;
 
-            const raw: unknown = event.state;
+            const raw = event.state;
 
             if (!hasChaynsHistoryState(raw)) {
                 // Foreign push — ignore and keep memory tree as truth.
-                syncNativeHandling();
             } else {
-                const skipBlockCheck = nativeBackHandler.consumeBypassFlag();
-                void queue
-                    .enqueue({ kind: 'popstate', rawState: raw, skipBlockCheck })
-                    .finally(syncNativeHandling);
+                void queue.enqueue({ kind: 'popstate', rawState: raw });
             }
         });
-
-        syncNativeHandling();
     }
 
     return { rootLayer };

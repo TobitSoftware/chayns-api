@@ -25,13 +25,12 @@ let _nextId = 1;
 export class BlockRegistry {
     /** Per-layer block list. */
     private readonly layerBlocks = new Map<string, Set<BlockEntry>>();
-    private readonly changeListeners = new Set<() => void>();
 
     /** Number of blocks with `isBeforeUnload: true`. When > 0, listener is attached. */
     private beforeUnloadCount = 0;
     private readonly beforeUnloadHandler = (e: BeforeUnloadEvent) => {
         e.preventDefault();
-        Reflect.set(e, 'returnValue', '');
+        e.returnValue = '';
     };
 
     // -------------------------------------------------------------------------
@@ -63,21 +62,17 @@ export class BlockRegistry {
             this.incrementBeforeUnload();
         }
 
-        this.notifyChange();
-
         return () => this.remove(layer.id, entry);
     }
 
     remove(layerId: string, entry: BlockEntry): void {
         const set = this.layerBlocks.get(layerId);
         if (!set) return;
-        const didDelete = set.delete(entry);
-        if (!didDelete) return;
+        set.delete(entry);
         if (set.size === 0) this.layerBlocks.delete(layerId);
         if (entry.opts.isBeforeUnload) {
             this.decrementBeforeUnload();
         }
-        this.notifyChange();
     }
 
     /** Remove all blocks registered for a layer (called on destroy). */
@@ -88,14 +83,6 @@ export class BlockRegistry {
             if (entry.opts.isBeforeUnload) this.decrementBeforeUnload();
         }
         this.layerBlocks.delete(layerId);
-        this.notifyChange();
-    }
-
-    subscribeToChanges(listener: () => void): () => void {
-        this.changeListeners.add(listener);
-        return () => {
-            this.changeListeners.delete(listener);
-        };
     }
 
     // -------------------------------------------------------------------------
@@ -127,26 +114,6 @@ export class BlockRegistry {
         return result;
     }
 
-    hasActiveBlocks(rootLayer: ChaynsHistoryLayer): boolean {
-        return this.collectActiveChainBlocks(rootLayer).length > 0;
-    }
-
-    async checkActiveBlocks(rootLayer: ChaynsHistoryLayer): Promise<boolean> {
-        const blocks = this.collectActiveChainBlocks(rootLayer);
-        if (blocks.length === 0) return true;
-
-        const results = await Promise.all(
-            blocks.map((b) => this.runBlock(b)),
-        );
-        return results.every(Boolean);
-    }
-
-    private collectActiveChainBlocks(rootLayer: ChaynsHistoryLayer): BlockEntry[] {
-        const result: BlockEntry[] = [];
-        this.collectFromActiveChain(rootLayer, result);
-        return result;
-    }
-
     private collectGlobalFromActiveDescendants(
         layer: ChaynsHistoryLayer,
         out: BlockEntry[],
@@ -167,23 +134,6 @@ export class BlockRegistry {
         }
 
         this.collectGlobalFromActiveDescendants(child, out);
-    }
-
-    private collectFromActiveChain(layer: ChaynsHistoryLayer, out: BlockEntry[]): void {
-        const set = this.layerBlocks.get(layer.id);
-        if (set) {
-            for (const entry of set) {
-                out.push(entry);
-            }
-        }
-
-        const activeChildId = layer.getActiveChildId();
-        if (!activeChildId) return;
-
-        const child = layer.getChildLayer(activeChildId);
-        if (!child) return;
-
-        this.collectFromActiveChain(child, out);
     }
 
     // -------------------------------------------------------------------------
@@ -216,7 +166,7 @@ export class BlockRegistry {
                 ),
             ]);
             return result;
-        } catch {
+        } catch (err) {
             return false;
         }
     }
@@ -237,12 +187,6 @@ export class BlockRegistry {
         this.beforeUnloadCount--;
         if (this.beforeUnloadCount === 0 && typeof window !== 'undefined') {
             window.removeEventListener('beforeunload', this.beforeUnloadHandler);
-        }
-    }
-
-    private notifyChange(): void {
-        for (const listener of this.changeListeners) {
-            listener();
         }
     }
 }

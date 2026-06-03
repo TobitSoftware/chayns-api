@@ -1,7 +1,5 @@
 import { hasWindowHistory } from './window';
 
-const CHAYNS_HISTORY_STATE_KEY = '__chaynsHistory';
-
 // ---------------------------------------------------------------------------
 // Singleton state (top window only)
 // ---------------------------------------------------------------------------
@@ -31,41 +29,6 @@ export function incrementIdx(): number {
 /** Get current index for stamping real entries or direction comparison. */
 export function getCurrentIdx(): number {
     return currentIdx;
-}
-
-export function setCurrentIdx(idx: number): void {
-    if (!Number.isInteger(idx) || idx < 0) {
-        return;
-    }
-    currentIdx = idx;
-}
-
-export function extractHistoryIndex(raw: unknown): number | null {
-    if (!raw || typeof raw !== 'object') {
-        return null;
-    }
-
-    const chaynsHistory = (raw as Record<string, unknown>)[CHAYNS_HISTORY_STATE_KEY];
-    if (!chaynsHistory || typeof chaynsHistory !== 'object') {
-        return null;
-    }
-
-    const idx = (chaynsHistory as Record<string, unknown>).__idx;
-    if (typeof idx !== 'number' || !Number.isInteger(idx) || idx < 0) {
-        return null;
-    }
-
-    return idx;
-}
-
-export function syncCurrentIdxFromState(raw: unknown): number | null {
-    const idx = extractHistoryIndex(raw);
-    if (idx === null) {
-        return null;
-    }
-
-    currentIdx = idx;
-    return idx;
 }
 
 // ---------------------------------------------------------------------------

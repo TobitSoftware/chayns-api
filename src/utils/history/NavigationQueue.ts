@@ -56,13 +56,6 @@ export type NavOp =
     | {
     kind: 'popstate';
     rawState: unknown;
-    /**
-     * @internal Skips the block check pipeline for this popstate. Used when
-     * the popstate was triggered by us right after a native-back callback
-     * that already ran `checkActiveBlocks` — re-running it would prompt the
-     * user twice.
-     */
-    skipBlockCheck?: boolean;
 };
 
 export type NavResult = ChaynsHistoryActionResult;
@@ -100,8 +93,6 @@ export interface NavigationQueueDeps {
     getCurrentIdx: () => number;
     /** Increments the navigation index and returns the new value. */
     incrementIdx: () => number;
-    /** Called after a browser history commit finished. */
-    onCommit?: () => void;
     /**
      * Re-parse segments from `window.location.pathname` and apply them to each
      * layer in the active chain based on its `segmentCount`. Called after
@@ -171,6 +162,7 @@ export class NavigationQueue {
             case 'popstate':
                 return this.processPopstate(op);
             default: {
+                const _exhaustive: never = op;
                 return { isOk: false, reason: 'error', error: new Error('Unknown op') };
             }
         }
@@ -404,10 +396,8 @@ export class NavigationQueue {
         }
 
         // 2. Block-check at the lowest common affected layer BEFORE applying.
-        //    Skipped when the popstate originated from our native-back callback,
-        //    which already executed the same check.
         const target = this.resolveLowestCommonLayer(changedLayerIds);
-        if (target && op.skipBlockCheck !== true) {
+        if (target) {
             const allowed = await this.deps.checkBlocks(target);
             if (!allowed) {
                 // Blocked: revert browser position back one step.
@@ -505,7 +495,5 @@ export class NavigationQueue {
         } else {
             window.history.pushState(stateWithMeta, '', url);
         }
-
-        this.deps.onCommit?.();
     }
 }
