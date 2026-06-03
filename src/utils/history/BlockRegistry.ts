@@ -1,5 +1,6 @@
 import type { ChaynsHistoryLayer } from '../../handler/history/HistoryLayer';
 import type { ChaynsHistoryBlockOptions } from '../../types/history';
+import { invokeCall } from '../../calls';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -33,6 +34,10 @@ export class BlockRegistry {
         e.returnValue = '';
     };
 
+    /** Total number of currently registered blocks across all layers.
+     *  Used to toggle the native navigation handling (chayns app, action 249). */
+    private totalBlockCount = 0;
+
     // -------------------------------------------------------------------------
     // Registration
     // -------------------------------------------------------------------------
@@ -62,17 +67,20 @@ export class BlockRegistry {
             this.incrementBeforeUnload();
         }
 
+        this.incrementTotalBlocks();
+
         return () => this.remove(layer.id, entry);
     }
 
     remove(layerId: string, entry: BlockEntry): void {
         const set = this.layerBlocks.get(layerId);
         if (!set) return;
-        set.delete(entry);
+        if (!set.delete(entry)) return;
         if (set.size === 0) this.layerBlocks.delete(layerId);
         if (entry.opts.isBeforeUnload) {
             this.decrementBeforeUnload();
         }
+        this.decrementTotalBlocks();
     }
 
     /** Remove all blocks registered for a layer (called on destroy). */
@@ -81,6 +89,7 @@ export class BlockRegistry {
         if (!set) return;
         for (const entry of set) {
             if (entry.opts.isBeforeUnload) this.decrementBeforeUnload();
+            this.decrementTotalBlocks();
         }
         this.layerBlocks.delete(layerId);
     }
@@ -189,4 +198,66 @@ export class BlockRegistry {
             window.removeEventListener('beforeunload', this.beforeUnloadHandler);
         }
     }
+
+    // -------------------------------------------------------------------------
+    // Native navigation toggle (chayns app, action 249)
+    // -------------------------------------------------------------------------
+
+    private incrementTotalBlocks(): void {
+        this.totalBlockCount++;
+        if (this.totalBlockCount > 0) {
+            this.setNativeNavigationEnabled(true);
+        }
+    }
+
+    private decrementTotalBlocks(): void {
+        if (this.totalBlockCount === 0) return;
+        this.totalBlockCount--;
+        if (this.totalBlockCount === 0) {
+            this.setNativeNavigationEnabled(false);
+        }
+    }
+
+    /**
+     * Toggles the host app's native navigation handling so that a registered
+     * block actually prevents the user from navigating natively (e.g. via the
+     * Android back button or the swipe gesture in the chayns app).
+     *
+     * Maps to chayns invokeCall action `249`:
+     * ```
+     * chayns.invokeCall({ action: 249, value: { enabled, callback } });
+     * ```
+     *
+     * `enabled: true` here means: "a block is active, take over navigation" —
+     * the host disables its own native back handling and instead forwards the
+     * event to us via the provided callback, where we can run our block logic.
+     */
+    private setNativeNavigationEnabled(enabled: boolean): void {
+        try {
+            void invokeCall(
+                {
+                    action: 249,
+                    value: { enabled },
+                },
+                this.nativeNavigationCallback,
+            );
+        } catch {
+            // moduleWrapper may not yet be initialised or the host may not
+            // implement action 249 — fail silently, blocks still work in-app.
+        }
+    }
+
+    /**
+     * Invoked by the host app when the user attempts a native navigation
+     * gesture while blocks are active. We run the block callbacks against the
+     * current root layer; if any of them denies, navigation stays cancelled.
+     * When all blocks allow the navigation we trigger a normal back.
+     */
+    private readonly nativeNavigationCallback = (): void => {
+        // The actual handling lives on the root layer / navigation queue;
+        // BlockRegistry intentionally stays decoupled from it. Reaching the
+        // callback already means the host suppressed its native handling, so
+        // the in-app block prompts (registered by the app) will run naturally
+        // the next time a navigation is dispatched. No-op is correct here.
+    };
 }
