@@ -41,7 +41,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     chaynsApiId
 }) => {
     const customWrapper = useRef<IChaynsReact>(null!);
-    const idRef = useRef(chaynsApiId ?? crypto?.randomUUID() ?? Math.random().toString());
+    const idRef = useRef(chaynsApiId ?? crypto?.randomUUID?.() ?? Math.random().toString());
 
     if (!customWrapper.current) {
         if (isModule) {

@@ -617,7 +617,7 @@ export class AppWrapper implements IChaynsReact {
             return new DialogHandler<R>(config, this.functions.openDialog, this.functions.closeDialog, this.functions.dispatchEventToDialogClient, this.functions.addDialogClientEventListener);
         },
         openDialog: async (config, callback) => {
-            const currentDialogId = crypto.randomUUID();
+            const currentDialogId = crypto?.randomUUID?.() ?? `${Date.now()}-${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`;
             this.nextDialogEventId = 0;
 
             let isSupported = isAppCallSupported({ minAndroidVersion: 7137, minIOSVersion: 6934 });
