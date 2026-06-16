@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useRef } from 'react';
 import * as comlink from 'comlink';
-import postIframeForm from '../../util/postIframeForm';
+import postIframeForm from '../../utils/postIframeForm';
 import {
     ChaynsApiDevice,
     ChaynsApiSite,
@@ -12,8 +12,9 @@ import {
     Page,
 } from '../../types/IChaynsReact';
 import useUpdateData from './utils/useUpdateData';
-import { replaceStagingUrl } from "../../util/url";
-import { initTransferNestedFunctions } from '../../util/transferNestedFunctions';
+import { replaceStagingUrl } from "../../utils/url";
+import { initTransferNestedFunctions } from '../../utils/transferNestedFunctions';
+import type { ChaynsHistoryLayer } from '../../types/history';
 
 type HostIframeProps = {
     iFrameProps: { [key: string]: unknown, name: string },
@@ -36,6 +37,9 @@ type HostIframeProps = {
     preventStagingReplacement?: boolean,
     dialog: ChaynsReactValues["dialog"],
     styleSettings: ChaynsReactValues["styleSettings"],
+    historyLayer?: ChaynsHistoryLayer,
+    /** Whether the history is disabled for the children */
+    isHistoryDisabled?: boolean,
 }
 
 const HostIframe: FC<HostIframeProps> = ({
@@ -59,12 +63,16 @@ const HostIframe: FC<HostIframeProps> = ({
     preventStagingReplacement,
     dialog,
     styleSettings,
+    historyLayer,
+    isHistoryDisabled,
 }) => {
     const eventTarget = useRef<EventTarget>();
     const ref = useRef<HTMLIFrameElement | null>();
     const currentDataRef = useRef<ChaynsReactValues>();
     const customFunctionsRef = useRef<IChaynsReact["customFunctions"]>();
     customFunctionsRef.current = customFunctions;
+    const historyLayerRef = useRef<ChaynsHistoryLayer | undefined>(undefined);
+    historyLayerRef.current = historyLayer;
 
     if (!eventTarget.current) {
         eventTarget.current = global.document ? document.createElement('div') : undefined; // global.EventTarget ? new EventTarget() : undefined
@@ -80,6 +88,7 @@ const HostIframe: FC<HostIframeProps> = ({
     const initialData = {
         site,
         isAdminModeActive,
+        isHistoryDisabled,
         pages,
         currentPage,
         device,
@@ -126,6 +135,48 @@ const HostIframe: FC<HostIframeProps> = ({
                         if(eventTarget.current) eventTarget.current.addEventListener('data_update', (e: CustomEventInit<DataChangeValue>) => e.detail && cb(e.detail));
                     },
                     getInitialData: () => currentDataRef.current,
+                    history: historyLayerRef.current ? {
+                        getInitialState: () => {
+                            const l = historyLayerRef.current;
+                            if (!l) return null;
+                            return {
+                                id: l.id,
+                                depth: l.depth,
+                                segments: l.getRoute(),
+                                params: l.getParams(),
+                                hash: l.getHash(),
+                                state: l.getState(),
+                                activeChildId: l.getActiveChildId(),
+                                segmentCount: l.getSegmentCount(),
+                            };
+                        },
+                        setRoute: (route: string | string[], opts?: unknown) =>
+                            historyLayerRef.current?.setRoute(route, opts as never),
+                        setParams: (params: Record<string, string>, opts?: unknown) =>
+                            historyLayerRef.current?.setParams(params, opts as never),
+                        setHash: (hash: string, opts?: unknown) =>
+                            historyLayerRef.current?.setHash(hash, opts as never),
+                        setState: (state: Record<string, unknown>, opts?: unknown) =>
+                            historyLayerRef.current?.setState(state, opts as never),
+                        navigate: (opts: unknown) =>
+                            historyLayerRef.current?.navigate(opts as never),
+                        setActiveChild: (id: string | null, init?: unknown) =>
+                            historyLayerRef.current?.setActiveChild(id, init as never),
+                        setSegmentCount: (n: number) =>
+                            historyLayerRef.current?.setSegmentCount(n),
+                        addChangeListener: (callback: (e: unknown) => void) => {
+                            const unsub = historyLayerRef.current?.addEventListener('change', callback as never) ?? (() => {});
+                            return comlink.proxy(unsub);
+                        },
+                        addPopstateListener: (callback: (e: unknown) => void) => {
+                            const unsub = historyLayerRef.current?.addEventListener('popstate', callback as never) ?? (() => {});
+                            return comlink.proxy(unsub);
+                        },
+                        addBlock: (callback: () => Promise<boolean>, opts?: unknown) => {
+                            const unsub = historyLayerRef.current?.addBlock(callback, opts as never) ?? (() => {});
+                            return comlink.proxy(unsub);
+                        },
+                    } : undefined,
                 }
             };
             comlink.expose(obj, comlink.windowEndpoint(ref.current.contentWindow));
@@ -141,6 +192,7 @@ const HostIframe: FC<HostIframeProps> = ({
     // endregion
 
     // region dispatch data update
+    useUpdateData(eventTarget.current, 'isHistoryDisabled', isHistoryDisabled);
     useUpdateData(eventTarget.current, 'isAdminModeActive', isAdminModeActive);
     useUpdateData(eventTarget.current, 'user', user);
     useUpdateData(eventTarget.current, 'site', site);

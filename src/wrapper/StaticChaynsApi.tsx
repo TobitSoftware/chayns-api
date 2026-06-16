@@ -6,7 +6,7 @@ import {
     DataChangeCallback,
     IChaynsReact,
 } from '../types/IChaynsReact';
-import getDeviceInfo from '../util/deviceHelper';
+import getDeviceInfo from '../utils/deviceHelper';
 import { AppWrapper } from './AppWrapper';
 import { FrameWrapper } from './FrameWrapper';
 import { ModuleFederationWrapper } from './ModuleFederationWrapper';
@@ -76,6 +76,7 @@ class StaticChaynsApi implements ChaynsReactFunctions {
     addAccessTokenChangeListener!: ChaynsReactFunctions['addAccessTokenChangeListener'];
     removeAccessTokenChangeListener!: ChaynsReactFunctions['removeAccessTokenChangeListener'];
     redirect!: ChaynsReactFunctions['redirect'];
+    getHistoryLayer!: ChaynsReactFunctions['getHistoryLayer'];
 
     ready: Promise<void>;
     addDataListener: (cb: DataChangeCallback) => () => void;

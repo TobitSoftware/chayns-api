@@ -1,6 +1,7 @@
 import { IBrowser, IEngine } from 'ua-parser-js';
 import DialogHandler from '../handler/DialogHandler';
 import { DialogButtonOld, SelectDialogItem } from './dialog';
+import type { ChaynsHistoryLayer } from './history';
 
 export type DialogButton = {
     type: DialogButtonType,
@@ -330,6 +331,7 @@ export interface ChaynsReactValues {
     site: ChaynsApiSite;
     user: ChaynsApiUser | undefined;
     isAdminModeActive: boolean;
+    isHistoryDisabled?: boolean,
     pages: Page[];
     currentPage: {
         id: number;
@@ -464,6 +466,8 @@ export interface ChaynsReactFunctions {
     addAccessTokenChangeListener: (options: { external?: boolean }, callback: (result: { accessToken: string }) => void) => Promise<number>;
     removeAccessTokenChangeListener: (id: number) => Promise<void>;
     redirect: (options: { destination: string, isPermanent?: boolean }) => Promise<void>;
+    // returns a ChaynsHistoryLayer proxy connected to the parent window (iframe context only)
+    getHistoryLayer(): ChaynsHistoryLayer;
 }
 
 export type ChaynsReactCustomFunctions = {

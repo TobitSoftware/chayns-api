@@ -1,5 +1,5 @@
-import React, { FC, ReactNode, useContext, useMemo } from 'react';
-import { ModuleContext } from '../../constants/moduleContext';
+import React, {FC, ReactNode, useContext, useMemo} from 'react';
+import {ModuleContext} from '../../contexts/moduleContext';
 import loadComponent from './utils/loadComponent';
 import {
     ChaynsApiDevice,
@@ -9,7 +9,8 @@ import {
     ChaynsReactValues, IChaynsReact,
     Page,
 } from '../../types/IChaynsReact';
-import { replaceStagingUrl } from "../../util/url";
+import {replaceStagingUrl} from "../../utils/url";
+import type {ChaynsHistoryLayer} from '../../types/history';
 
 export type TypeSystem = {
     scope: string,
@@ -43,13 +44,16 @@ type ModulePropTypes = {
     dialog: ChaynsReactValues["dialog"],
     children?: ReactNode,
     styleSettings: ChaynsReactValues["styleSettings"],
+    historyLayer?: ChaynsHistoryLayer,
+    /** Whether the history is disabled for the children */
+    isHistoryDisabled?: boolean,
 }
 
 const System: FC<SystemPropTypes> = ({
-    system,
-    fallback,
-    ...props
-}) => {
+                                         system,
+                                         fallback,
+                                         ...props
+                                     }) => {
     const Component = useMemo(() => loadComponent(system.scope, system.module, globalThis.window ? system.url : system.serverUrl as string, undefined, system.preventSingleton), [system.scope, system.module, system.url, system.serverUrl, system.preventSingleton]);
     if (!globalThis.window) {
         const moduleContext = useContext(ModuleContext);
@@ -69,29 +73,32 @@ const System: FC<SystemPropTypes> = ({
 }
 
 const ModuleHost: FC<ModulePropTypes> = ({
-    system,
-    children = null,
-    functions,
-    customFunctions,
-    // shallow data
-    pages,
-    isAdminModeActive,
-    site,
-    user,
-    currentPage,
-    device,
-    language,
-    parameters,
-    customData,
-    dialog,
-    environment,
-    preventStagingReplacement,
-    styleSettings,
-}) => {
+                                             system,
+                                             children = null,
+                                             functions,
+                                             customFunctions,
+                                             // shallow data
+                                             pages,
+                                             isAdminModeActive,
+                                             site,
+                                             user,
+                                             currentPage,
+                                             device,
+                                             language,
+                                             parameters,
+                                             customData,
+                                             dialog,
+                                             environment,
+                                             preventStagingReplacement,
+                                             styleSettings,
+                                             historyLayer,
+                                             isHistoryDisabled
+                                         }) => {
     const data = useMemo(() => {
         const result = {
             site,
             isAdminModeActive,
+            isHistoryDisabled,
             pages,
             currentPage,
             device,
@@ -109,7 +116,7 @@ const ModuleHost: FC<ModulePropTypes> = ({
             result.dialog = dialog;
         }
         return result;
-    }, [site, isAdminModeActive, pages, currentPage, device, language, parameters, customData, environment, styleSettings, user, dialog]);
+    }, [site, isAdminModeActive, isHistoryDisabled, pages, currentPage, device, language, parameters, customData, environment, styleSettings, user, dialog]);
 
     return (
         <>
@@ -126,6 +133,7 @@ const ModuleHost: FC<ModulePropTypes> = ({
                 functions={functions}
                 customFunctions={customFunctions}
                 fallback={children}
+                historyLayer={historyLayer}
                 isModule
             />
         </>

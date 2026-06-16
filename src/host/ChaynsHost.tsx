@@ -1,6 +1,6 @@
 import React, { FC, useDeferredValue, useSyncExternalStore } from 'react';
 import HostIframe from './iframe/HostIframe';
-import ModuleHost, { TypeSystem } from './module/ModuleHost';
+import ModuleHost, {TypeSystem} from './module/ModuleHost';
 import {
     ChaynsApiDevice,
     ChaynsApiSite,
@@ -10,6 +10,9 @@ import {
     IChaynsReact,
     Page,
 } from '../types/IChaynsReact';
+import {ChaynsHistoryLayer} from '../types/history';
+import {ChaynsHistoryLayerProvider} from '../contexts/HistoryLayerContext';
+import {getOrInitRootChaynsHistoryLayer} from '../utils/history/rootLayer';
 
 type ChaynsHostType = {
     type: `${'client' | 'server'}-${'iframe' | 'module'}`,
@@ -34,6 +37,17 @@ type ChaynsHostType = {
     preventStagingReplacement?: boolean,
     dialog: ChaynsReactValues["dialog"],
     styleSettings?: ChaynsReactValues["styleSettings"],
+    /** History layer to provide to hosted children. Defaults to the root layer. */
+    historyLayer?: ChaynsHistoryLayer,
+    /**
+     * ID for this module's dedicated child history layer.
+     * When set, a child layer with this ID is created (or reused) from the parent
+     * `historyLayer` and passed to the module — giving the module its own routing
+     * namespace. Activate it with `layer.navigate({ activeChild: historyChildId })`.
+     */
+    historyChildId?: string,
+    /** Whether the history is disabled for the children */
+    isHistoryDisabled?: boolean,
 } & ({
     type: `${'client' | 'server'}-iframe`,
     src: string,
@@ -68,6 +82,9 @@ const ChaynsHost: FC<ChaynsHostType> = ({
     preventStagingReplacement,
     dialog,
     styleSettings,
+    historyLayer,
+    historyChildId,
+    isHistoryDisabled = true,
 }) => {
     const isInitiallyVisible = type !== 'client-module' && (type !== 'server-module' || !!system?.serverUrl);
     const isHydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
@@ -77,55 +94,74 @@ const ChaynsHost: FC<ChaynsHostType> = ({
         return null;
     }
 
+    const resolvedLayer = historyLayer ?? getOrInitRootChaynsHistoryLayer().rootLayer;
+
+    let layer: ChaynsHistoryLayer | undefined;
+
+    if(!isHistoryDisabled) {
+        layer = historyChildId
+            ? (resolvedLayer.getChildLayer(historyChildId) ?? resolvedLayer.createChildLayer(historyChildId))
+            : resolvedLayer;
+    }
+
     switch (type) {
         case 'client-iframe':
         case 'server-iframe':
             return (
-                <HostIframe
-                    iFrameRef={iFrameRef}
-                    iFrameProps={iFrameProps}
-                    pages={pages}
-                    isAdminModeActive={isAdminModeActive}
-                    site={site}
-                    user={user}
-                    device={device}
-                    currentPage={currentPage}
-                    functions={functions}
-                    customFunctions={customFunctions}
-                    src={src}
-                    postForm={type === 'server-iframe'}
-                    language={language}
-                    parameters={parameters}
-                    environment={environment}
-                    customData={customData}
-                    preventStagingReplacement={preventStagingReplacement}
-                    dialog={dialog}
-                    styleSettings={styleSettings}
-                />
+                <ChaynsHistoryLayerProvider layer={resolvedLayer}>
+                    <HostIframe
+                        iFrameRef={iFrameRef}
+                        iFrameProps={iFrameProps}
+                        pages={pages}
+                        isAdminModeActive={isAdminModeActive}
+                        site={site}
+                        user={user}
+                        device={device}
+                        currentPage={currentPage}
+                        functions={functions}
+                        customFunctions={customFunctions}
+                        src={src}
+                        postForm={type === 'server-iframe'}
+                        language={language}
+                        parameters={parameters}
+                        environment={environment}
+                        customData={customData}
+                        preventStagingReplacement={preventStagingReplacement}
+                        dialog={dialog}
+                        styleSettings={styleSettings}
+                        historyLayer={layer}
+                        isHistoryDisabled={isHistoryDisabled}
+                    />
+                </ChaynsHistoryLayerProvider>
             )
         case 'client-module':
-        case 'server-module':
+        case 'server-module': {
             return (
-                <ModuleHost
-                    system={system}
-                    pages={pages}
-                    isAdminModeActive={isAdminModeActive}
-                    site={site}
-                    user={user}
-                    device={device}
-                    currentPage={currentPage}
-                    children={loadingComponent}
-                    functions={functions}
-                    customFunctions={customFunctions}
-                    language={language}
-                    parameters={parameters}
-                    customData={customData}
-                    environment={environment}
-                    preventStagingReplacement={preventStagingReplacement}
-                    dialog={dialog}
-                    styleSettings={styleSettings}
-                />
+                <ChaynsHistoryLayerProvider layer={resolvedLayer}>
+                    <ModuleHost
+                        system={system}
+                        pages={pages}
+                        isAdminModeActive={isAdminModeActive}
+                        site={site}
+                        user={user}
+                        device={device}
+                        currentPage={currentPage}
+                        children={loadingComponent}
+                        functions={functions}
+                        customFunctions={customFunctions}
+                        language={language}
+                        parameters={parameters}
+                        customData={customData}
+                        environment={environment}
+                        preventStagingReplacement={preventStagingReplacement}
+                        dialog={dialog}
+                        styleSettings={styleSettings}
+                        historyLayer={layer}
+                        isHistoryDisabled={isHistoryDisabled}
+                    />
+                </ChaynsHistoryLayerProvider>
             );
+        }
         default:
             return null;
     }

@@ -1,6 +1,6 @@
 {
     "name": "chayns-api",
-    "version": "3.0.2",
+    "version": "3.1.0-beta.2",
     "description": "new chayns api",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
@@ -74,6 +74,7 @@
         "chayns-toolkit": "^4.0.0-beta.0",
         "concurrently": "^9.2.1",
         "cross-env": "^10.1.0",
+        "jsdom": "^29.1.1",
         "prettier": "^3.7.4",
         "prettier-plugin-packagejson": "^2.5.20",
         "react": "^18.3.1",

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { HydrationContext, type HydrationContextValueType } from '../constants';
+import { HydrationContext, type HydrationContextValueType } from '../contexts';
 
 export interface StoreLikeValue<T> {
     getState: () => T;

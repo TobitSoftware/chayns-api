@@ -1,4 +1,4 @@
-import { addApiListener } from '../helper/apiListenerHelper';
+import { addApiListener } from './apiListener';
 import { AppName } from '../types/IChaynsReact';
 import { AppWrapper } from '../wrapper/AppWrapper';
 

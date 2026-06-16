@@ -1,14 +1,17 @@
 import htmlEscape from 'htmlescape';
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
-import { useIsomorphicLayoutEffect } from '../hooks/useIsomorphicLayoutEffect';
-import { AppName, ChaynsReactFunctions, ChaynsReactValues, IChaynsReact } from '../types/IChaynsReact';
-import getDeviceInfo from '../util/deviceHelper';
-import { AppWrapper } from '../wrapper/AppWrapper';
-import { FrameWrapper } from '../wrapper/FrameWrapper';
-import { ModuleFederationWrapper } from '../wrapper/ModuleFederationWrapper';
-import { SsrWrapper } from '../wrapper/SsrWrapper';
-import { ChaynsContext } from './ChaynsContext';
-import { addModuleWrapper, chaynsApis, moduleWrapper, removeModuleWrapper } from './moduleWrapper';
+import React, {ReactNode, useEffect, useRef, useState} from 'react';
+import {useIsomorphicLayoutEffect} from '../hooks/useIsomorphicLayoutEffect';
+import {AppName, ChaynsReactFunctions, ChaynsReactValues, IChaynsReact} from '../types/IChaynsReact';
+import getDeviceInfo from '../utils/deviceHelper';
+import {AppWrapper} from '../wrapper/AppWrapper';
+import {FrameWrapper} from '../wrapper/FrameWrapper';
+import {ModuleFederationWrapper} from '../wrapper/ModuleFederationWrapper';
+import {SsrWrapper} from '../wrapper/SsrWrapper';
+import {ChaynsContext} from './ChaynsContext';
+import {addModuleWrapper, moduleWrapper, removeModuleWrapper} from './moduleWrapper';
+import {ChaynsHistoryLayerProvider, useChaynsHistoryLayerContext} from '../contexts/HistoryLayerContext';
+import {getOrInitRootChaynsHistoryLayer} from '../utils/history/rootLayer';
+import type {ChaynsHistoryLayer} from '../types/history';
 
 const isServer = typeof window === 'undefined';
 
@@ -28,7 +31,24 @@ export type ChaynsProviderProps = {
     renderedByServer?: boolean,
     isModule?: boolean,
     children?: ReactNode,
-    chaynsApiId?: string
+    chaynsApiId?: string,
+    /**
+     * Explicit history layer to provide to the React subtree.
+     * When set this layer is used directly and no root layer is auto-initialised.
+     * Use this when the parent already owns a layer and wants to scope children to it.
+     */
+    historyLayer?: ChaynsHistoryLayer,
+    /**
+     * Initial history configuration for the root layer.
+     * Ignored when `layer` is provided explicitly.
+     * - `url`: Current page URL — browser defaults to `window.location.pathname`;
+     *   for SSR pass the request URL (e.g. `req.url` or `router.asPath`).
+     * - `segmentCount`: Number of URL path segments this application claims.
+     *   E.g. `segmentCount: 2` on `/shop/products/detail` → `getLayer().getRoute()` → `['shop', 'products']`.
+     */
+    history?: { url?: string; segmentCount?: number },
+    segmentCount?: number
+    isHistoryDisabled?: boolean,
 }
 
 const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
@@ -38,10 +58,18 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     customFunctions,
     renderedByServer,
     isModule,
-    chaynsApiId
+    chaynsApiId,
+    historyLayer,
+    history,
+    isHistoryDisabled,
+    segmentCount,
 }) => {
     const customWrapper = useRef<IChaynsReact>(null!);
     const idRef = useRef(chaynsApiId ?? crypto?.randomUUID?.() ?? Math.random().toString());
+
+    const contextLayer = useChaynsHistoryLayerContext();
+    const parentLayerRef = useRef(contextLayer);
+    const rootLayerRef = useRef<ChaynsHistoryLayer | null>(null);
 
     if (!customWrapper.current) {
         if (isModule) {
@@ -71,6 +99,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         }
     }
 
+    const [effectiveLayer, setEffectiveLayer] = useState<ChaynsHistoryLayer | null>(historyLayer ?? null)
     const [isInitialized, setIsInitialized] = useState<boolean>(!!customWrapper.current?.values);
 
     useEffect(() => {
@@ -79,6 +108,23 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
             customWrapper.current.addDataListener(({ type, value }) => {
                 customWrapper.current.emitChange();
             });
+
+            parentLayerRef.current = customWrapper.current.functions.getHistoryLayer() ?? contextLayer;
+
+            // Only auto-init the root layer when no explicit historyLayer prop is given and there
+            // is no parent layer already in context (e.g. from a wrapping ChaynsHost).
+            if (!rootLayerRef.current && !historyLayer && !parentLayerRef.current) {
+                rootLayerRef.current = getOrInitRootChaynsHistoryLayer(history?.url, history?.segmentCount).rootLayer;
+            }
+
+            const layer = historyLayer ?? parentLayerRef.current ?? rootLayerRef.current
+
+            if(typeof segmentCount === 'number' && layer.getSegmentCount() !== segmentCount){
+                layer.setSegmentCount(segmentCount)
+            }
+
+            setEffectiveLayer(layer)
+
             if (!isInitialized) {
                 setIsInitialized(true);
             }
@@ -107,11 +153,25 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         };
     }, []);
 
+    let isDisabled = Boolean(customWrapper.current.values?.isHistoryDisabled)
+
+    if (typeof isHistoryDisabled === 'boolean' && !isDisabled) {
+        isDisabled = isHistoryDisabled
+    }
+
+    if (historyLayer?.id === 'root') {
+        isDisabled = false
+    }
+
     return (
         <>
             {isInitialized && (
                 <ChaynsContext.Provider value={customWrapper.current}>
-                    {children}
+                    {effectiveLayer && !isDisabled ? (
+                        <ChaynsHistoryLayerProvider layer={effectiveLayer}>
+                            {children}
+                        </ChaynsHistoryLayerProvider>
+                    ) : children}
                 </ChaynsContext.Provider>
             )}
             <InitialDataProvider data={customWrapper.current?.values} renderedByServer={renderedByServer}/>

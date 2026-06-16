@@ -1,4 +1,4 @@
-import { ModuleContextValueType } from '../constants';
+import { ModuleContextValueType } from '../contexts';
 
 type RemoteInfo = {
     exposes: {
