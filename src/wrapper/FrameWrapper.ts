@@ -326,7 +326,7 @@ export class FrameWrapper implements IChaynsReact {
         },
         getHistoryLayer: () => {
             if (!this._historyLayer) {
-                throw new Error('[chaynsHistory] No history layer available. Ensure historyLayer prop is set on the parent HostIframe.');
+                return null;
             }
             return this._historyLayer;
         },
@@ -396,7 +396,12 @@ export class FrameWrapper implements IChaynsReact {
         // region history layer bridge
         const exposedHistory = (exposed as unknown as { history?: any }).history;
         if (exposedHistory) {
-            const initialState: HistoryInitialState | null = await exposedHistory.getInitialState();
+            let initialState: HistoryInitialState | null = null;
+            try {
+                initialState = await exposedHistory.getInitialState();
+            } catch (ex) {
+                // sub routes not available
+            }
             if (initialState) {
                 this._historyLayer = new FrameHistoryLayer(
                     {
