@@ -97,7 +97,7 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
         return this.segmentCount;
     }
 
-    setSegmentCount(n: number): void {
+    async setSegmentCount(n: number): Promise<void> {
         if (n < 0 || !Number.isInteger(n)) {
             return;
         }
@@ -127,7 +127,7 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
                 }
             }
             // Request a re-projection through the queue.
-            void this.deps.getQueue().enqueue({
+            await this.deps.getQueue().enqueue({
                 kind: 'setRoute',
                 layerId: this.id,
                 segments: [...this.segments],
@@ -215,10 +215,10 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
         return [...this.segments];
     }
 
-    setRoute(route: string | string[], opts?: ChaynsHistoryNavigateOptions): void {
+    async setRoute(route: string | string[], opts?: ChaynsHistoryNavigateOptions): Promise<void> {
         if (this.isDestroyed) return;
 
-        void this.deps.getQueue().enqueue({
+        await this.deps.getQueue().enqueue({
             kind: 'setRoute',
             layerId: this.id,
             segments: ChaynsHistoryLayer.normalizeRoute(route),
@@ -234,10 +234,10 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
         return { ...this._params };
     }
 
-    setParams(params: Record<string, string>, opts?: ChaynsHistoryNavigationCommitOptions): void {
+    async setParams(params: Record<string, string>, opts?: ChaynsHistoryNavigationCommitOptions): Promise<void> {
         if (this.isDestroyed) return;
 
-        void this.deps.getQueue().enqueue({
+        await this.deps.getQueue().enqueue({
             kind: 'setParams',
             layerId: this.id,
             params: { ...params },
@@ -253,12 +253,12 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
         return this._hash ?? '';
     }
 
-    setHash(hash: string, opts?: ChaynsHistoryNavigationCommitOptions): void {
+    async setHash(hash: string, opts?: ChaynsHistoryNavigationCommitOptions): Promise<void> {
         if (this.isDestroyed) return;
         // Normalize: strip leading '#'
         const normalized = hash.startsWith('#') ? hash.slice(1) : hash;
 
-        void this.deps.getQueue().enqueue({
+        await this.deps.getQueue().enqueue({
             kind: 'setHash',
             layerId: this.id,
             hash: normalized,
@@ -274,11 +274,11 @@ export class ChaynsHistoryLayer implements IChaynsHistoryLayer {
         return { ...this.ownState } as unknown as T;
     }
 
-    setState<T extends object>(state: T, opts?: ChaynsHistoryNavigateOptions): void {
+    async setState<T extends object>(state: T, opts?: ChaynsHistoryNavigateOptions): Promise<void> {
         if (this.isDestroyed) return;
         const filtered = ChaynsHistoryLayer.filterReservedKeys(state as Record<string, unknown>)
 
-        void this.deps.getQueue().enqueue({
+        await this.deps.getQueue().enqueue({
             kind: 'setState',
             layerId: this.id,
             state: filtered,

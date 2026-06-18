@@ -15,7 +15,6 @@ import {
     DataChangeValue,
     Dialog,
     DialogButtonType,
-    DialogType,
     GeoLocation,
     IChaynsReact,
     ScrollListenerResult,
@@ -34,13 +33,11 @@ export class FrameWrapper implements IChaynsReact {
 
     private exposedCustomFunctionNames: string[] = [];
 
-    private resizeListener: ((ev: UIEvent) => void) | null = null;
-
-    private _historyLayer: FrameHistoryLayer | null = null;
-
     ready = new Promise((res) => { this.resolve = res });
 
     values: ChaynsReactValues = null!;
+
+    history: FrameHistoryLayer | null = null;
 
     chaynsApiId: string = null!;
 
@@ -324,12 +321,6 @@ export class FrameWrapper implements IChaynsReact {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.redirect(options);
         },
-        getHistoryLayer: () => {
-            if (!this._historyLayer) {
-                return null;
-            }
-            return this._historyLayer;
-        },
     };
 
     customFunctions = new Proxy({}, {
@@ -403,7 +394,7 @@ export class FrameWrapper implements IChaynsReact {
                 // sub routes not available
             }
             if (initialState) {
-                this._historyLayer = new FrameHistoryLayer(
+                this.history = new FrameHistoryLayer(
                     {
                         setRoute: (route, opts) => exposedHistory.setRoute(route, opts),
                         setParams: (params, opts) => exposedHistory.setParams(params, opts),
@@ -421,10 +412,10 @@ export class FrameWrapper implements IChaynsReact {
                 );
 
                 await exposedHistory.addChangeListener(comlink.proxy((e: ChaynsHistoryLayerEvent) => {
-                    this._historyLayer!._applyAndEmit(e);
+                    this.history!._applyAndEmit(e);
                 }));
                 await exposedHistory.addPopstateListener(comlink.proxy((e: ChaynsHistoryLayerEvent) => {
-                    this._historyLayer!._applyAndEmit(e);
+                    this.history!._applyAndEmit(e);
                 }));
             }
         }

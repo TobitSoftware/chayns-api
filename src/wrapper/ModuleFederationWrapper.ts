@@ -17,6 +17,8 @@ export class ModuleFederationWrapper implements IChaynsReact {
 
     functions: ChaynsReactFunctions;
 
+    history: IChaynsReact['history'] = getOrInitRootChaynsHistoryLayer().rootLayer;
+
     customFunctions: IChaynsReact["customFunctions"] = {};
 
     listeners: (() => void)[] =  [];
@@ -48,8 +50,6 @@ export class ModuleFederationWrapper implements IChaynsReact {
         this.functions.createDialog = <I, R>(config: Dialog<I>) => {
             return new DialogHandler<R>(config, functions.openDialog, functions.closeDialog, functions.dispatchEventToDialogClient, functions.addDialogClientEventListener);
         }
-
-        this.functions.getHistoryLayer = () => getOrInitRootChaynsHistoryLayer().rootLayer;
     }
 
     async init() {

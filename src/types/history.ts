@@ -42,7 +42,7 @@ export interface ChaynsHistoryLayer {
     readonly depth: number;
 
     getSegmentCount(): number;
-    setSegmentCount(n: number): void;
+    setSegmentCount(n: number): Promise<void>;
 
     createChildLayer(id: string): ChaynsHistoryLayer;
     destroyChildLayer(id: string): void;
@@ -54,16 +54,16 @@ export interface ChaynsHistoryLayer {
     getChildLayer(id: string): ChaynsHistoryLayer | undefined;
 
     getRoute(): string[];
-    setRoute(route: string | string[], opts?: ChaynsHistoryNavigateOptions): void;
+    setRoute(route: string | string[], opts?: ChaynsHistoryNavigateOptions): Promise<void>;
 
     getParams(): Record<string, string>;
-    setParams(params: Record<string, string>, opts?: ChaynsHistoryNavigationCommitOptions): void;
+    setParams(params: Record<string, string>, opts?: ChaynsHistoryNavigationCommitOptions): Promise<void>;
 
     getHash(): string;
-    setHash(hash: string, opts?: ChaynsHistoryNavigationCommitOptions): void;
+    setHash(hash: string, opts?: ChaynsHistoryNavigationCommitOptions): Promise<void>;
 
     getState<T extends object = Record<string, unknown>>(): T | undefined;
-    setState<T extends object>(state: T, opts?: ChaynsHistoryNavigateOptions): void;
+    setState<T extends object>(state: T, opts?: ChaynsHistoryNavigateOptions): Promise<void>;
 
     navigate(opts: {
         route?: string | string[];
