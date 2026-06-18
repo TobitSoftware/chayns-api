@@ -65,7 +65,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     segmentCount,
 }) => {
     const customWrapper = useRef<IChaynsReact>(null!);
-    const idRef = useRef(chaynsApiId ?? crypto?.randomUUID() ?? Math.random().toString());
+    const idRef = useRef(chaynsApiId ?? crypto?.randomUUID?.() ?? Math.random().toString());
 
     const contextLayer = useChaynsHistoryLayerContext();
     const parentLayerRef = useRef(contextLayer);
@@ -119,7 +119,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
 
             const layer = historyLayer ?? parentLayerRef.current ?? rootLayerRef.current
 
-            if(typeof segmentCount === 'number' && layer.getSegmentCount() !== segmentCount){
+            if(layer && typeof segmentCount === 'number' && layer.getSegmentCount() !== segmentCount){
                 layer.setSegmentCount(segmentCount)
             }
 

@@ -467,7 +467,7 @@ export interface ChaynsReactFunctions {
     removeAccessTokenChangeListener: (id: number) => Promise<void>;
     redirect: (options: { destination: string, isPermanent?: boolean }) => Promise<void>;
     // returns a ChaynsHistoryLayer proxy connected to the parent window (iframe context only)
-    getHistoryLayer(): ChaynsHistoryLayer;
+    getHistoryLayer(): ChaynsHistoryLayer | null;
 }
 
 export type ChaynsReactCustomFunctions = {

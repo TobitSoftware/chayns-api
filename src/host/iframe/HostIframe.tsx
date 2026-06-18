@@ -106,7 +106,7 @@ const HostIframe: FC<HostIframeProps> = ({
 
     // region postIframeForm
     useEffect(() => {
-        (async() => {
+        (async () => {
             if (postForm) {
                 const accessToken = (await functions.getAccessToken() ?? {});
                 void postIframeForm(replaceStagingUrl(preventStagingReplacement, src, environment.buildEnvironment), JSON.stringify({ ...initialData, pages: undefined, ...accessToken }), 'chayns', iFrameProps.name)
@@ -132,10 +132,10 @@ const HostIframe: FC<HostIframeProps> = ({
                     }),
                     _customFunctionNames: Object.keys(customFunctions ?? {}),
                     addDataListener: (cb: DataChangeCallback) => {
-                        if(eventTarget.current) eventTarget.current.addEventListener('data_update', (e: CustomEventInit<DataChangeValue>) => e.detail && cb(e.detail));
+                        if (eventTarget.current) eventTarget.current.addEventListener('data_update', (e: CustomEventInit<DataChangeValue>) => e.detail && cb(e.detail));
                     },
                     getInitialData: () => currentDataRef.current,
-                    history: historyLayerRef.current ? {
+                    history: {
                         getInitialState: () => {
                             const l = historyLayerRef.current;
                             if (!l) return null;
@@ -151,32 +151,47 @@ const HostIframe: FC<HostIframeProps> = ({
                             };
                         },
                         setRoute: (route: string | string[], opts?: unknown) =>
-                            historyLayerRef.current?.setRoute(route, opts as never),
+                            !historyLayerRef.current ? new Error('[chayns-api] setRoute is not allowed on this page') : historyLayerRef.current?.setRoute(route, opts as never),
                         setParams: (params: Record<string, string>, opts?: unknown) =>
-                            historyLayerRef.current?.setParams(params, opts as never),
+                            !historyLayerRef.current ? new Error('[chayns-api] setParams is not allowed on this page') : historyLayerRef.current?.setParams(params, opts as never),
                         setHash: (hash: string, opts?: unknown) =>
-                            historyLayerRef.current?.setHash(hash, opts as never),
+                            !historyLayerRef.current ? new Error('[chayns-api] setHash is not allowed on this page') : historyLayerRef.current?.setHash(hash, opts as never),
                         setState: (state: Record<string, unknown>, opts?: unknown) =>
-                            historyLayerRef.current?.setState(state, opts as never),
+                            !historyLayerRef.current ? new Error('[chayns-api] setState is not allowed on this page') : historyLayerRef.current?.setState(state, opts as never),
                         navigate: (opts: unknown) =>
-                            historyLayerRef.current?.navigate(opts as never),
+                            !historyLayerRef.current ? new Error('[chayns-api] navigate is not allowed on this page') : historyLayerRef.current?.navigate(opts as never),
                         setActiveChild: (id: string | null, init?: unknown) =>
-                            historyLayerRef.current?.setActiveChild(id, init as never),
+                            !historyLayerRef.current ? new Error('[chayns-api] setActiveChild is not allowed on this page') : historyLayerRef.current?.setActiveChild(id, init as never),
                         setSegmentCount: (n: number) =>
-                            historyLayerRef.current?.setSegmentCount(n),
+                            !historyLayerRef.current ? new Error('[chayns-api] setSegmentCount is not allowed on this page') : historyLayerRef.current?.setSegmentCount(n),
                         addChangeListener: (callback: (e: unknown) => void) => {
-                            const unsub = historyLayerRef.current?.addEventListener('change', callback as never) ?? (() => {});
+                            if (!historyLayerRef.current) {
+                                new Error('[chayns-api] addChangeListener is not allowed on this page')
+                            }
+
+                            const unsub = historyLayerRef.current?.addEventListener('change', callback as never) ?? (() => {
+                            });
                             return comlink.proxy(unsub);
                         },
                         addPopstateListener: (callback: (e: unknown) => void) => {
-                            const unsub = historyLayerRef.current?.addEventListener('popstate', callback as never) ?? (() => {});
+                            if (!historyLayerRef.current) {
+                                new Error('[chayns-api] addPopstateListener is not allowed on this page')
+                            }
+
+                            const unsub = historyLayerRef.current?.addEventListener('popstate', callback as never) ?? (() => {
+                            });
                             return comlink.proxy(unsub);
                         },
                         addBlock: (callback: () => Promise<boolean>, opts?: unknown) => {
-                            const unsub = historyLayerRef.current?.addBlock(callback, opts as never) ?? (() => {});
+                            if (!historyLayerRef.current) {
+                                new Error('[chayns-api] addBlock is not allowed on this page')
+                            }
+
+                            const unsub = historyLayerRef.current?.addBlock(callback, opts as never) ?? (() => {
+                            });
                             return comlink.proxy(unsub);
                         },
-                    } : undefined,
+                    }
                 }
             };
             comlink.expose(obj, comlink.windowEndpoint(ref.current.contentWindow));
