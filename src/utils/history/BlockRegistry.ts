@@ -38,6 +38,12 @@ export class BlockRegistry {
      *  Used to toggle the native navigation handling (chayns app, action 249). */
     private totalBlockCount = 0;
 
+    constructor() {
+        if(this.totalBlockCount === 0){
+            this.setNativeNavigationEnabled(false);
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Registration
     // -------------------------------------------------------------------------

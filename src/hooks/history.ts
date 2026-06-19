@@ -38,7 +38,7 @@ export function useChaynsHistoryLayer(): ChaynsHistoryLayer {
 
 export interface UseChaynsHistoryRouteResult {
     segments: string[];
-    setRoute: (route: string | string[], opts?: ChaynsHistoryNavigateOptions) => void;
+    setRoute: (route: string | string[], opts?: ChaynsHistoryNavigateOptions) => Promise<void>;
 }
 
 /**
@@ -88,7 +88,7 @@ export function useChaynsHistoryRoute(): UseChaynsHistoryRouteResult {
  */
 export function useChaynsHistoryState<T extends object = Record<string, unknown>>(): [
     T | undefined,
-    (state: T, opts?: ChaynsHistoryNavigateOptions) => void,
+    (state: T, opts?: ChaynsHistoryNavigateOptions) => Promise<void>,
 ] {
     const layer = useChaynsHistoryLayer();
 
@@ -152,7 +152,7 @@ export function useChaynsHistoryNavigate(): (
  */
 export function useChaynsHistoryParams(): [
     Record<string, string>,
-    (params: Record<string, string>, opts?: ChaynsHistoryNavigationCommitOptions) => void,
+    (params: Record<string, string>, opts?: ChaynsHistoryNavigationCommitOptions) => Promise<void>,
 ] {
     const layer = useChaynsHistoryLayer();
     const paramsRef = useRef<Record<string, string>>({});
@@ -191,7 +191,7 @@ export function useChaynsHistoryParams(): [
  * Pass `''` to explicitly clear the hash.
  * Re-renders only when the hash changes.
  */
-export function useChaynsHistoryHash(): [string, (hash: string, opts?: ChaynsHistoryNavigationCommitOptions) => void] {
+export function useChaynsHistoryHash(): [string, (hash: string, opts?: ChaynsHistoryNavigationCommitOptions) => Promise<void>] {
     const layer = useChaynsHistoryLayer();
 
     const subscribe = useCallback(
@@ -294,8 +294,8 @@ export interface UseChaynsHistoryActiveChildResult {
     activeChildId: string | null;
     setActiveChild: (
         id: string | null,
-        init?: { route?: string[]; state?: Record<string, unknown> },
-    ) => void;
+        init?: { route?: string | string[]; state?: Record<string, unknown> },
+    ) => Promise<ChaynsHistoryActionResult>;
 }
 
 /**
@@ -318,7 +318,7 @@ export function useChaynsHistoryActiveChild(): UseChaynsHistoryActiveChildResult
     const setActiveChild = useCallback(
         (
             id: string | null,
-            init?: { route?: string[]; state?: Record<string, unknown> },
+            init?: { route?: string | string[]; state?: Record<string, unknown> },
         ) => layer.setActiveChild(id, init),
         [layer],
     );

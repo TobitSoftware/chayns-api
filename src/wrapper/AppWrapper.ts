@@ -40,6 +40,8 @@ export class AppWrapper implements IChaynsReact {
 
     values: ChaynsReactValues = null!;
 
+    history: IChaynsReact['history'] = null;
+
     accessToken = '';
 
     listeners: (() => void)[] =  [];

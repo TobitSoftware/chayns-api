@@ -105,11 +105,11 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     useEffect(() => {
         void (async () => {
             await customWrapper.current.init();
-            customWrapper.current.addDataListener(({ type, value }) => {
+            customWrapper.current.addDataListener(() => {
                 customWrapper.current.emitChange();
             });
 
-            parentLayerRef.current = customWrapper.current.functions.getHistoryLayer() ?? contextLayer;
+            parentLayerRef.current = customWrapper.current.history ?? contextLayer;
 
             // Only auto-init the root layer when no explicit historyLayer prop is given and there
             // is no parent layer already in context (e.g. from a wrapping ChaynsHost).
@@ -120,7 +120,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
             const layer = historyLayer ?? parentLayerRef.current ?? rootLayerRef.current
 
             if(layer && typeof segmentCount === 'number' && layer.getSegmentCount() !== segmentCount){
-                layer.setSegmentCount(segmentCount)
+                await layer.setSegmentCount(segmentCount)
             }
 
             setEffectiveLayer(layer)

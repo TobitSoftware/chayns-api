@@ -15,6 +15,8 @@ export class SsrWrapper implements IChaynsReact {
 
     functions: ChaynsReactFunctions;
 
+    history: IChaynsReact['history'] = null;
+
     customFunctions: IChaynsReact["customFunctions"];
 
     listeners: (() => void)[] =  [];

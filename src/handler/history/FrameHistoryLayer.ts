@@ -84,13 +84,13 @@ export class FrameHistoryLayer implements ChaynsHistoryLayer {
         return this._segmentCount;
     }
 
-    setSegmentCount(n: number): void {
+    async setSegmentCount(n: number): Promise<void> {
         if (n === this._segmentCount) {
             return;
         }
 
         this._segmentCount = n;
-        void this.bridge.setSegmentCount(n);
+        await this.bridge.setSegmentCount(n);
     }
 
     // endregion
@@ -126,12 +126,12 @@ export class FrameHistoryLayer implements ChaynsHistoryLayer {
         return [...this._segments];
     }
 
-    setRoute(route: string | string[], opts?: ChaynsHistoryNavigateOptions): void {
+    async setRoute(route: string | string[], opts?: ChaynsHistoryNavigateOptions): Promise<void> {
         const normalizedRoute = normalizeHistoryRouteInput(route);
         if (shallowEqualArr(this._segments, normalizedRoute)) {
             return;
         }
-        void this.bridge.setRoute(normalizedRoute, opts);
+        await this.bridge.setRoute(normalizedRoute, opts);
     }
 
     // endregion
@@ -142,8 +142,8 @@ export class FrameHistoryLayer implements ChaynsHistoryLayer {
         return { ...this._params };
     }
 
-    setParams(params: Record<string, string>, opts?: ChaynsHistoryNavigationCommitOptions): void {
-        void this.bridge.setParams(params, opts);
+    setParams(params: Record<string, string>, opts?: ChaynsHistoryNavigationCommitOptions): Promise<void> {
+        return this.bridge.setParams(params, opts);
     }
 
     // endregion
@@ -154,8 +154,8 @@ export class FrameHistoryLayer implements ChaynsHistoryLayer {
         return this._hash;
     }
 
-    setHash(hash: string, opts?: ChaynsHistoryNavigationCommitOptions): void {
-        void this.bridge.setHash(hash, opts);
+    setHash(hash: string, opts?: ChaynsHistoryNavigationCommitOptions): Promise<void> {
+        return this.bridge.setHash(hash, opts);
     }
 
     // endregion
@@ -166,8 +166,8 @@ export class FrameHistoryLayer implements ChaynsHistoryLayer {
         return this._state as T | undefined;
     }
 
-    setState(state: object, opts?: ChaynsHistoryNavigateOptions): void {
-        void this.bridge.setState(state as Record<string, unknown>, opts);
+    setState<T extends object>(state: T, opts?: ChaynsHistoryNavigateOptions): Promise<void> {
+        return this.bridge.setState(state as Record<string, unknown>, opts);
     }
 
     // endregion

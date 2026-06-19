@@ -150,23 +150,51 @@ const HostIframe: FC<HostIframeProps> = ({
                                 segmentCount: l.getSegmentCount(),
                             };
                         },
-                        setRoute: (route: string | string[], opts?: unknown) =>
-                            !historyLayerRef.current ? new Error('[chayns-api] setRoute is not allowed on this page') : historyLayerRef.current?.setRoute(route, opts as never),
-                        setParams: (params: Record<string, string>, opts?: unknown) =>
-                            !historyLayerRef.current ? new Error('[chayns-api] setParams is not allowed on this page') : historyLayerRef.current?.setParams(params, opts as never),
-                        setHash: (hash: string, opts?: unknown) =>
-                            !historyLayerRef.current ? new Error('[chayns-api] setHash is not allowed on this page') : historyLayerRef.current?.setHash(hash, opts as never),
-                        setState: (state: Record<string, unknown>, opts?: unknown) =>
-                            !historyLayerRef.current ? new Error('[chayns-api] setState is not allowed on this page') : historyLayerRef.current?.setState(state, opts as never),
-                        navigate: (opts: unknown) =>
-                            !historyLayerRef.current ? new Error('[chayns-api] navigate is not allowed on this page') : historyLayerRef.current?.navigate(opts as never),
-                        setActiveChild: (id: string | null, init?: unknown) =>
-                            !historyLayerRef.current ? new Error('[chayns-api] setActiveChild is not allowed on this page') : historyLayerRef.current?.setActiveChild(id, init as never),
-                        setSegmentCount: (n: number) =>
-                            !historyLayerRef.current ? new Error('[chayns-api] setSegmentCount is not allowed on this page') : historyLayerRef.current?.setSegmentCount(n),
+                        setRoute: async (route: string | string[], opts?: unknown) => {
+                            if (!historyLayerRef.current) {
+                                throw new Error('[chayns-api] setRoute is not allowed on this page');
+                            }
+                            await historyLayerRef.current.setRoute(route, opts as never);
+                        },
+                        setParams: async (params: Record<string, string>, opts?: unknown) => {
+                            if (!historyLayerRef.current) {
+                                throw new Error('[chayns-api] setParams is not allowed on this page');
+                            }
+                            await historyLayerRef.current.setParams(params, opts as never);
+                        },
+                        setHash: async (hash: string, opts?: unknown) => {
+                            if (!historyLayerRef.current) {
+                                throw new Error('[chayns-api] setHash is not allowed on this page');
+                            }
+                            await historyLayerRef.current.setHash(hash, opts as never);
+                        },
+                        setState: async (state: Record<string, unknown>, opts?: unknown) => {
+                            if (!historyLayerRef.current) {
+                                throw new Error('[chayns-api] setState is not allowed on this page');
+                            }
+                            await historyLayerRef.current.setState(state, opts as never);
+                        },
+                        navigate: (opts: unknown) => {
+                            if (!historyLayerRef.current) {
+                                throw new Error('[chayns-api] navigate is not allowed on this page');
+                            }
+                            return historyLayerRef.current.navigate(opts as never);
+                        },
+                        setActiveChild: (id: string | null, init?: unknown) => {
+                            if (!historyLayerRef.current) {
+                                throw new Error('[chayns-api] setActiveChild is not allowed on this page');
+                            }
+                            return historyLayerRef.current.setActiveChild(id, init as never);
+                        },
+                        setSegmentCount: async (n: number) => {
+                            if (!historyLayerRef.current) {
+                                throw new Error('[chayns-api] setSegmentCount is not allowed on this page');
+                            }
+                            await historyLayerRef.current.setSegmentCount(n);
+                        },
                         addChangeListener: (callback: (e: unknown) => void) => {
                             if (!historyLayerRef.current) {
-                                new Error('[chayns-api] addChangeListener is not allowed on this page')
+                                throw new Error('[chayns-api] addChangeListener is not allowed on this page');
                             }
 
                             const unsub = historyLayerRef.current?.addEventListener('change', callback as never) ?? (() => {
@@ -175,7 +203,7 @@ const HostIframe: FC<HostIframeProps> = ({
                         },
                         addPopstateListener: (callback: (e: unknown) => void) => {
                             if (!historyLayerRef.current) {
-                                new Error('[chayns-api] addPopstateListener is not allowed on this page')
+                                throw new Error('[chayns-api] addPopstateListener is not allowed on this page');
                             }
 
                             const unsub = historyLayerRef.current?.addEventListener('popstate', callback as never) ?? (() => {
@@ -184,7 +212,7 @@ const HostIframe: FC<HostIframeProps> = ({
                         },
                         addBlock: (callback: () => Promise<boolean>, opts?: unknown) => {
                             if (!historyLayerRef.current) {
-                                new Error('[chayns-api] addBlock is not allowed on this page')
+                                throw new Error('[chayns-api] addBlock is not allowed on this page');
                             }
 
                             const unsub = historyLayerRef.current?.addBlock(callback, opts as never) ?? (() => {

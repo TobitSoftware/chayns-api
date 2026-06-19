@@ -466,8 +466,6 @@ export interface ChaynsReactFunctions {
     addAccessTokenChangeListener: (options: { external?: boolean }, callback: (result: { accessToken: string }) => void) => Promise<number>;
     removeAccessTokenChangeListener: (id: number) => Promise<void>;
     redirect: (options: { destination: string, isPermanent?: boolean }) => Promise<void>;
-    // returns a ChaynsHistoryLayer proxy connected to the parent window (iframe context only)
-    getHistoryLayer(): ChaynsHistoryLayer | null;
 }
 
 export type ChaynsReactCustomFunctions = {
@@ -707,6 +705,7 @@ export interface DesignSettingsUpdateItem {
 export interface IChaynsReact {
     values: ChaynsReactValues;
     functions: ChaynsReactFunctions;
+    history: ChaynsHistoryLayer | null;
     customFunctions: ChaynsReactCustomFunctions;
     addDataListener: (cb: DataChangeCallback) => CleanupCallback;
     getSSRData: () => ChaynsReactValues | null;
