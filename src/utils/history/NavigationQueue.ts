@@ -490,6 +490,12 @@ export class NavigationQueue {
             },
         };
 
+        // ToDo: Remove if chat witched to chayns navigation
+        if(url.includes('/intercom/overview') && !!state.idx){
+            console.log("TEST neee")
+            return;
+        }
+
         if (isReplace) {
             window.history.replaceState(stateWithMeta, '', url);
         } else {
