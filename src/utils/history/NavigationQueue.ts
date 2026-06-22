@@ -490,11 +490,6 @@ export class NavigationQueue {
             },
         };
 
-        // ToDo: Remove if chat switched to chayns navigation
-        if(url.includes('/intercom/overview') && !!state.idx){
-            return;
-        }
-
         if (isReplace) {
             window.history.replaceState(stateWithMeta, '', url);
         } else {
