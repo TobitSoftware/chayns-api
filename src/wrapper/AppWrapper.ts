@@ -301,6 +301,23 @@ export class AppWrapper implements IChaynsReact {
             }
             return id;
         },
+        addAppleSafeAreaListener: async (callback) => {
+            const { id, shouldInitialize } = addApiListener('appleSafeAreaListener', callback);
+
+            if (shouldInitialize) {
+                void this.appCall(300, {}, {
+                    callback: (v) => {
+                        dispatchApiEvent('appleSafeAreaListener', {
+                            top: v.top,
+                            left: v.left,
+                            bottom: v.bottom,
+                            right: v.right,
+                        });
+                    },
+                });
+            }
+            return id;
+        },
         customCallbackFunction: async () => {
             this.notImplemented('customCallbackFunction');
         },
@@ -465,6 +482,12 @@ export class AppWrapper implements IChaynsReact {
                 void this.exposedFunctions.removeWindowMetricsListener(id);
                 if (this.resizeListener) window.removeEventListener('resize', this.resizeListener);
                 this.resizeListener = null;
+            }
+        },
+        removeAppleSafeAreaListener: async (id) => {
+            const shouldRemove = removeApiListener('appleSafeAreaListener', id);
+            if (shouldRemove) {
+                void this.exposedFunctions.removeAppleSafeAreaListener(id);
             }
         },
         selectPage: async (options) => {
