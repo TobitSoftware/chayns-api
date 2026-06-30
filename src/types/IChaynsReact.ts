@@ -245,6 +245,10 @@ export interface ChaynsDesignSettings {
     backgroundType?: number;
     backgroundColor?: string;
     headerBarColor?: string;
+    /** @experimental May not be available in all environments yet. */
+    headerBarBlur?: number;
+    /** @experimental May not be available in all environments yet. */
+    headerBarOpacity?: number;
     accordionIcon?: number;
     accordionLines: boolean;
     cardBorderRadius?: number;
