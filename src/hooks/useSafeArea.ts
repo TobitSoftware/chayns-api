@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppleSafeArea, AppName } from '../types/IChaynsReact';
-import { useFunctionsSelector } from './context';
-import { useDevice } from './useDevice';
+import { useFunctionsSelector, useValuesSelector } from './context';
 
 /**
  * Configuration for which apps and versions support safe area functionality
@@ -48,22 +47,10 @@ export const useSafeAreaListener = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }), [])
 }
-
 /**
- * Hook that returns the safe area insets on iOS devices.
- *
- * Supports different apps with different minimum versions.
- * Currently supported:
- * - Team App: version 1072+
- *
- * @example
- * const safeArea = useSafeArea({ enabled: true });
- * console.log(safeArea.top); // top inset
- *
  * @category Hooks
  */
 export const useSafeArea = ({ enabled = true } = {}) => {
-    const device = useDevice();
     const [value, setValue] = useState<AppleSafeArea>({
         top: 0,
         left: 0,
@@ -71,6 +58,7 @@ export const useSafeArea = ({ enabled = true } = {}) => {
         right: 0
     });
     const addListener = useSafeAreaListener();
+    const device = useValuesSelector(v => v.device);
 
     const isSupported = isSafeAreaSupported(device.os, device.app);
 

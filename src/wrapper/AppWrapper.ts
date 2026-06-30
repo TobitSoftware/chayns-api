@@ -487,7 +487,7 @@ export class AppWrapper implements IChaynsReact {
         removeAppleSafeAreaListener: async (id) => {
             const shouldRemove = removeApiListener('appleSafeAreaListener', id);
             if (shouldRemove) {
-                void this.exposedFunctions.removeAppleSafeAreaListener(id);
+                // Safe area listener removal is handled by the app
             }
         },
         selectPage: async (options) => {

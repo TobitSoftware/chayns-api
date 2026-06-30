@@ -11,6 +11,7 @@ import {
 import { addVisibilityChangeListener, removeVisibilityChangeListener } from '../calls/visibilityChangeListener';
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
+import { addApiListener, dispatchApiEvent, removeApiListener } from '../utils/apiListener';
 
 export class ModuleFederationWrapper implements IChaynsReact {
     values: ChaynsReactValues;
@@ -42,6 +43,30 @@ export class ModuleFederationWrapper implements IChaynsReact {
             // eslint-disable-next-line
             this.functions[k] = async (...args) => (fn as Function)(...args);
         });
+
+        // Fallback for addAppleSafeAreaListener when the host does not provide it yet.
+        // It is implemented via invokeCall (action 300). A shared api listener is used so
+        // that multiple hooks all receive the same data while the underlying call is only
+        // invoked once.
+        if (!functions.addAppleSafeAreaListener) {
+            this.functions.addAppleSafeAreaListener = async (callback) => {
+                const { id, shouldInitialize } = addApiListener('appleSafeAreaListener', callback);
+
+                if (shouldInitialize) {
+                    void this.functions.invokeCall({ action: 300 }, (result) => {
+                        dispatchApiEvent('appleSafeAreaListener', result);
+                    });
+                }
+
+                return id;
+            };
+        }
+        if (!functions.removeAppleSafeAreaListener) {
+            this.functions.removeAppleSafeAreaListener = async (id) => {
+                removeApiListener('appleSafeAreaListener', id);
+                // The underlying invokeCall (action 300) listener is not removable in the host
+            };
+        }
 
         if (customFunctions) {
             this.customFunctions = customFunctions;

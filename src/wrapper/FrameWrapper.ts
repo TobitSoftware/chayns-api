@@ -22,6 +22,7 @@ import {
 } from '../types/IChaynsReact';
 import { setTappHeight } from '../utils/heightHelper';
 import { initTransferNestedFunctions } from '../utils/transferNestedFunctions';
+import { addApiListener, dispatchApiEvent, removeApiListener } from '../utils/apiListener';
 
 export class FrameWrapper implements IChaynsReact {
 
@@ -74,9 +75,15 @@ export class FrameWrapper implements IChaynsReact {
         addAppleSafeAreaListener: async (callback) => {
             if (!this.initialized) await this.ready;
 
-            return this.exposedFunctions.addAppleSafeAreaListener(comlink.proxy((result) => {
-                callback(result);
-            }));
+            const { id, shouldInitialize } = addApiListener('appleSafeAreaListener', callback);
+
+            if (shouldInitialize) {
+                void this.exposedFunctions.invokeCall({ action: 300 }, comlink.proxy((result) => {
+                    dispatchApiEvent('appleSafeAreaListener', result);
+                }));
+            }
+
+            return id;
         },
         customCallbackFunction: async (type, data) => {
             if (!this.initialized) await this.ready;
@@ -178,7 +185,8 @@ export class FrameWrapper implements IChaynsReact {
         removeAppleSafeAreaListener: async (id) => {
             if (!this.initialized) await this.ready;
 
-            return this.exposedFunctions.removeAppleSafeAreaListener(id);
+            removeApiListener('appleSafeAreaListener', id);
+            // The underlying invokeCall (action 300) listener is not removable in the host
         },
         removeToolbarChangeListener: async (id) => {
             if (!this.initialized) await this.ready;
