@@ -358,7 +358,7 @@ export interface ChaynsReactValues {
     },
     environment: {
         buildEnvironment: Environment;
-        runtimeEnvironment: RuntimeEnviroment | string;
+        runtimeEnvironment: RuntimeEnvironment | string;
     },
     customData: any,
     dialog: { dialogInput: any, isClosingRequested: boolean },
@@ -990,7 +990,7 @@ export enum Language {
     Ukrainian = 'uk'
 }
 
-export enum RuntimeEnviroment {
+export enum RuntimeEnvironment {
     Unknown,
     ChaynsDe,
     ChaynsWeb, // ?
@@ -999,7 +999,11 @@ export enum RuntimeEnviroment {
     PagemakerPlugin,
     Dialog,
     App,
+    /** Module Federation plugin with unspecified host */
+    RemotePlugin,
 }
+
+export const RuntimeEnviroment = RuntimeEnvironment;
 
 export enum DeviceOs {
     Unknown = 'unknown',

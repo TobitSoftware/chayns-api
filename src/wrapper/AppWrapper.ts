@@ -27,7 +27,7 @@ import {
     IChaynsReact,
     IconType,
     LoginState,
-    RuntimeEnviroment,
+    RuntimeEnvironment,
     ScanQrCodeResult,
     TappEvent,
 } from '../types/IChaynsReact';
@@ -122,7 +122,7 @@ export class AppWrapper implements IChaynsReact {
             device: getDeviceInfo(navigator.userAgent, 'image/webp', { imei: Device.IMEI }),
             environment: {
                 buildEnvironment: Environment.Production,
-                runtimeEnvironment: RuntimeEnviroment.App,
+                runtimeEnvironment: RuntimeEnvironment.App,
             },
             language: {
                 site: AppInfo.Language || 'de',
