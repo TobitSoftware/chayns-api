@@ -39,3 +39,4 @@ export {
     type UseChaynsHistoryActiveChildResult,
     type UseChaynsHistoryBlockOptions,
 } from './history';
+export {useValuesWithOverrides} from './useValuesWithOverrides';
