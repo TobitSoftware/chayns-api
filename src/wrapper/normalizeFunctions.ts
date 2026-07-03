@@ -60,11 +60,17 @@ const createAppleSafeAreaFunctions = (functions: ChaynsReactFunctions) => {
 };
 
 export const normalizeFunctions = (functions: ChaynsReactFunctions): ChaynsReactFunctions => {
+    const runtimeFunctions = functions as Partial<ChaynsReactFunctions>;
+
+    if (runtimeFunctions.addAppleSafeAreaListener && runtimeFunctions.removeAppleSafeAreaListener) {
+        return functions;
+    }
+
     const safeAreaFunctions = createAppleSafeAreaFunctions(functions);
 
     return {
         ...functions,
-        addAppleSafeAreaListener: safeAreaFunctions.addAppleSafeAreaListener,
-        removeAppleSafeAreaListener: safeAreaFunctions.removeAppleSafeAreaListener,
+        addAppleSafeAreaListener: runtimeFunctions.addAppleSafeAreaListener ?? safeAreaFunctions.addAppleSafeAreaListener,
+        removeAppleSafeAreaListener: runtimeFunctions.removeAppleSafeAreaListener ?? safeAreaFunctions.removeAppleSafeAreaListener,
     };
 };
