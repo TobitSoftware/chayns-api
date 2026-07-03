@@ -8,6 +8,7 @@ import { useFunctionsSelector, useValuesSelector } from './context';
 const SAFE_AREA_SUPPORT_CONFIG: Record<number, number> = {
     [AppName.Team]: 1072,
     [AppName.CityApp]: 7250,
+    [AppName.Chayns]: 7250,
     [AppName.Sidekick]: 2120,
     [AppName.TobitChat]: 2077
 };

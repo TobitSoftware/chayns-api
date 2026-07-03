@@ -75,15 +75,9 @@ export class FrameWrapper implements IChaynsReact {
         addAppleSafeAreaListener: async (callback) => {
             if (!this.initialized) await this.ready;
 
-            const { id, shouldInitialize } = addApiListener('appleSafeAreaListener', callback);
-
-            if (shouldInitialize) {
-                void this.exposedFunctions.invokeCall({ action: 300 }, comlink.proxy((result) => {
-                    dispatchApiEvent('appleSafeAreaListener', result);
-                }));
-            }
-
-            return id;
+            return this.exposedFunctions.addAppleSafeAreaListener(comlink.proxy((result) => {
+                callback(result)
+            }));
         },
         customCallbackFunction: async (type, data) => {
             if (!this.initialized) await this.ready;
@@ -185,8 +179,7 @@ export class FrameWrapper implements IChaynsReact {
         removeAppleSafeAreaListener: async (id) => {
             if (!this.initialized) await this.ready;
 
-            removeApiListener('appleSafeAreaListener', id);
-            // The underlying invokeCall (action 300) listener is not removable in the host
+            return this.exposedFunctions.removeAppleSafeAreaListener(id);
         },
         removeToolbarChangeListener: async (id) => {
             if (!this.initialized) await this.ready;
