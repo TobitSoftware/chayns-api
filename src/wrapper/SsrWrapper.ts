@@ -6,6 +6,7 @@ import {
     DataChangeValue,
     IChaynsReact,
 } from '../types/IChaynsReact';
+import { normalizeFunctions } from './normalizeFunctions';
 
 
 export class SsrWrapper implements IChaynsReact {
@@ -26,7 +27,7 @@ export class SsrWrapper implements IChaynsReact {
     constructor(values: ChaynsReactValues, functions: ChaynsReactFunctions, customFunctions?: IChaynsReact["customFunctions"]) {
         this.initialData = values;
         this.values = values;
-        this.functions = functions;
+        this.functions = normalizeFunctions(functions);
         this.customFunctions = customFunctions ?? {};
     }
 
