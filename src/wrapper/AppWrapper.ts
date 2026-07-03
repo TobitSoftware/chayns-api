@@ -44,6 +44,8 @@ export class AppWrapper implements IChaynsReact {
 
     accessToken = '';
 
+    latestAppleSafeArea = null;
+
     listeners: (() => void)[] =  [];
 
     customFunctions = {};
@@ -304,15 +306,20 @@ export class AppWrapper implements IChaynsReact {
         addAppleSafeAreaListener: async (callback) => {
             const { id, shouldInitialize } = addApiListener('appleSafeAreaListener', callback);
 
+            if (this.latestAppleSafeArea) {
+                callback(this.latestAppleSafeArea);
+            }
+
             if (shouldInitialize) {
                 void this.appCall(300, {}, {
                     callback: (v) => {
-                        dispatchApiEvent('appleSafeAreaListener', {
+                        this.latestAppleSafeArea = {
                             top: v.top,
                             left: v.left,
                             bottom: v.bottom,
                             right: v.right,
-                        });
+                        };
+                        dispatchApiEvent('appleSafeAreaListener', this.latestAppleSafeArea);
                     },
                 });
             }
