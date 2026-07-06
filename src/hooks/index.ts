@@ -9,6 +9,7 @@ export {useIsAdminMode} from './useIsAdminMode';
 export {useUser} from './useUser';
 export {useAccessToken} from './useAccessToken';
 export {useWindowMetrics, useWindowMetricsListener} from './windowMetricsListener';
+export {useSafeArea, useSafeAreaListener} from './useSafeArea';
 export {useDevice} from './useDevice';
 export {useSite} from './useSite';
 export {useParameters} from './useParameters';

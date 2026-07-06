@@ -11,6 +11,7 @@ import {
 import { addVisibilityChangeListener, removeVisibilityChangeListener } from '../calls/visibilityChangeListener';
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
+import { normalizeFunctions } from './normalizeFunctions';
 
 export class ModuleFederationWrapper implements IChaynsReact {
     values: ChaynsReactValues;
@@ -26,6 +27,7 @@ export class ModuleFederationWrapper implements IChaynsReact {
     chaynsApiId: string = null!;
 
     constructor(values: ChaynsReactValues, functions: ChaynsReactFunctions, customFunctions?: IChaynsReact["customFunctions"]) {
+        const normalizedFunctions = normalizeFunctions(functions);
         this.values = values;
         this.functions = {} as ChaynsReactFunctions;
         this.functions.addVisibilityChangeListener = async (callback) => addVisibilityChangeListener(callback);
@@ -38,7 +40,7 @@ export class ModuleFederationWrapper implements IChaynsReact {
         this.functions.sendMessageToUser = async (userId: number, object: IntercomMessage) =>
             sendMessageToUser(this, object, userId);
         // make all functions async to be consistent with frame wrapper
-        Object.entries(functions).forEach(([k, fn]) => {
+        Object.entries(normalizedFunctions).forEach(([k, fn]) => {
             // eslint-disable-next-line
             this.functions[k] = async (...args) => (fn as Function)(...args);
         });
@@ -48,7 +50,7 @@ export class ModuleFederationWrapper implements IChaynsReact {
         }
 
         this.functions.createDialog = <I, R>(config: Dialog<I>) => {
-            return new DialogHandler<R>(config, functions.openDialog, functions.closeDialog, functions.dispatchEventToDialogClient, functions.addDialogClientEventListener);
+            return new DialogHandler<R>(config, normalizedFunctions.openDialog, normalizedFunctions.closeDialog, normalizedFunctions.dispatchEventToDialogClient, normalizedFunctions.addDialogClientEventListener);
         }
     }
 

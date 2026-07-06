@@ -71,6 +71,13 @@ export class FrameWrapper implements IChaynsReact {
                 callback(result);
             }));
         },
+        addAppleSafeAreaListener: async (callback) => {
+            if (!this.initialized) await this.ready;
+
+            return this.exposedFunctions.addAppleSafeAreaListener(comlink.proxy((result) => {
+                callback(result)
+            }));
+        },
         customCallbackFunction: async (type, data) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.customCallbackFunction(type, data);
@@ -102,6 +109,10 @@ export class FrameWrapper implements IChaynsReact {
         getWindowMetrics: async () => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.getWindowMetrics();
+        },
+        getAppleSafeArea: async () => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.getAppleSafeArea();
         },
         invokeCall: async (value, callback) => {
             if (!this.initialized) await this.ready;
@@ -167,6 +178,11 @@ export class FrameWrapper implements IChaynsReact {
             if (!this.initialized) await this.ready;
 
             return this.exposedFunctions.removeWindowMetricsListener(id);
+        },
+        removeAppleSafeAreaListener: async (id) => {
+            if (!this.initialized) await this.ready;
+
+            return this.exposedFunctions.removeAppleSafeAreaListener(id);
         },
         removeToolbarChangeListener: async (id) => {
             if (!this.initialized) await this.ready;

@@ -17,6 +17,7 @@ class StaticChaynsApi implements ChaynsReactFunctions {
     addVisibilityChangeListener!: ChaynsReactFunctions['addVisibilityChangeListener'];
     addToolbarChangeListener!: ChaynsReactFunctions['addToolbarChangeListener'];
     addWindowMetricsListener!: ChaynsReactFunctions['addWindowMetricsListener'];
+    addAppleSafeAreaListener!: ChaynsReactFunctions['addAppleSafeAreaListener'];
     customCallbackFunction!: ChaynsReactFunctions['customCallbackFunction'];
     getAvailableSharingServices!: ChaynsReactFunctions['getAvailableSharingServices'];
     getAccessToken!: ChaynsReactFunctions['getAccessToken'];
@@ -25,6 +26,7 @@ class StaticChaynsApi implements ChaynsReactFunctions {
     getUserInfo!: ChaynsReactFunctions['getUserInfo'];
     getScrollPosition!: ChaynsReactFunctions['getScrollPosition'];
     getWindowMetrics!: ChaynsReactFunctions['getWindowMetrics'];
+    getAppleSafeArea!: ChaynsReactFunctions['getAppleSafeArea'];
     invokeCall!: ChaynsReactFunctions['invokeCall'];
     invokePaymentCall!: ChaynsReactFunctions['invokePaymentCall'];
     invokeDialogCall!: ChaynsReactFunctions['invokeDialogCall'];
@@ -42,6 +44,7 @@ class StaticChaynsApi implements ChaynsReactFunctions {
     removeVisibilityChangeListener!: ChaynsReactFunctions['removeVisibilityChangeListener'];
     removeToolbarChangeListener!: ChaynsReactFunctions['removeToolbarChangeListener'];
     removeWindowMetricsListener!: ChaynsReactFunctions['removeWindowMetricsListener'];
+    removeAppleSafeAreaListener!: ChaynsReactFunctions['removeAppleSafeAreaListener'];
     selectPage!: ChaynsReactFunctions['selectPage'];
     scrollToY!: ChaynsReactFunctions['scrollToY'];
     sendMessageToGroup!: ChaynsReactFunctions['sendMessageToGroup'];

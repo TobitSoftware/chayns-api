@@ -44,6 +44,8 @@ export class AppWrapper implements IChaynsReact {
 
     accessToken = '';
 
+    latestAppleSafeArea = null;
+
     listeners: (() => void)[] =  [];
 
     customFunctions = {};
@@ -301,6 +303,28 @@ export class AppWrapper implements IChaynsReact {
             }
             return id;
         },
+        addAppleSafeAreaListener: async (callback) => {
+            const { id, shouldInitialize } = addApiListener('appleSafeAreaListener', callback);
+
+            if (this.latestAppleSafeArea) {
+                callback(this.latestAppleSafeArea);
+            }
+
+            if (shouldInitialize) {
+                void this.appCall(300, {}, {
+                    callback: (v) => {
+                        this.latestAppleSafeArea = {
+                            top: v.top,
+                            left: v.left,
+                            bottom: v.bottom,
+                            right: v.right,
+                        };
+                        dispatchApiEvent('appleSafeAreaListener', this.latestAppleSafeArea);
+                    },
+                });
+            }
+            return id;
+        },
         customCallbackFunction: async () => {
             this.notImplemented('customCallbackFunction');
         },
@@ -343,6 +367,22 @@ export class AppWrapper implements IChaynsReact {
             pageWidth: window.innerWidth,
             topBarHeight: 0,
         }),
+        getAppleSafeArea: async () => {
+            if (this.latestAppleSafeArea) {
+                return this.latestAppleSafeArea;
+            }
+
+            const v = await this.appCall(300, {});
+
+            this.latestAppleSafeArea = {
+                top: v?.top ?? 0,
+                left: v?.left ?? 0,
+                bottom: v?.bottom ?? 0,
+                right: v?.right ?? 0,
+            };
+
+            return this.latestAppleSafeArea;
+        },
         invokeCall: async (value, callback) => {
             return this.appCall(value.action, value.value, { callback });
         },
@@ -465,6 +505,12 @@ export class AppWrapper implements IChaynsReact {
                 void this.exposedFunctions.removeWindowMetricsListener(id);
                 if (this.resizeListener) window.removeEventListener('resize', this.resizeListener);
                 this.resizeListener = null;
+            }
+        },
+        removeAppleSafeAreaListener: async (id) => {
+            const shouldRemove = removeApiListener('appleSafeAreaListener', id);
+            if (shouldRemove) {
+                // App does not support removal of appleSafeAreaListener callback which makes this a no-op
             }
         },
         selectPage: async (options) => {

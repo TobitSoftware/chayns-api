@@ -388,6 +388,7 @@ export interface ChaynsReactFunctions {
     addVisibilityChangeListener: (callback: (result: VisibilityChangeListenerResult) => void) => Promise<number>;
     addToolbarChangeListener: (callback: (result: ToolbarChangeListenerResult) => void) => Promise<number>;
     addWindowMetricsListener: (callback: (result: WindowMetricsListenerResult) => void) => Promise<number>;
+    addAppleSafeAreaListener: (callback: (result: AppleSafeArea) => void) => Promise<number>;
     customCallbackFunction: (type: string, data: unknown) => Promise<unknown>;
     getAvailableSharingServices: () => Promise<AvailableSharingServices>;
     getAccessToken: (value?: AccessToken) => Promise<AccessTokenResult>;
@@ -396,6 +397,7 @@ export interface ChaynsReactFunctions {
     getUserInfo: (value: UserInfoQuery) => Promise<UserInfo | null>;
     getScrollPosition: () => Promise<ScrollListenerResult>;
     getWindowMetrics: () => Promise<WindowMetricsListenerResult>;
+    getAppleSafeArea: () => Promise<AppleSafeArea>;
     invokeCall: (value: InvokeCall, callback?: (result: any) => void) => Promise<any>;
     invokePaymentCall: <T>(value: InvokeCall, callback?: (result: T) => void) => Promise<T>;
     invokeDialogCall: (value: InvokeCall, callback?: (result: any) => void) => Promise<any>;
@@ -413,6 +415,7 @@ export interface ChaynsReactFunctions {
     removeVisibilityChangeListener: (value: number) => Promise<void>;
     removeToolbarChangeListener: (value: number) => Promise<void>;
     removeWindowMetricsListener: (value: number) => Promise<void>;
+    removeAppleSafeAreaListener: (value: number) => Promise<void>;
     selectPage: (value: SelectPage) => Promise<void>;
     scrollToY: (position: number, duration: number) => Promise<void>;
     sendMessageToGroup: (groupId: number, message: IntercomMessage) => Promise<Response>;
@@ -1136,6 +1139,13 @@ export enum DialogIconType {
 
 export type AnonymousAccountResult = {
     token: string;
+}
+
+export interface AppleSafeArea {
+    top: number;
+    left: number;
+    bottom: number;
+    right: number;
 }
 
 export type PageMainGroupType = {

@@ -38,7 +38,12 @@ export const addAccessTokenChangeListener = (...args: Parameters<ChaynsReactFunc
  * This adds a listener to get the actual height of the page.
  * @category Event listener
  */
-export const addWindowMetricsListener = (...args: Parameters<ChaynsReactFunctions["addWindowMetricsListener"]>) => moduleWrapper.current.functions.addWindowMetricsListener(...args);/**
+export const addWindowMetricsListener = (...args: Parameters<ChaynsReactFunctions["addWindowMetricsListener"]>) => moduleWrapper.current.functions.addWindowMetricsListener(...args);
+/**
+ * This adds a listener to get the safe area insets on iOS.
+ * @category Event listener
+ */
+export const addAppleSafeAreaListener = (...args: Parameters<ChaynsReactFunctions["addAppleSafeAreaListener"]>) => moduleWrapper.current.functions.addAppleSafeAreaListener(...args);/**
  * Allows a custom callback function to be defined. Prefer usage via useCustomCallbackFunction when possible
  * @deprecated Use customFunction/useCustomFunction-interface instead if possible
  */
@@ -72,6 +77,12 @@ export const getScrollPosition = (...args: Parameters<ChaynsReactFunctions["getS
  * Returns the window metrics.
  */
 export const getWindowMetrics = (...args: Parameters<ChaynsReactFunctions["getWindowMetrics"]>) => moduleWrapper.current.functions.getWindowMetrics(...args);
+/**
+ * Returns the current safe area insets on iOS. Can be used outside of a React context
+ * (e.g. inside a redux action, thunk or service), as long as the ChaynsProvider has been
+ * mounted once.
+ */
+export const getSafeArea = (...args: Parameters<ChaynsReactFunctions["getAppleSafeArea"]>) => moduleWrapper.current.functions.getAppleSafeArea(...args);
 /** @internal */
 export const invokeCall = (...args: Parameters<ChaynsReactFunctions["invokeCall"]>) => moduleWrapper.current.functions.invokeCall(...args);
 /** @internal */
@@ -145,6 +156,11 @@ export const removeVisibilityChangeListener = (...args: Parameters<ChaynsReactFu
  * @category Event listener
  */
 export const removeWindowMetricsListener = (...args: Parameters<ChaynsReactFunctions["removeWindowMetricsListener"]>) => moduleWrapper.current.functions.removeWindowMetricsListener(...args);
+/**
+ * Removes safe area listener.
+ * @category Event listener
+ */
+export const removeAppleSafeAreaListener = (...args: Parameters<ChaynsReactFunctions["removeAppleSafeAreaListener"]>) => moduleWrapper.current.functions.removeAppleSafeAreaListener(...args);
 /**
  * Select other page on chayns site.
  */
