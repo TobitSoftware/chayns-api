@@ -53,16 +53,38 @@ const createAppleSafeAreaFunctions = (functions: ChaynsReactFunctions) => {
         return Promise.resolve();
     };
 
+    const baseGetSafeArea = runtimeFunctions.getAppleSafeArea;
+
+    const getAppleSafeArea: ChaynsReactFunctions['getAppleSafeArea'] = async () => {
+        if (hasLatestValue && latestValue) {
+            return latestValue;
+        }
+
+        if (baseGetSafeArea) {
+            const result = await baseGetSafeArea();
+            dispatch(result);
+            return result;
+        }
+
+        const fallback: AppleSafeArea = { top: 0, left: 0, bottom: 0, right: 0 };
+        return fallback;
+    };
+
     return {
         addAppleSafeAreaListener,
         removeAppleSafeAreaListener,
+        getAppleSafeArea,
     };
 };
 
 export const normalizeFunctions = (functions: ChaynsReactFunctions): ChaynsReactFunctions => {
     const runtimeFunctions = functions as Partial<ChaynsReactFunctions>;
 
-    if (runtimeFunctions.addAppleSafeAreaListener && runtimeFunctions.removeAppleSafeAreaListener) {
+    if (
+        runtimeFunctions.addAppleSafeAreaListener
+        && runtimeFunctions.removeAppleSafeAreaListener
+        && runtimeFunctions.getAppleSafeArea
+    ) {
         return functions;
     }
 
@@ -72,5 +94,6 @@ export const normalizeFunctions = (functions: ChaynsReactFunctions): ChaynsReact
         ...functions,
         addAppleSafeAreaListener: runtimeFunctions.addAppleSafeAreaListener ?? safeAreaFunctions.addAppleSafeAreaListener,
         removeAppleSafeAreaListener: runtimeFunctions.removeAppleSafeAreaListener ?? safeAreaFunctions.removeAppleSafeAreaListener,
+        getAppleSafeArea: runtimeFunctions.getAppleSafeArea ?? safeAreaFunctions.getAppleSafeArea,
     };
 };

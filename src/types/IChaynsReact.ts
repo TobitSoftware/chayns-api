@@ -397,6 +397,7 @@ export interface ChaynsReactFunctions {
     getUserInfo: (value: UserInfoQuery) => Promise<UserInfo | null>;
     getScrollPosition: () => Promise<ScrollListenerResult>;
     getWindowMetrics: () => Promise<WindowMetricsListenerResult>;
+    getAppleSafeArea: () => Promise<AppleSafeArea>;
     invokeCall: (value: InvokeCall, callback?: (result: any) => void) => Promise<any>;
     invokePaymentCall: <T>(value: InvokeCall, callback?: (result: T) => void) => Promise<T>;
     invokeDialogCall: (value: InvokeCall, callback?: (result: any) => void) => Promise<any>;

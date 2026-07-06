@@ -77,6 +77,12 @@ export const getScrollPosition = (...args: Parameters<ChaynsReactFunctions["getS
  * Returns the window metrics.
  */
 export const getWindowMetrics = (...args: Parameters<ChaynsReactFunctions["getWindowMetrics"]>) => moduleWrapper.current.functions.getWindowMetrics(...args);
+/**
+ * Returns the current safe area insets on iOS. Can be used outside of a React context
+ * (e.g. inside a redux action, thunk or service), as long as the ChaynsProvider has been
+ * mounted once.
+ */
+export const getSafeArea = (...args: Parameters<ChaynsReactFunctions["getAppleSafeArea"]>) => moduleWrapper.current.functions.getAppleSafeArea(...args);
 /** @internal */
 export const invokeCall = (...args: Parameters<ChaynsReactFunctions["invokeCall"]>) => moduleWrapper.current.functions.invokeCall(...args);
 /** @internal */

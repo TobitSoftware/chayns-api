@@ -367,6 +367,22 @@ export class AppWrapper implements IChaynsReact {
             pageWidth: window.innerWidth,
             topBarHeight: 0,
         }),
+        getAppleSafeArea: async () => {
+            if (this.latestAppleSafeArea) {
+                return this.latestAppleSafeArea;
+            }
+
+            const v = await this.appCall(300, {});
+
+            this.latestAppleSafeArea = {
+                top: v?.top ?? 0,
+                left: v?.left ?? 0,
+                bottom: v?.bottom ?? 0,
+                right: v?.right ?? 0,
+            };
+
+            return this.latestAppleSafeArea;
+        },
         invokeCall: async (value, callback) => {
             return this.appCall(value.action, value.value, { callback });
         },

@@ -26,6 +26,7 @@ class StaticChaynsApi implements ChaynsReactFunctions {
     getUserInfo!: ChaynsReactFunctions['getUserInfo'];
     getScrollPosition!: ChaynsReactFunctions['getScrollPosition'];
     getWindowMetrics!: ChaynsReactFunctions['getWindowMetrics'];
+    getAppleSafeArea!: ChaynsReactFunctions['getAppleSafeArea'];
     invokeCall!: ChaynsReactFunctions['invokeCall'];
     invokePaymentCall!: ChaynsReactFunctions['invokePaymentCall'];
     invokeDialogCall!: ChaynsReactFunctions['invokeDialogCall'];

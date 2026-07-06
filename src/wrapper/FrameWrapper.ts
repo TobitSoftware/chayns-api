@@ -110,6 +110,10 @@ export class FrameWrapper implements IChaynsReact {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.getWindowMetrics();
         },
+        getAppleSafeArea: async () => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.getAppleSafeArea();
+        },
         invokeCall: async (value, callback) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.invokeCall(value, callback && comlink.proxy((result) => callback(result)));
