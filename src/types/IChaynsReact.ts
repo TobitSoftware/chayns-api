@@ -68,6 +68,28 @@ export interface DialogFileSelect {
     directory?: boolean;
 }
 
+export interface DialogFileExplorer {
+    type: DialogType.FILE_EXPLORER;
+    rootFolderName: string;
+    items: FileExplorerItem[];
+    onLoad: (id?: string | number) => void;
+}
+
+export type FileExplorerItem = FileExplorerFolder | FileExplorerFile;
+
+export interface FileExplorerFolder {
+    id: string | number;
+    name: string;
+    count: number;
+    children: FileExplorerItem[];
+}
+
+export interface FileExplorerFile {
+    id: string | number;
+    name: string;
+    mimeType: string;
+}
+
 export interface DialogConfirm {
     type: DialogType.CONFIRM;
 }
@@ -89,7 +111,7 @@ export interface BaseDialog {
     footer?: string;
 }
 
-export type Dialog<T = object> = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule<T> | DialogIFrame<T> | DialogSelect | DialogDate | DialogToast | DialogSignature | DialogFileSelect);
+export type Dialog<T = object> = BaseDialog & (DialogAlert | DialogConfirm | DialogInput | DialogModule<T> | DialogIFrame<T> | DialogSelect | DialogDate | DialogToast | DialogSignature | DialogFileSelect | DialogFileExplorer);
 
 export interface DialogSignature {
     type: DialogType.SIGNATURE;
@@ -448,9 +470,10 @@ export interface ChaynsReactFunctions {
     createDialog(config: BaseDialog & DialogDate & ({ multiselect: true } | { interval: true })): DialogHandler<Date[]>;
     createDialog(config: BaseDialog & DialogDate): DialogHandler<Date>;
     createDialog(config: BaseDialog & DialogFileSelect): DialogHandler<DialogResultFile[]>;
+    createDialog(config: BaseDialog & DialogFileExplorer): DialogHandler<DialogResultFile[]>;
     createDialog<Input = any, Result = unknown>(config: BaseDialog & (DialogModule<Input> | DialogIFrame<Input>)): DialogHandler<Result>;
     // Adding union type as last overload improves error message since TypeScript only shows details for last overload
-    createDialog<Input = any, Result = unknown>(config: BaseDialog & (DialogAlert | DialogConfirm | DialogToast | DialogInput | DialogSignature | DialogSelect | DialogDate | DialogFileSelect | DialogIFrame<Input> | DialogModule<Input>)): DialogHandler<any>;
+    createDialog<Input = any, Result = unknown>(config: BaseDialog & (DialogAlert | DialogConfirm | DialogToast | DialogInput | DialogSignature | DialogSelect | DialogDate | DialogFileSelect | DialogFileExplorer | DialogIFrame<Input> | DialogModule<Input>)): DialogHandler<any>;
     // used internally by createDialog
     openDialog: (value, callback: (data: any) => any) => Promise<any>;
     // used internally by createDialog
@@ -1101,6 +1124,7 @@ export enum DialogType {
     CONFIRM = 'confirm',
     DATE = 'date',
     FILE_SELECT = 'fileSelect',
+    FILE_EXPLORER = 'fileExplorer',
     IFRAME = 'iframe',
     MODULE = 'module',
     INPUT = 'input',
