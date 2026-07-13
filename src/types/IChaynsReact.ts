@@ -73,6 +73,25 @@ export interface DialogFileExplorer {
     rootFolderName: string;
     items: FileExplorerItem[];
     onLoad: (id?: string | number) => void;
+    onFilterChange?: (value: FileExplorerFilterChange) => void;
+}
+
+export enum FileExplorerFilterType {
+    FILES = 'files',
+    FOLDERS = 'folders',
+}
+
+export enum FileExplorerSortType {
+    NONE = 'none',
+    ALPHABETICAL_ASC = 'alphabetical-asc',
+    ALPHABETICAL_DESC = 'alphabetical-desc',
+}
+
+export interface FileExplorerFilterChange {
+    currentFolderId?: string | number;
+    searchString: string;
+    filter: FileExplorerFilterType[];
+    sortType: FileExplorerSortType;
 }
 
 export type FileExplorerItem = FileExplorerFolder | FileExplorerFile;
@@ -470,7 +489,7 @@ export interface ChaynsReactFunctions {
     createDialog(config: BaseDialog & DialogDate & ({ multiselect: true } | { interval: true })): DialogHandler<Date[]>;
     createDialog(config: BaseDialog & DialogDate): DialogHandler<Date>;
     createDialog(config: BaseDialog & DialogFileSelect): DialogHandler<DialogResultFile[]>;
-    createDialog(config: BaseDialog & DialogFileExplorer): DialogHandler<DialogResultFile[]>;
+    createDialog(config: BaseDialog & DialogFileExplorer): DialogHandler<string | number>;
     createDialog<Input = any, Result = unknown>(config: BaseDialog & (DialogModule<Input> | DialogIFrame<Input>)): DialogHandler<Result>;
     // Adding union type as last overload improves error message since TypeScript only shows details for last overload
     createDialog<Input = any, Result = unknown>(config: BaseDialog & (DialogAlert | DialogConfirm | DialogToast | DialogInput | DialogSignature | DialogSelect | DialogDate | DialogFileSelect | DialogFileExplorer | DialogIFrame<Input> | DialogModule<Input>)): DialogHandler<any>;
