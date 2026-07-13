@@ -13,7 +13,7 @@ permissions:
 env:
   TAG: >-
     ${{ contains(github.ref_name, 'alpha') && 'alpha' || (contains(github.ref_name, '-') &&
-    'beta' || 'latest') }}
+    'beta' || 'legacy') }}
 
 jobs:
   build:
@@ -26,6 +26,6 @@ jobs:
           registry-url: https://registry.npmjs.org/
       # Ensure npm 11.5.1 or later is installed
       - name: Update npm
-        run: npm install -g npm@latest
+        run: npm install -g npm@^11.5.1
       - run: npm install
       - run: npm publish --tag ${{ env.TAG }}
