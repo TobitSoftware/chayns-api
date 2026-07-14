@@ -46,8 +46,8 @@ type ChaynsHostType = {
      * namespace. Activate it with `layer.navigate({ activeChild: historyChildId })`.
      */
     historyChildId?: string,
-    /** Whether the history is disabled for the children */
-    isHistoryDisabled?: boolean,
+    /** When true, enables the history layer for hosted children. Defaults to false. */
+    isHistoryEnabled?: boolean,
 } & ({
     type: `${'client' | 'server'}-iframe`,
     src: string,
@@ -84,7 +84,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
     styleSettings,
     historyLayer,
     historyChildId,
-    isHistoryDisabled = true,
+    isHistoryEnabled = false,
 }) => {
     const isInitiallyVisible = type !== 'client-module' && (type !== 'server-module' || !!system?.serverUrl);
     const isHydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
@@ -98,7 +98,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
 
     let layer: ChaynsHistoryLayer | undefined;
 
-    if(!isHistoryDisabled) {
+    if (isHistoryEnabled) {
         layer = historyChildId
             ? (resolvedLayer.getChildLayer(historyChildId) ?? resolvedLayer.createChildLayer(historyChildId))
             : resolvedLayer;
@@ -130,7 +130,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                         dialog={dialog}
                         styleSettings={styleSettings}
                         historyLayer={layer}
-                        isHistoryDisabled={isHistoryDisabled}
+                        isHistoryEnabled={isHistoryEnabled}
                     />
                 </ChaynsHistoryLayerProvider>
             )
@@ -157,7 +157,7 @@ const ChaynsHost: FC<ChaynsHostType> = ({
                         dialog={dialog}
                         styleSettings={styleSettings}
                         historyLayer={layer}
-                        isHistoryDisabled={isHistoryDisabled}
+                        isHistoryEnabled={isHistoryEnabled}
                     />
                 </ChaynsHistoryLayerProvider>
             );
