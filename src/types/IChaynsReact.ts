@@ -519,6 +519,7 @@ export interface RefreshData {
     suffix?: boolean;
     tapps?: boolean;
     user?: boolean;
+    userImage?: boolean;
     chaynsProData?: boolean;
     ignoreUacCache?: boolean;
     chaynsInfo?: boolean;
