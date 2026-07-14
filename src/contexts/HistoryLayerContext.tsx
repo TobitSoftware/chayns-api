@@ -40,7 +40,7 @@ ChaynsHistoryLayerContext.displayName = 'ChaynsHistoryLayerContext';
 // ---------------------------------------------------------------------------
 
 export interface ChaynsHistoryLayerProviderProps {
-    layer: ChaynsHistoryLayer;
+    layer: ChaynsHistoryLayer | null;
     children: ReactNode;
 }
 
@@ -49,13 +49,18 @@ export interface ChaynsHistoryLayerProviderProps {
  * module-level layer stack so that `getCurrentChaynsHistoryLayer()` (static / non-React
  * call sites) also sees this layer as the current one.
  *
+ * When `layer` is `null`, the provider still wraps children but does not register
+ * a layer on the stack (useful for disabled history scenarios).
+ *
  * Use `ChaynsHistoryLayerOverrideProvider` instead if you only want to override the
  * React context without affecting static call sites.
  */
 export const ChaynsHistoryLayerProvider: FC<ChaynsHistoryLayerProviderProps> = ({ layer, children }) => {
     useIsomorphicLayoutEffect(() => {
-        pushChaynsHistoryLayer(layer);
-        return () => popChaynsHistoryLayer(layer);
+        if (layer) {
+            pushChaynsHistoryLayer(layer);
+            return () => popChaynsHistoryLayer(layer);
+        }
     }, [layer]);
 
     return (

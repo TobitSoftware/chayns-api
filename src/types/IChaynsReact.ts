@@ -335,7 +335,10 @@ export interface ChaynsReactValues {
     site: ChaynsApiSite;
     user: ChaynsApiUser | undefined;
     isAdminModeActive: boolean;
-    isHistoryDisabled?: boolean,
+    /**
+     * When true, enables the history layer.
+     */
+    isHistoryEnabled?: boolean,
     pages: Page[];
     currentPage: {
         id: number;

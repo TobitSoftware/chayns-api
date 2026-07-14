@@ -48,7 +48,11 @@ export type ChaynsProviderProps = {
      */
     history?: { url?: string; segmentCount?: number },
     segmentCount?: number
-    isHistoryDisabled?: boolean,
+    /**
+     * When true, enables the history layer for this provider.
+     * Defaults to false for safety in federated module scenarios.
+     */
+    isHistoryEnabled?: boolean,
 }
 
 const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
@@ -61,7 +65,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
     chaynsApiId,
     historyLayer,
     history,
-    isHistoryDisabled,
+    isHistoryEnabled,
     segmentCount,
 }) => {
     const customWrapper = useRef<IChaynsReact>(null!);
@@ -99,7 +103,7 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         }
     }
 
-    const [effectiveLayer, setEffectiveLayer] = useState<ChaynsHistoryLayer | null>(historyLayer ?? null)
+    const [effectiveLayer, setEffectiveLayer] = useState<ChaynsHistoryLayer | null>(historyLayer ?? contextLayer ?? null)
     const [isInitialized, setIsInitialized] = useState<boolean>(!!customWrapper.current?.values);
 
     useEffect(() => {
@@ -153,27 +157,21 @@ const ChaynsProvider: React.FC<ChaynsProviderProps> = ({
         };
     }, []);
 
-    let isDisabled = Boolean(customWrapper.current.values?.isHistoryDisabled)
-
-    if (typeof isHistoryDisabled === 'boolean' && !isDisabled) {
-        isDisabled = isHistoryDisabled
-    }
+    let shouldEnableHistory = isHistoryEnabled ?? customWrapper.current.values?.isHistoryEnabled ?? false;
 
     if (historyLayer?.id === 'root') {
-        isDisabled = false
+        shouldEnableHistory = true;
     }
+
+    const layerToProvide = shouldEnableHistory ? effectiveLayer : null;
 
     return (
         <>
             {isInitialized && (
                 <ChaynsContext.Provider value={customWrapper.current}>
-                    {!isDisabled ? (
-                        effectiveLayer ? (
-                            <ChaynsHistoryLayerProvider layer={effectiveLayer}>
-                                {children}
-                            </ChaynsHistoryLayerProvider>
-                        ) : null
-                    ) : children}
+                    <ChaynsHistoryLayerProvider layer={layerToProvide}>
+                        {children}
+                    </ChaynsHistoryLayerProvider>
                 </ChaynsContext.Provider>
             )}
             <InitialDataProvider data={customWrapper.current?.values} renderedByServer={renderedByServer}/>

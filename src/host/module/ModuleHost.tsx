@@ -45,8 +45,8 @@ type ModulePropTypes = {
     children?: ReactNode,
     styleSettings: ChaynsReactValues["styleSettings"],
     historyLayer?: ChaynsHistoryLayer,
-    /** Whether the history is disabled for the children */
-    isHistoryDisabled?: boolean,
+    /** When true, enables the history layer. Defaults to false. */
+    isHistoryEnabled?: boolean,
 }
 
 const System: FC<SystemPropTypes> = ({
@@ -92,13 +92,13 @@ const ModuleHost: FC<ModulePropTypes> = ({
                                              preventStagingReplacement,
                                              styleSettings,
                                              historyLayer,
-                                             isHistoryDisabled
+                                             isHistoryEnabled
                                          }) => {
     const data = useMemo(() => {
         const result = {
             site,
             isAdminModeActive,
-            isHistoryDisabled,
+            isHistoryEnabled,
             pages,
             currentPage,
             device,
@@ -116,7 +116,7 @@ const ModuleHost: FC<ModulePropTypes> = ({
             result.dialog = dialog;
         }
         return result;
-    }, [site, isAdminModeActive, isHistoryDisabled, pages, currentPage, device, language, parameters, customData, environment, styleSettings, user, dialog]);
+    }, [site, isAdminModeActive, isHistoryEnabled, pages, currentPage, device, language, parameters, customData, environment, styleSettings, user, dialog]);
 
     return (
         <>
