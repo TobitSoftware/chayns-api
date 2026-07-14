@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import ReactDOMServer from 'react-dom/server';
 import type { ModuleFederation, ModuleFederationRuntimePlugin } from '@module-federation/enhanced/runtime';
 import { SequentialLoadPlugin } from '../plugins/SequentialLoadPlugin';
 
@@ -45,10 +46,7 @@ export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
         'react-dom/server': {
             version: React.version,
             scope: 'chayns-api',
-            get: async () => {
-                const module = await import('react-dom/server')
-                return () => module;
-            },
+            lib: () => ReactDOMServer,
         }
     };
     if (ReactDOMClient) {
