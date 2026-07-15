@@ -72,8 +72,6 @@ export interface DialogFileExplorer {
     type: DialogType.FILE_EXPLORER;
     rootFolderName: string;
     items: FileExplorerItem[];
-    onLoad: (id?: string | number) => void;
-    onFilterChange?: (value: FileExplorerFilterChange) => void;
 }
 
 export enum FileExplorerFilterType {
