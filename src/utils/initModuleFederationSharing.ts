@@ -1,4 +1,5 @@
 import React from 'react';
+import JSXRuntime from 'react/jsx-runtime';
 import ReactDOM from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
 import type { ModuleFederation, ModuleFederationRuntimePlugin } from '@module-federation/enhanced/runtime';
@@ -47,6 +48,11 @@ export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
             version: React.version,
             scope: 'chayns-api',
             lib: () => ReactDOMServer,
+        },
+        'react/jsx-runtime': {
+            version: React.version,
+            scope: 'chayns-api',
+            lib: () => JSXRuntime,
         }
     };
     if (ReactDOMClient) {
