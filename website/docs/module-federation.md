@@ -31,6 +31,27 @@ The list of Trusted Domains is defined by the chayns system and cannot be extend
 
 ## Setup
 
+:::warning Dependency Management
+Do **not** explicitly add `@module-federation/enhanced` as a dependency in your `package.json`. 
+
+chayns-api already provides it as a peer dependency. Installing it explicitly can lead to:
+- Version incompatibility between `@module-federation/node` and `@module-federation/enhanced`
+- Duplicated dependencies
+- Runtime errors
+
+If you encounter peer dependency warnings during installation, use npm's `overrides` field instead of `--legacy-peer-deps`:
+
+```json
+{
+  "overrides": {
+    "conflicting-package": "desired-version"
+  }
+}
+```
+
+Using `--legacy-peer-deps` bypasses important compatibility checks and can hide real dependency conflicts.
+:::
+
 ### 1. Initialize Module Federation Sharing
 
 Before using Module Federation, the sharing functionality must be initialized. This should happen as early as possible in the application (e.g., in `index.ts` or a `bootstrap.ts` file):
@@ -172,6 +193,31 @@ chayns-api automatically provides the following shared dependencies:
 - **ReactDOM** (including `/client` and `/server` exports)
 
 These are shared via the Module Federation runtime, so each library is loaded only once, even if multiple modules use them.
+
+### Configuring React Dependencies in Your Module
+
+:::tip Best Practice
+When building a module that will be loaded via Module Federation, configure React as follows:
+
+```json
+{
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  }
+}
+```
+
+**Why?**
+- **peerDependencies** define the compatible version range. The compat mode uses this to determine if React can be shared with the host application.
+- **devDependencies** provide React for local development and testing.
+
+**Common mistake:** Only specifying a dependency like `"react": "^19.2.7"` without a peerDependency. If the host application uses React 19.2.6, React won't be shared even though your module is compatible with 19.2.6. This results in unnecessary bundle duplication.
+:::
 
 
 ## Troubleshooting
