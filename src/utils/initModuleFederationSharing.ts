@@ -1,16 +1,10 @@
 import React from 'react';
 import JSXRuntime from 'react/jsx-runtime';
 import ReactDOM from 'react-dom';
+import ReactDOMClient from 'react-dom/client';
 import ReactDOMServer from 'react-dom/server';
 import type { ModuleFederation, ModuleFederationRuntimePlugin } from '@module-federation/enhanced/runtime';
 import { SequentialLoadPlugin } from '../plugins/SequentialLoadPlugin';
-
-let ReactDOMClient;
-try {
-    ReactDOMClient = require('react-dom/client');
-} catch (e) {
-    // do nothing
-}
 
 export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
     /**
@@ -44,6 +38,11 @@ export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
             scope: 'chayns-api',
             lib: () => ReactDOM,
         },
+        'react-dom/client': {
+            version: React.version,
+            scope: 'chayns-api',
+            lib: () => ReactDOMClient,
+        },
         'react-dom/server': {
             version: React.version,
             scope: 'chayns-api',
@@ -55,13 +54,6 @@ export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
             lib: () => JSXRuntime,
         }
     };
-    if (ReactDOMClient) {
-        shared['react-dom/client'] = {
-            version: React.version,
-            scope: 'chayns-api',
-            lib: () => ReactDOMClient,
-        };
-    }
 
     const instance: ModuleFederation = createInstance({
         name: scope ?? name ?? '',

@@ -49,12 +49,4 @@ More information to setup chayns-api can be found in the [documentation](https:/
 
 For advanced use cases like Module Federation, refer to the [Module Federation Guide](https://tobitsoftware.github.io/chayns-api/docs/module-federation).
 
-## Troubleshooting
-
-```
-Can't resolve 'react-dom/client'
-```
-A warning like above can be shown when you are still using react 17.
-This can be ignored because the react 17 api is used as fallback instead.
-
 ## License
