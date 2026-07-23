@@ -1,5 +1,38 @@
 import React from "react";
 
+const ERROR_CACHE_TIME = 60000;
+const errorResetTimeouts = new Set<string>();
+
+const normalizeUrl = (url: string) => {
+    try {
+        // try simplifying url to avoid force when url is semantically the same, e.g.
+        // https://example.com/remoteEntry.js and https://example.com/js/../remoteEntry.js
+        return new URL(url).toString();
+    } catch {
+        return url;
+    }
+};
+
+const resetAfterCacheTime = (scope: string, module: string, url: string) => {
+    const key = `${scope}\n${module}\n${url}`;
+
+    if (errorResetTimeouts.has(key)) {
+        return;
+    }
+
+    errorResetTimeouts.add(key);
+    setTimeout(() => {
+        const { registeredScopes, componentMap } = globalThis.moduleFederationScopes;
+
+        if (registeredScopes[scope] === url) {
+            registeredScopes[scope] = '';
+        }
+
+        delete componentMap[scope]?.[module];
+        errorResetTimeouts.delete(key);
+    }, ERROR_CACHE_TIME);
+};
+
 export const loadModule = (scope: string, module: string, url: string, preventSingleton = false) => {
     if (!globalThis.moduleFederationRuntime || !globalThis.moduleFederationScopes) {
         throw new Error('[chayns-api] moduleFederationSharing has not been initialized. Make sure to call initModuleFederationSharing.');
@@ -7,16 +40,11 @@ export const loadModule = (scope: string, module: string, url: string, preventSi
 
     const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
     const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
-    try {
-        // try simplifying url to avoid force when url is semantically the same, e.g.
-        // https://example.com/remoteEntry.js and https://example.com/js/../remoteEntry.js
-        url = new URL(url).toString()
-    } catch {
-        //
-    }
-    if (registeredScopes[scope] !== url || preventSingleton) {
+    const remoteUrl = normalizeUrl(url);
+
+    if (registeredScopes[scope] !== remoteUrl || preventSingleton) {
         if (scope in registeredScopes) {
-            console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${url}`);
+            console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${remoteUrl}`);
         }
         registerRemotes([
             {
@@ -26,7 +54,7 @@ export const loadModule = (scope: string, module: string, url: string, preventSi
             }
         ], { force: (scope in registeredScopes) || preventSingleton });
 
-        registeredScopes[scope] = url;
+        registeredScopes[scope] = remoteUrl;
         moduleMap[scope] = {};
         componentMap[scope] = {};
     }
@@ -37,9 +65,8 @@ export const loadModule = (scope: string, module: string, url: string, preventSi
         const promise = loadRemote(path);
 
         promise.catch((e) => {
-            console.error("[chayns-api] Failed to load module", scope, url, e);
-            // causes registerRemote with force = true on next attempt to load the component which tries to load the component again
-            registeredScopes[scope] = '';
+            console.error("[chayns-api] Failed to load module", scope, remoteUrl, e);
+            resetAfterCacheTime(scope, module, remoteUrl);
         });
 
         return promise;
@@ -109,7 +136,6 @@ const loadComponent = (scope: string, module: string, url: string, skipCompatMod
 
         promise.catch((e) => {
             console.error("[chayns-api] Failed to load component", scope, url, e);
-            delete componentMap[scope][module]
         });
 
         componentMap[scope][module] = React.lazy(() => promise);
