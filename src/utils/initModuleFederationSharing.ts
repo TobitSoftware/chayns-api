@@ -73,5 +73,6 @@ export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
         registeredScopes: {},
         moduleMap: {},
         componentMap: {},
+        errorResetTimeouts: new Set(),
     };
 };

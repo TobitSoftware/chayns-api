@@ -1,7 +1,6 @@
 import React from "react";
 
 const ERROR_CACHE_TIME = 60000;
-const errorResetTimeouts = new Set<string>();
 
 const normalizeUrl = (url: string) => {
     try {
@@ -16,19 +15,24 @@ const normalizeUrl = (url: string) => {
 const resetAfterCacheTime = (scope: string, module: string, url: string) => {
     const key = `${scope}\n${module}\n${url}`;
 
+    if (!globalThis.moduleFederationScopes.errorResetTimeouts) {
+        globalThis.moduleFederationScopes.errorResetTimeouts = new Set();
+    }
+
+    const errorResetTimeouts = globalThis.moduleFederationScopes.errorResetTimeouts;
+
     if (errorResetTimeouts.has(key)) {
         return;
     }
 
     errorResetTimeouts.add(key);
     setTimeout(() => {
-        const { registeredScopes, componentMap } = globalThis.moduleFederationScopes;
+        const { registeredScopes } = globalThis.moduleFederationScopes;
 
         if (registeredScopes[scope] === url) {
             registeredScopes[scope] = '';
         }
 
-        delete componentMap[scope]?.[module];
         errorResetTimeouts.delete(key);
     }, ERROR_CACHE_TIME);
 };
