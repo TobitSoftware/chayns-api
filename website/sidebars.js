@@ -3,6 +3,7 @@ module.exports = {
 		"getting-started",
 		"migration",
 		"module-federation",
+		"history",
 		// {
 		// 	type: "category",
 		// 	label: "Features",
