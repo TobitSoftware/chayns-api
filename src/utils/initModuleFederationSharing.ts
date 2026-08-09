@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import ReactDOMClient from 'react-dom/client';
 import ReactDOMServer from 'react-dom/server';
 import type { ModuleFederation, ModuleFederationRuntimePlugin } from '@module-federation/enhanced/runtime';
+import { ReactFamilyShareLockPlugin } from '../plugins/ReactFamilyShareLockPlugin';
 import { SequentialLoadPlugin } from '../plugins/SequentialLoadPlugin';
 
 export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
@@ -59,7 +60,7 @@ export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
         name: scope ?? name ?? '',
         remotes: [],
         shared,
-        plugins: [SequentialLoadPlugin(), ...plugins],
+        plugins: [ReactFamilyShareLockPlugin(), SequentialLoadPlugin(), ...plugins],
     });
 
     globalThis.moduleFederationRuntime = {
