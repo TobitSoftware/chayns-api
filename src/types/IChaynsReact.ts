@@ -2,6 +2,7 @@ import { IBrowser, IEngine } from 'ua-parser-js';
 import DialogHandler from '../handler/DialogHandler';
 import { DialogButtonOld, SelectDialogItem } from './dialog';
 import type { ChaynsHistoryLayer } from './history';
+import type {HTMLAttributes} from "react";
 
 export type DialogButton = {
     type: DialogButtonType,
@@ -180,6 +181,8 @@ export interface DialogInput {
      */
     formatter?: (input: string) => string,
     regex?: string
+    autoComplete?: string;
+    inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
 }
 
 export enum DialogSelectType {
