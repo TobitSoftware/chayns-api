@@ -55,6 +55,7 @@ type DateConfig = {
     autoSelectDate?: boolean
 }
 
+/** @deprecated Use createDialog with type DialogType.DATE instead */
 export function date(config: DateConfig = {}) {
     let {preSelect, minDate, maxDate, title, message, minuteInterval, autoSelectDate} = config,
         type = config.dateType || dateType.DATE;

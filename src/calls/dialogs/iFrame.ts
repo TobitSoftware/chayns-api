@@ -17,6 +17,8 @@ type IFrameDialog = {
     customTransitionTimeout?: number,
 }
 
+/** @deprecated Backward compatibility to open iFrame dialogs based on chayns-js.
+ *  Consider migrating the dialog to use chayns-api and use createDialog with type DialogType.IFRAME instead */
 export function iFrame(dialog: IFrameDialog = {url: ""}) {
     const config = {
         ...dialog,

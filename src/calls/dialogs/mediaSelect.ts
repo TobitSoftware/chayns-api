@@ -9,6 +9,7 @@ type MediaSelectInput = {
     chaynsToken?: string
 }
 
+/** @deprecated This dialog type hase been removed */
 export async function mediaSelect(dialog: MediaSelectInput = {}) {
     if (!dialog.buttons || !Array.isArray(dialog.buttons)) {
         dialog.buttons = [{

@@ -32,6 +32,7 @@ type FileSelectInput = {
     chaynsToken?: string
 }
 
+/** @deprecated Use createDialog with type DialogType.FILE_SELECT instead */
 export async function fileSelect(dialog: FileSelectInput = {}) {
     if (!dialog.buttons || !Array.isArray(dialog.buttons)) {
         dialog.buttons = [];

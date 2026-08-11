@@ -4,6 +4,7 @@ import { isPresent } from "./utils/is";
 import { SelectInput } from '../../types/IChaynsReact'
 import { SelectDialogItem } from "../../types/dialog";
 
+/** @deprecated Use createDialog with type DialogType.SELECT instead */
 export function select(config: SelectInput) {
     const list: Array<SelectDialogItem> = [];
 

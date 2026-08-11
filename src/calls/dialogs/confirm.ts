@@ -9,6 +9,7 @@ type Confirm = {
     select?: unknown
 }
 
+/** @deprecated Use createDialog with type DialogType.CONFIRM instead */
 export function confirm(title = '', message = '', config: Confirm = {}) {
     // backward compatibility
     if (Array.isArray(config)) {

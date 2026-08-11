@@ -8,6 +8,7 @@ type InputDialog = {
     formatter?: string
 }
 
+/** @deprecated Use createDialog with type DialogType.INPUT instead */
 export function input(dialog: InputDialog = {}) {
     if (!dialog.buttons || !Array.isArray(dialog.buttons)) {
         dialog.buttons = [{

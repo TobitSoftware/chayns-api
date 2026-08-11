@@ -7,6 +7,7 @@ type SignatureInput = {
     callType?: number
 }
 
+/** @deprecated Use createDialog with type DialogType.SIGNATURE instead */
 export function signature(dialog?: SignatureInput) {
     if(!dialog) dialog = { };
     if (!dialog.buttons || !Array.isArray(dialog.buttons)) {
