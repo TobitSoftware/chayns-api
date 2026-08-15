@@ -47,15 +47,16 @@ const resolveRemote = (url: string): Promise<ResolvedRemote> => {
 
         const manifest = (await response.json()) as RemoteManifest;
         const remoteEntry = manifest.metaData?.remoteEntry;
-        const entryPath = remoteEntry?.path ?? remoteEntry?.name;
-        const shareScope = manifest.metaData?.reactShareScope;
+        const shareScope = manifest.metaData?.reactShareScope || LEGACY_SHARE_SCOPE;
 
-        if (!entryPath || !shareScope) {
-            throw new Error(`[chayns-api] Module federation manifest is missing remote entry or React share scope: ${url}`);
+        if (!remoteEntry?.name) {
+            throw new Error(`[chayns-api] Module federation manifest is missing a remote entry: ${url}`);
         }
 
+        const remoteEntryBaseUrl = new URL(remoteEntry.path || '.', url);
+
         return {
-            entry: new URL(entryPath, url).toString(),
+            entry: new URL(remoteEntry.name, remoteEntryBaseUrl).toString(),
             shareScope,
         };
     });
