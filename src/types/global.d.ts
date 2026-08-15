@@ -1,6 +1,7 @@
 declare var moduleFederationScopes: {
     registeredScopes: Record<string, string>;
-    componentMap: Record<string, Record<string, React.LazyExoticComponent<React.ComponentType<any>>>>
+    componentMap: Record<string, Record<string, React.LazyExoticComponent<React.ComponentType<any>>>>;
+    componentRegistrationKeys: Record<string, Record<string, string>>;
     moduleMap: Record<string, any>;
     errorResetTimeouts?: Set<string>;
 };
@@ -10,4 +11,4 @@ declare var moduleFederationRuntime: {
     registerRemotes: import('@module-federation/enhanced/runtime').ModuleFederation['registerRemotes'];
     loadShareSync: import('@module-federation/enhanced/runtime').ModuleFederation['loadShareSync'];
     getInstance: () => import('@module-federation/enhanced/runtime').ModuleFederation;
-}
+};

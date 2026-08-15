@@ -6,19 +6,23 @@ import ReactDOMServer from 'react-dom/server';
 import type { ModuleFederation, ModuleFederationRuntimePlugin } from '@module-federation/enhanced/runtime';
 import { SequentialLoadPlugin } from '../plugins/SequentialLoadPlugin';
 
-export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
+export const initModuleFederationSharing = ({
+    scope,
+    name,
+    plugins = [],
+}: {
     /**
      * Module Federation scope; should be identical to the package name in package.json, formatted in snake_case.
      */
-    scope: string,
+    scope: string;
     /**
      * @deprecated use `scope` instead
      */
-    name?: string,
+    name?: string;
     /**
      * Additional runtime plugins
      */
-    plugins?: ModuleFederationRuntimePlugin[]
+    plugins?: ModuleFederationRuntimePlugin[];
 }) => {
     // forces single instance of module federation runtime
     if (globalThis.moduleFederationScopes) {
@@ -30,29 +34,29 @@ export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
     const shared = {
         react: {
             version: React.version,
-            scope: 'chayns-api',
+            scope: [`chayns-react-${React.version}`, 'chayns-api'],
             lib: () => React,
         },
         'react-dom': {
             version: React.version, // intended, because react dom.version is not identical to package json react version (hash in version)
-            scope: 'chayns-api',
+            scope: [`chayns-react-${React.version}`, 'chayns-api'],
             lib: () => ReactDOM,
         },
         'react-dom/client': {
             version: React.version,
-            scope: 'chayns-api',
+            scope: [`chayns-react-${React.version}`, 'chayns-api'],
             lib: () => ReactDOMClient,
         },
         'react-dom/server': {
             version: React.version,
-            scope: 'chayns-api',
+            scope: [`chayns-react-${React.version}`, 'chayns-api'],
             lib: () => ReactDOMServer,
         },
         'react/jsx-runtime': {
             version: React.version,
-            scope: 'chayns-api',
+            scope: [`chayns-react-${React.version}`, 'chayns-api'],
             lib: () => JSXRuntime,
-        }
+        },
     };
 
     const instance: ModuleFederation = createInstance({
@@ -73,6 +77,7 @@ export const initModuleFederationSharing = ({ scope, name, plugins = [] }: {
         registeredScopes: {},
         moduleMap: {},
         componentMap: {},
+        componentRegistrationKeys: {},
         errorResetTimeouts: new Set(),
     };
 };

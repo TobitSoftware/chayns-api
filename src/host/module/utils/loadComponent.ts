@@ -1,6 +1,68 @@
-import React from "react";
+import React from 'react';
 
 const ERROR_CACHE_TIME = 60000;
+const LEGACY_SHARE_SCOPE = 'chayns-api';
+const MANIFEST_SUFFIX = 'mf-manifest.json';
+
+type RemoteManifest = {
+    metaData?: {
+        reactShareScope?: string;
+        remoteEntry?: {
+            path?: string;
+            name?: string;
+        };
+    };
+};
+
+type ResolvedRemote = {
+    entry: string;
+    shareScope: string;
+};
+
+const remoteManifestCache = new Map<string, Promise<ResolvedRemote>>();
+
+const isManifestUrl = (url: string) => {
+    try {
+        return new URL(url).pathname.endsWith(`/${MANIFEST_SUFFIX}`);
+    } catch {
+        return url.endsWith(MANIFEST_SUFFIX);
+    }
+};
+
+const resolveRemote = (url: string): Promise<ResolvedRemote> => {
+    if (!isManifestUrl(url)) {
+        return Promise.resolve({ entry: url, shareScope: LEGACY_SHARE_SCOPE });
+    }
+
+    const cached = remoteManifestCache.get(url);
+
+    if (cached) {
+        return cached;
+    }
+
+    const resolved = fetch(url).then(async (response) => {
+        if (!response.ok) {
+            throw new Error(`[chayns-api] Failed to load module federation manifest: ${url} (${response.status})`);
+        }
+
+        const manifest = (await response.json()) as RemoteManifest;
+        const remoteEntry = manifest.metaData?.remoteEntry;
+        const entryPath = remoteEntry?.path ?? remoteEntry?.name;
+        const shareScope = manifest.metaData?.reactShareScope;
+
+        if (!entryPath || !shareScope) {
+            throw new Error(`[chayns-api] Module federation manifest is missing remote entry or React share scope: ${url}`);
+        }
+
+        return {
+            entry: new URL(entryPath, url).toString(),
+            shareScope,
+        };
+    });
+
+    remoteManifestCache.set(url, resolved);
+    return resolved;
+};
 
 const normalizeUrl = (url: string) => {
     try {
@@ -37,46 +99,50 @@ const resetAfterCacheTime = (scope: string, module: string, url: string) => {
     }, ERROR_CACHE_TIME);
 };
 
-export const loadModule = (scope: string, module: string, url: string, preventSingleton = false) => {
+export const loadModule = async (scope: string, module: string, url: string, preventSingleton = false) => {
     if (!globalThis.moduleFederationRuntime || !globalThis.moduleFederationScopes) {
         throw new Error('[chayns-api] moduleFederationSharing has not been initialized. Make sure to call initModuleFederationSharing.');
     }
 
     const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
     const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
-    const remoteUrl = normalizeUrl(url);
+    const resolvedRemote = await resolveRemote(url);
+    const remoteUrl = normalizeUrl(resolvedRemote.entry);
+    const registrationKey = `${resolvedRemote.shareScope}\n${remoteUrl}`;
 
-    if (registeredScopes[scope] !== remoteUrl || preventSingleton) {
+    if (registeredScopes[scope] !== registrationKey || preventSingleton) {
         if (scope in registeredScopes) {
             console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${remoteUrl}`);
         }
-        registerRemotes([
-            {
-                shareScope: url.endsWith('v2.remoteEntry.js') || url.endsWith('mf-manifest.json') ? 'chayns-api' : 'default',
-                name: scope,
-                entry: url,
-            }
-        ], { force: (scope in registeredScopes) || preventSingleton });
+        registerRemotes(
+            [
+                {
+                    shareScope: resolvedRemote.shareScope,
+                    name: scope,
+                    entry: resolvedRemote.entry,
+                },
+            ],
+            { force: scope in registeredScopes || preventSingleton },
+        );
 
-        registeredScopes[scope] = remoteUrl;
+        registeredScopes[scope] = registrationKey;
         moduleMap[scope] = {};
         componentMap[scope] = {};
     }
 
     if (!(module in moduleMap[scope])) {
         const path = `${scope}/${module.replace(/^\.\//, '')}`;
-
         const promise = loadRemote(path);
 
         promise.catch((e) => {
-            console.error("[chayns-api] Failed to load module", scope, remoteUrl, e);
-            resetAfterCacheTime(scope, module, remoteUrl);
+            console.error('[chayns-api] Failed to load module', scope, remoteUrl, e);
+            resetAfterCacheTime(scope, module, registrationKey);
         });
 
         return promise;
     }
     return moduleMap[scope][module];
-}
+};
 
 const loadComponent = (scope: string, module: string, url: string, skipCompatMode = false, preventSingleton = false) => {
     if (skipCompatMode) {
@@ -88,21 +154,25 @@ const loadComponent = (scope: string, module: string, url: string, skipCompatMod
     }
 
     const { getInstance } = globalThis.moduleFederationRuntime;
-    const { componentMap, registeredScopes } = globalThis.moduleFederationScopes;
+    const { componentMap, componentRegistrationKeys } = globalThis.moduleFederationScopes;
 
     if (!componentMap[scope]) {
         componentMap[scope] = {};
     }
+    if (!componentRegistrationKeys[scope]) {
+        componentRegistrationKeys[scope] = {};
+    }
 
-    if (!(module in componentMap[scope]) || registeredScopes[scope] !== url) {
+    if (!(module in componentMap[scope]) || componentRegistrationKeys[scope][module] !== url) {
         const promise = loadModule(scope, module, url, preventSingleton).then(async (Module: any) => {
             if (typeof Module.default === 'function') {
                 return Module;
             }
 
+            const resolvedRemote = await resolveRemote(url);
             const shareScopes = getInstance().shareScopeMap;
 
-            const sharedReact = shareScopes['chayns-api'].react?.[React.version];
+            const sharedReact = shareScopes[resolvedRemote.shareScope]?.react?.[React.version];
             const matchReactVersion = sharedReact && sharedReact.useIn.includes(scope) && sharedReact.lib?.() === React;
 
             if (!matchReactVersion || Module.default.environment !== 'production' || (Module.default.version || 1) < 2) {
@@ -139,12 +209,13 @@ const loadComponent = (scope: string, module: string, url: string, skipCompatMod
         });
 
         promise.catch((e) => {
-            console.error("[chayns-api] Failed to load component", scope, url, e);
+            console.error('[chayns-api] Failed to load component', scope, url, e);
         });
 
         componentMap[scope][module] = React.lazy(() => promise);
+        componentRegistrationKeys[scope][module] = url;
     }
     return componentMap[scope][module];
-}
+};
 
 export default loadComponent;
