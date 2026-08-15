@@ -1,7 +1,9 @@
 import React from 'react';
+import { satisfy } from '@module-federation/runtime-core';
 
 const ERROR_CACHE_TIME = 60000;
 const LEGACY_SHARE_SCOPE = 'chayns-api';
+const HOST_REACT_SHARE_SCOPE = `chayns-react-${React.version}`;
 const MANIFEST_SUFFIX = 'mf-manifest.json';
 
 type RemoteManifest = {
@@ -12,6 +14,10 @@ type RemoteManifest = {
             name?: string;
         };
     };
+    shared?: Array<{
+        name?: string;
+        requiredVersion?: string;
+    }>;
 };
 
 type ResolvedRemote = {
@@ -47,7 +53,13 @@ const resolveRemote = (url: string): Promise<ResolvedRemote> => {
 
         const manifest = (await response.json()) as RemoteManifest;
         const remoteEntry = manifest.metaData?.remoteEntry;
-        const shareScope = manifest.metaData?.reactShareScope || LEGACY_SHARE_SCOPE;
+        const remoteShareScope = manifest.metaData?.reactShareScope;
+        const reactRequiredVersion = manifest.shared?.find((shared) => shared.name === 'react')?.requiredVersion;
+        const shareScope = !remoteShareScope
+            ? LEGACY_SHARE_SCOPE
+            : reactRequiredVersion && satisfy(React.version, reactRequiredVersion)
+                ? HOST_REACT_SHARE_SCOPE
+                : remoteShareScope;
 
         if (!remoteEntry?.name) {
             throw new Error(`[chayns-api] Module federation manifest is missing a remote entry: ${url}`);
