@@ -82,6 +82,43 @@ useEffect(() => {
 
 ```
 
+### Intercepting the automatic close (backdrop click / escape)
+
+By default, a dialog is closed when the user clicks next to the dialog or presses escape. Inside an iframe or module
+dialog you can intercept this behavior by registering a close request listener via ```addCloseRequestListener```.
+While at least one listener is registered, the dialog will not close automatically. Instead, all listeners are invoked
+with an event and the dialog is responsible for closing itself (e.g. via ```setResult```).
+
+```jsx
+const { addCloseRequestListener, setResult } = useDialogState();
+
+useEffect(() => {
+    if (!hasUnsavedChanges) return undefined;
+
+    // returns an unsubscribe function
+    return addCloseRequestListener(async (event) => {
+        // must be called synchronously (before any await) to prevent other listeners from being invoked
+        event.stopPropagation();
+
+        const { buttonType } = await createDialog({
+            type: DialogType.CONFIRM,
+            text: 'Discard your changes?',
+        }).open();
+
+        if (buttonType === DialogButtonType.OK) {
+            void setResult(undefined);
+        }
+    });
+}, [hasUnsavedChanges]);
+```
+
+Notes:
+
+- ```event.reason``` is either ```'backdrop'``` or ```'esc'```.
+- Listeners are invoked in reverse registration order (last registered first) until ```stopPropagation``` is called.
+- As long as a listener is registered, closing the dialog is the responsibility of the listener. If no listener ever
+  closes the dialog, the user can only close it through buttons or ```setResult```.
+
 ### Alert dialog with confetti animation and success Icon:
 
 ```jsx

@@ -731,6 +731,13 @@ export class AppWrapper implements IChaynsReact {
                 this.notImplemented('addDialogHostEventListener')
             }
         },
+        addDialogCloseRequestListener: async () => {
+            this.notImplemented('addDialogCloseRequestListener');
+            return -1;
+        },
+        removeDialogCloseRequestListener: async () => {
+            this.notImplemented('removeDialogCloseRequestListener');
+        },
         addAnonymousAccount: async () => {
             return this.appCall(302);
         },

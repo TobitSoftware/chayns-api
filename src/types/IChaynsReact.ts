@@ -364,11 +364,26 @@ export type ChaynsApiDevice = {
     screenSize: ScreenSize;
 }
 
+export type DialogCloseRequestReason = 'backdrop' | 'esc';
+
+export interface DialogCloseRequestEvent {
+    reason: DialogCloseRequestReason;
+    /** Prevents subsequent close request listeners from being invoked. Must be called synchronously. */
+    stopPropagation: () => void;
+}
+
 export type DialogHookResult = {
     isClosingRequested: boolean;
     setResult: ChaynsReactFunctions["setDialogResult"];
     sendData: ChaynsReactFunctions["dispatchEventToDialogHost"];
     addDataListener: ChaynsReactFunctions["addDialogHostEventListener"];
+    /**
+     * Adds a listener which is invoked instead of closing the dialog when the user clicks the backdrop or presses escape.
+     * While at least one listener is registered the dialog will not be closed automatically.
+     * Listeners are invoked in reverse registration order (LIFO) until stopPropagation is called.
+     * @returns function to remove the listener
+     */
+    addCloseRequestListener: (listener: (event: DialogCloseRequestEvent) => void) => () => void;
 }
 
 /**
@@ -516,6 +531,10 @@ export interface ChaynsReactFunctions {
     addDialogHostEventListener: (callback: (data: object) => void) => Promise<number>;
     /** Removes listeners which were added via addDialogHostEventListener */
     removeDialogHostEventListener: (id: number) => Promise<void>;
+    /** Allows the dialog to listen for close requests (backdrop click, escape) while close interception is enabled */
+    addDialogCloseRequestListener?: (callback: (data: { reason: DialogCloseRequestReason }) => void) => Promise<number>;
+    /** Removes listeners which were added via addDialogCloseRequestListener */
+    removeDialogCloseRequestListener?: (id: number) => Promise<void>;
     addAnonymousAccount: () => Promise<AnonymousAccountResult>;
     addAccessTokenChangeListener: (options: { external?: boolean }, callback: (result: { accessToken: string }) => void) => Promise<number>;
     removeAccessTokenChangeListener: (id: number) => Promise<void>;
