@@ -318,6 +318,21 @@ export class FrameWrapper implements IChaynsReact {
 
             return this.exposedFunctions.removeDialogHostEventListener(id);
         },
+        addDialogCloseRequestListener: async (callback) => {
+            if (!this.initialized) await this.ready;
+            try {
+                return await this.exposedFunctions.addDialogCloseRequestListener!(comlink.proxy((data) => {
+                    callback(data);
+                }));
+            } catch {
+                console.warn('[chayns-api] addDialogCloseRequestListener is not supported by the host');
+                return -1;
+            }
+        },
+        removeDialogCloseRequestListener: async (id: number) => {
+            if (!this.initialized) await this.ready;
+            return this.exposedFunctions.removeDialogCloseRequestListener?.(id);
+        },
         removeDialogClientEventListener: async () => {
 
         },

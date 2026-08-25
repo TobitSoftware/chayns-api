@@ -75,6 +75,8 @@ class StaticChaynsApi implements ChaynsReactFunctions {
     dispatchEventToDialogHost!: ChaynsReactFunctions['dispatchEventToDialogHost'];
     addDialogHostEventListener!: ChaynsReactFunctions['addDialogHostEventListener'];
     removeDialogHostEventListener!: ChaynsReactFunctions['removeDialogHostEventListener'];
+    addDialogCloseRequestListener!: ChaynsReactFunctions['addDialogCloseRequestListener'];
+    removeDialogCloseRequestListener!: ChaynsReactFunctions['removeDialogCloseRequestListener'];
     addAnonymousAccount!: ChaynsReactFunctions['addAnonymousAccount'];
     addAccessTokenChangeListener!: ChaynsReactFunctions['addAccessTokenChangeListener'];
     removeAccessTokenChangeListener!: ChaynsReactFunctions['removeAccessTokenChangeListener'];
