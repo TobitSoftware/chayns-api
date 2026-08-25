@@ -5,6 +5,7 @@ import throttle from 'lodash.throttle';
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { DefaultLoginDialogOptions } from '../constants';
+import { DefaultTrustedDomains } from '../constants/trustedDomains';
 import { DeviceLanguage } from '../constants/languages';
 import DialogHandler from '../handler/DialogHandler';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../utils/apiListener';
@@ -46,6 +47,8 @@ export class AppWrapper implements IChaynsReact {
 
     latestAppleSafeArea = null;
 
+    private trustedDomains: string[] = DefaultTrustedDomains;
+
     listeners: (() => void)[] =  [];
 
     customFunctions = {};
@@ -67,6 +70,22 @@ export class AppWrapper implements IChaynsReact {
             console.error('[chayns-api] failed to load style settings', ex);
         }
         return undefined;
+    }
+
+    async loadTrustedDomains() {
+        try {
+            const res = await fetch('https://service-rpc.chayns.net/ConfigurationSettings/TrustedDomains', {
+                signal: AbortSignal.timeout?.(5000),
+            });
+            if (res.status === 200) {
+                const { trustedDomains } = await res.json() as { trustedDomains: string[] };
+                return trustedDomains;
+            }
+            console.error(`[chayns-api] failed to load trusted domains with status code: ${res.status}`);
+        } catch (ex) {
+            console.error('[chayns-api] failed to load trusted domains', ex);
+        }
+        return DefaultTrustedDomains;
     }
 
     mapOldApiToNew(retVal) {
@@ -397,6 +416,14 @@ export class AppWrapper implements IChaynsReact {
             };
             const callObj = { ...value, value: { ...value.value, callback: callbackName } };
             invokeAppCall(callObj);
+        },
+        isTrustedUrl: async (url: string) => {
+            try {
+                const parsedUrl = new URL(url);
+                return this.trustedDomains.some((domain) => parsedUrl.hostname.endsWith(domain));
+            } catch {
+                return false;
+            }
         },
         login: async (value = {}, callback, closeCallback) => {
             const { result, buttonType } = await this.functions.createDialog({
@@ -760,7 +787,7 @@ export class AppWrapper implements IChaynsReact {
 
     async init() {
         this.values = this.mapOldApiToNew(await this.appCall(18));
-        this.values.styleSettings = await this.loadStyleSettings(this.values.site.id);
+        [this.values.styleSettings, this.trustedDomains] = await Promise.all([this.loadStyleSettings(this.values.site.id), this.loadTrustedDomains()]);
 
         document.documentElement.classList.add('chayns-api--app');
 
