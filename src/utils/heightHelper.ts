@@ -2,11 +2,11 @@ import throttle from 'lodash.throttle';
 
 export const setTappHeight = (setHeight: (height: number) => Promise<void>) => {
     document.documentElement.style.overflow = 'hidden';
-    let oldHeight = Math.max(document.body.offsetHeight, document.documentElement.offsetHeight);
+    let oldHeight = document.body.offsetHeight;
     void setHeight(oldHeight);
 
     const handleResize = () => {
-        const offsetHeight = Math.max(document.body.offsetHeight, document.documentElement.offsetHeight);
+        const { offsetHeight } = document.body;
         if (oldHeight !== offsetHeight) {
             void setHeight(offsetHeight);
             oldHeight = offsetHeight;
