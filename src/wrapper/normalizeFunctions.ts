@@ -80,20 +80,21 @@ const createAppleSafeAreaFunctions = (functions: ChaynsReactFunctions) => {
 export const normalizeFunctions = (functions: ChaynsReactFunctions): ChaynsReactFunctions => {
     const runtimeFunctions = functions as Partial<ChaynsReactFunctions>;
 
-    if (
-        runtimeFunctions.addAppleSafeAreaListener
+    const hasSafeAreaFunctions = runtimeFunctions.addAppleSafeAreaListener
         && runtimeFunctions.removeAppleSafeAreaListener
-        && runtimeFunctions.getAppleSafeArea
-    ) {
+        && runtimeFunctions.getAppleSafeArea;
+
+    if (hasSafeAreaFunctions && runtimeFunctions.isTrustedUrl) {
         return functions;
     }
 
-    const safeAreaFunctions = createAppleSafeAreaFunctions(functions);
+    const normalizedFunctions = { ...functions } as ChaynsReactFunctions;
 
-    return {
-        ...functions,
-        addAppleSafeAreaListener: runtimeFunctions.addAppleSafeAreaListener ?? safeAreaFunctions.addAppleSafeAreaListener,
-        removeAppleSafeAreaListener: runtimeFunctions.removeAppleSafeAreaListener ?? safeAreaFunctions.removeAppleSafeAreaListener,
-        getAppleSafeArea: runtimeFunctions.getAppleSafeArea ?? safeAreaFunctions.getAppleSafeArea,
-    };
+    if (!hasSafeAreaFunctions) {
+        Object.assign(normalizedFunctions, createAppleSafeAreaFunctions(functions));
+    }
+
+    normalizedFunctions.isTrustedUrl = runtimeFunctions.isTrustedUrl ?? (() => Promise.resolve(true));
+
+    return normalizedFunctions;
 };
