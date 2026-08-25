@@ -179,7 +179,7 @@ export interface DialogInput {
      * Not supported in app environments due to security reasons.
      * @param input
      */
-    formatter?: (input: string) => string,
+    formatter?: (input: string) => Promise<string> | string;
     regex?: string
     autoComplete?: string;
     inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
