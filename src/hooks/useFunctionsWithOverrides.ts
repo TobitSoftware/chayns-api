@@ -15,6 +15,10 @@ export const useFunctionsWithOverrides = (
 ): ChaynsReactFunctions => {
     const base = useFunctions();
     const overrides = useMemo(() => overrideFactory(base), [base, overrideFactory]);
+    const functionNames = useMemo(
+        () => [...new Set([...Object.keys(base), ...Object.keys(overrides)])],
+        [base, overrides],
+    );
     const stateRef = useRef<FunctionsState>({ base, overrides });
 
     useEffect(() => {
@@ -24,7 +28,7 @@ export const useFunctionsWithOverrides = (
     return useMemo(() => {
         const functions: Record<string, FunctionImplementation> = {};
 
-        for (const key of Object.keys(base)) {
+        for (const key of functionNames) {
             functions[key] = (...args) => {
                 const functionKey = key as keyof ChaynsReactFunctions;
                 const implementation = stateRef.current.overrides[functionKey] ?? stateRef.current.base[functionKey];
@@ -33,5 +37,5 @@ export const useFunctionsWithOverrides = (
         }
 
         return functions as unknown as ChaynsReactFunctions;
-    }, [base]);
+    }, [functionNames]);
 };
