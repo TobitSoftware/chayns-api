@@ -6,6 +6,7 @@ import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { DefaultLoginDialogOptions } from '../constants';
 import { DefaultTrustedDomains } from '../constants/trustedDomains';
+import { loadTrustedDomains } from '../utils/loadTrustedDomains';
 import { DeviceLanguage } from '../constants/languages';
 import DialogHandler from '../handler/DialogHandler';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../utils/apiListener';
@@ -72,21 +73,6 @@ export class AppWrapper implements IChaynsReact {
         return undefined;
     }
 
-    async loadTrustedDomains() {
-        try {
-            const res = await fetch('https://service-rpc.chayns.net/ConfigurationSettings/TrustedDomains', {
-                signal: AbortSignal.timeout?.(5000),
-            });
-            if (res.status === 200) {
-                const { trustedDomains } = await res.json() as { trustedDomains: string[] };
-                return trustedDomains;
-            }
-            console.error(`[chayns-api] failed to load trusted domains with status code: ${res.status}`);
-        } catch (ex) {
-            console.error('[chayns-api] failed to load trusted domains', ex);
-        }
-        return DefaultTrustedDomains;
-    }
 
     mapOldApiToNew(retVal) {
         const { AppInfo, AppUser, Device } = retVal;
@@ -787,7 +773,7 @@ export class AppWrapper implements IChaynsReact {
 
     async init() {
         this.values = this.mapOldApiToNew(await this.appCall(18));
-        [this.values.styleSettings, this.trustedDomains] = await Promise.all([this.loadStyleSettings(this.values.site.id), this.loadTrustedDomains()]);
+        [this.values.styleSettings, this.trustedDomains] = await Promise.all([this.loadStyleSettings(this.values.site.id), loadTrustedDomains()]);
 
         document.documentElement.classList.add('chayns-api--app');
 
