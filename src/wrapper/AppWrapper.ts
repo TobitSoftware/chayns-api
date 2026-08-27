@@ -5,6 +5,8 @@ import throttle from 'lodash.throttle';
 import getUserInfo from '../calls/getUserInfo';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { DefaultLoginDialogOptions } from '../constants';
+import { DefaultTrustedDomains } from '../constants/trustedDomains';
+import { loadTrustedDomains } from '../utils/loadTrustedDomains';
 import { DeviceLanguage } from '../constants/languages';
 import DialogHandler from '../handler/DialogHandler';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../utils/apiListener';
@@ -46,6 +48,8 @@ export class AppWrapper implements IChaynsReact {
 
     latestAppleSafeArea = null;
 
+    private trustedDomains: string[] = DefaultTrustedDomains;
+
     listeners: (() => void)[] =  [];
 
     customFunctions = {};
@@ -68,6 +72,7 @@ export class AppWrapper implements IChaynsReact {
         }
         return undefined;
     }
+
 
     mapOldApiToNew(retVal) {
         const { AppInfo, AppUser, Device } = retVal;
@@ -397,6 +402,14 @@ export class AppWrapper implements IChaynsReact {
             };
             const callObj = { ...value, value: { ...value.value, callback: callbackName } };
             invokeAppCall(callObj);
+        },
+        isTrustedUrl: async (url: string) => {
+            try {
+                const parsedUrl = new URL(url);
+                return this.trustedDomains.some((domain) => parsedUrl.hostname.endsWith(domain));
+            } catch {
+                return false;
+            }
         },
         login: async (value = {}, callback, closeCallback) => {
             const { result, buttonType } = await this.functions.createDialog({
@@ -760,7 +773,7 @@ export class AppWrapper implements IChaynsReact {
 
     async init() {
         this.values = this.mapOldApiToNew(await this.appCall(18));
-        this.values.styleSettings = await this.loadStyleSettings(this.values.site.id);
+        [this.values.styleSettings, this.trustedDomains] = await Promise.all([this.loadStyleSettings(this.values.site.id), loadTrustedDomains()]);
 
         document.documentElement.classList.add('chayns-api--app');
 

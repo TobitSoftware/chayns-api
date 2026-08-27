@@ -30,6 +30,7 @@ class StaticChaynsApi implements ChaynsReactFunctions {
     invokeCall!: ChaynsReactFunctions['invokeCall'];
     invokePaymentCall!: ChaynsReactFunctions['invokePaymentCall'];
     invokeDialogCall!: ChaynsReactFunctions['invokeDialogCall'];
+    isTrustedUrl!: ChaynsReactFunctions['isTrustedUrl'];
     login!: ChaynsReactFunctions['login'];
     logout!: ChaynsReactFunctions['logout'];
     navigateBack!: ChaynsReactFunctions['navigateBack'];

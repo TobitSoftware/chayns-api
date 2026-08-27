@@ -127,6 +127,10 @@ const HostIframe: FC<HostIframeProps> = ({
                         ...functions,
                         setHeight,
                     } as ChaynsReactFunctions,
+                    _functionNames: Object.keys({
+                        ...functions,
+                        setHeight,
+                    }),
                     customFunctions: new Proxy(customFunctionsRef, {
                         get: (target, p: string) => target.current?.[p]
                     }),

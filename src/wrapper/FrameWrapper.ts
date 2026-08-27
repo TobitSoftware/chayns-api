@@ -33,6 +33,8 @@ export class FrameWrapper implements IChaynsReact {
 
     private exposedCustomFunctionNames: string[] = [];
 
+    private exposedFunctionNames: string[] = [];
+
     ready = new Promise((res) => { this.resolve = res });
 
     values: ChaynsReactValues = null!;
@@ -125,6 +127,11 @@ export class FrameWrapper implements IChaynsReact {
         invokeDialogCall: async (value, callback) => {
             if (!this.initialized) await this.ready;
             return this.exposedFunctions.invokeDialogCall(value, callback && comlink.proxy((result) => callback(result)));
+        },
+        isTrustedUrl: async (url: string) => {
+            if (!this.initialized) await this.ready;
+            if (!this.exposedFunctionNames.includes('isTrustedUrl')) return true;
+            return this.exposedFunctions.isTrustedUrl(url);
         },
         login: async(value, callback, closeCallback) => {
             if (!this.initialized) await this.ready;
@@ -381,7 +388,7 @@ export class FrameWrapper implements IChaynsReact {
     async init() {
         if (this.initialized) return;
 
-        const exposed = comlink.wrap(comlink.windowEndpoint(window.parent))[window.name] as comlink.Remote<IChaynsReact & { _customFunctionNames?: string[] }>;
+        const exposed = comlink.wrap(comlink.windowEndpoint(window.parent))[window.name] as comlink.Remote<IChaynsReact & { _functionNames?: string[], _customFunctionNames?: string[] }>;
         const dataListener: () => Promise<CleanupCallback> = () => exposed.addDataListener(comlink.proxy(({ type, value }) => {
             if (this.initialized) {
                 this.values = { ...this.values, [type]: value };
@@ -407,6 +414,7 @@ export class FrameWrapper implements IChaynsReact {
 
         this.values = await exposed.getInitialData();
         this.exposedFunctions = exposed.functions as unknown as ChaynsReactFunctions;
+        this.exposedFunctionNames = (await exposed._functionNames) ?? [];
         this.exposedCustomFunctions = exposed.customFunctions as unknown as IChaynsReact["customFunctions"];
         this.exposedCustomFunctionNames = (await exposed._customFunctionNames) ?? [];
 

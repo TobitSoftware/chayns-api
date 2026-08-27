@@ -18,6 +18,7 @@ export {useEnvironment} from './useEnvironment';
 export {useLanguage} from './useLanguage';
 export {useValues} from './useValues';
 export {useFunctions} from './useFunctions';
+export {useFunctionsWithOverrides} from './useFunctionsWithOverrides';
 export {useCurrentPage} from './useCurrentPage';
 export {useCustomData} from './useCustomData';
 export {useDialogState, useDialogData} from './useDialogState';

@@ -1,4 +1,5 @@
 import { ModuleFederationRuntimePlugin } from '@module-federation/enhanced/runtime';
+import { loadTrustedDomains } from '../utils/loadTrustedDomains';
 
 class TrustedDomainsError extends Error {
     public readonly name = 'TrustedDomainsError' as const;
@@ -8,18 +9,30 @@ class TrustedDomainsError extends Error {
     }
 }
 
-export const TrustedDomainsPlugin = (trustedDomains: string[] = []): ModuleFederationRuntimePlugin => {
+export const TrustedDomainsPlugin = (trustedDomains?: string[]): ModuleFederationRuntimePlugin => {
+    let trustedDomainsPromise: Promise<string[]> | undefined;
+
+    const getTrustedDomains = () => {
+        if (trustedDomains) {
+            return trustedDomains;
+        }
+        trustedDomainsPromise ??= loadTrustedDomains();
+        return trustedDomainsPromise;
+    };
+
     return {
         name: 'trusted-domains',
-        beforeRequest(args) {
-            args.options.remotes.forEach((remote) => {
-                if ('entry' in remote) {
-                    const parsed = new URL(remote.entry);
-                    if (!trustedDomains.some(domain => parsed.hostname.endsWith(domain))) {
-                        throw new TrustedDomainsError(remote.entry);
-                    }
+        async beforeRequest(args) {
+            const domains = await getTrustedDomains();
+
+            const remote = args.options.remotes.find((remote) => (remote.alias || remote.name) === args.id);
+            if (remote && 'entry' in remote) {
+                const parsed = new URL(remote.entry);
+                if (!domains.some(domain => parsed.hostname.endsWith(domain))) {
+                    throw new TrustedDomainsError(remote.entry);
                 }
-            });
+            }
+
             return args;
         },
     };

@@ -424,7 +424,7 @@ export interface ChaynsReactValues {
     customData: any,
     dialog: { dialogInput: any, isClosingRequested: boolean },
     styleSettings?: ChaynsStyleSettings,
-    chaynsApiId: string
+    chaynsApiId: string,
 }
 
 export interface DialogResultFile {
@@ -462,6 +462,7 @@ export interface ChaynsReactFunctions {
     invokeCall: (value: InvokeCall, callback?: (result: any) => void) => Promise<any>;
     invokePaymentCall: <T>(value: InvokeCall, callback?: (result: T) => void) => Promise<T>;
     invokeDialogCall: (value: InvokeCall, callback?: (result: any) => void) => Promise<any>;
+    isTrustedUrl: (url: string) => Promise<boolean>;
     login: (value?: Login, callback?: (result: boolean) => void, closeCallback?: () => void) => Promise<LoginResult>;
     logout: () => Promise<void>;
     navigateBack: () => Promise<void>;
