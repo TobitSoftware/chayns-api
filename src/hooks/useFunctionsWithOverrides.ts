@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChaynsReactFunctions } from '../types/IChaynsReact';
 import { useFunctions } from './useFunctions';
 
@@ -15,10 +15,9 @@ export const useFunctionsWithOverrides = (
 ): ChaynsReactFunctions => {
     const base = useFunctions();
     const overrides = useMemo(() => overrideFactory(base), [base, overrideFactory]);
-    const functionNames = useMemo(
-        () => [...new Set([...Object.keys(base), ...Object.keys(overrides)])],
-        [base, overrides],
-    );
+    const [functionNames] = useState(() => [
+        ...new Set([...Object.keys(base), ...Object.keys(overrides)]),
+    ]);
     const stateRef = useRef<FunctionsState>({ base, overrides });
 
     useEffect(() => {
