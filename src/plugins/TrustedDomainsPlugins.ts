@@ -25,7 +25,9 @@ export const TrustedDomainsPlugin = (trustedDomains?: string[]): ModuleFederatio
         async beforeRequest(args) {
             const domains = await getTrustedDomains();
 
-            const remote = args.options.remotes.find((remote) => (remote.alias || remote.name) === args.id);
+            const scope = args.id.split('/')[0];
+
+            const remote = args.options.remotes.find((remote) => (remote.alias || remote.name) === scope);
             if (remote && 'entry' in remote) {
                 const parsed = new URL(remote.entry);
                 if (!domains.some(domain => parsed.hostname.endsWith(domain))) {
