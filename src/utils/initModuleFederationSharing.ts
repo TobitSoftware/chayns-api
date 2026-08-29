@@ -3,6 +3,7 @@ import JSXRuntime from 'react/jsx-runtime';
 import ReactDOM from 'react-dom';
 import ReactDOMClient from 'react-dom/client';
 import ReactDOMServer from 'react-dom/server';
+import injectExternalRuntimeCodePlugin from '@module-federation/inject-external-runtime-core-plugin';
 import type { ModuleFederation, ModuleFederationRuntimePlugin } from '@module-federation/enhanced/runtime';
 import { ManifestShareScopePlugin } from '../plugins/ManifestShareScopePlugin';
 import { SequentialLoadPlugin } from '../plugins/SequentialLoadPlugin';
@@ -64,7 +65,7 @@ export const initModuleFederationSharing = ({
         name: scope ?? name ?? '',
         remotes: [],
         shared,
-        plugins: [SequentialLoadPlugin(), ManifestShareScopePlugin(), ...plugins],
+        plugins: [SequentialLoadPlugin(), ManifestShareScopePlugin(), injectExternalRuntimeCodePlugin(), ...plugins],
     });
 
     globalThis.moduleFederationRuntime = {
