@@ -1,81 +1,6 @@
 import React from 'react';
-import { satisfy } from '@module-federation/runtime-core';
 
 const ERROR_CACHE_TIME = 60000;
-const LEGACY_SHARE_SCOPE = 'chayns-api';
-const HOST_REACT_SHARE_SCOPE = `chayns-react-${React.version}`;
-const MANIFEST_SUFFIX = 'mf-manifest.json';
-
-type RemoteManifest = {
-    metaData?: {
-        reactShareScope?: string;
-        remoteEntry?: {
-            path?: string;
-            name?: string;
-        };
-    };
-    shared?: Array<{
-        name?: string;
-        requiredVersion?: string;
-    }>;
-};
-
-type ResolvedRemote = {
-    entry: string;
-    shareScope: string;
-};
-
-const remoteManifestCache = new Map<string, Promise<ResolvedRemote>>();
-
-const isManifestUrl = (url: string) => {
-    try {
-        return new URL(url).pathname.endsWith(`/${MANIFEST_SUFFIX}`);
-    } catch {
-        return url.endsWith(MANIFEST_SUFFIX);
-    }
-};
-
-const resolveRemote = (url: string): Promise<ResolvedRemote> => {
-    if (!isManifestUrl(url)) {
-        return Promise.resolve({ entry: url, shareScope: LEGACY_SHARE_SCOPE });
-    }
-
-    const cached = remoteManifestCache.get(url);
-
-    if (cached) {
-        return cached;
-    }
-
-    const resolved = fetch(url).then(async (response) => {
-        if (!response.ok) {
-            throw new Error(`[chayns-api] Failed to load module federation manifest: ${url} (${response.status})`);
-        }
-
-        const manifest = (await response.json()) as RemoteManifest;
-        const remoteEntry = manifest.metaData?.remoteEntry;
-        const remoteShareScope = manifest.metaData?.reactShareScope;
-        const reactRequiredVersion = manifest.shared?.find((shared) => shared.name === 'react')?.requiredVersion;
-        const shareScope = !remoteShareScope
-            ? LEGACY_SHARE_SCOPE
-            : reactRequiredVersion && satisfy(React.version, reactRequiredVersion)
-                ? HOST_REACT_SHARE_SCOPE
-                : remoteShareScope;
-
-        if (!remoteEntry?.name) {
-            throw new Error(`[chayns-api] Module federation manifest is missing a remote entry: ${url}`);
-        }
-
-        const remoteEntryBaseUrl = new URL(remoteEntry.path || '.', url);
-
-        return {
-            entry: new URL(remoteEntry.name, remoteEntryBaseUrl).toString(),
-            shareScope,
-        };
-    });
-
-    remoteManifestCache.set(url, resolved);
-    return resolved;
-};
 
 const normalizeUrl = (url: string) => {
     try {
@@ -119,9 +44,8 @@ export const loadModule = async (scope: string, module: string, url: string, pre
 
     const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
     const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
-    const resolvedRemote = await resolveRemote(url);
-    const remoteUrl = normalizeUrl(resolvedRemote.entry);
-    const registrationKey = `${resolvedRemote.shareScope}\n${remoteUrl}`;
+    const remoteUrl = normalizeUrl(url);
+    const registrationKey = remoteUrl;
 
     if (registeredScopes[scope] !== registrationKey || preventSingleton) {
         if (scope in registeredScopes) {
@@ -130,9 +54,8 @@ export const loadModule = async (scope: string, module: string, url: string, pre
         registerRemotes(
             [
                 {
-                    shareScope: resolvedRemote.shareScope,
                     name: scope,
-                    entry: resolvedRemote.entry,
+                    entry: url,
                 },
             ],
             { force: scope in registeredScopes || preventSingleton },
@@ -182,11 +105,11 @@ const loadComponent = (scope: string, module: string, url: string, skipCompatMod
                 return Module;
             }
 
-            const resolvedRemote = await resolveRemote(url);
             const shareScopes = getInstance().shareScopeMap;
 
-            const sharedReact = shareScopes[resolvedRemote.shareScope]?.react?.[React.version];
-            const matchReactVersion = sharedReact && sharedReact.useIn.includes(scope) && sharedReact.lib?.() === React;
+            const matchReactVersion = Object.values(shareScopes)
+                .map((shareScope) => shareScope.react?.[React.version])
+                .some((reactShare) => reactShare?.useIn.includes(scope) && reactShare.lib?.() === React);
 
             if (!matchReactVersion || Module.default.environment !== 'production' || (Module.default.version || 1) < 2) {
                 const OriginalCompatComponent = (Module.default.version || 1) < 2.1 ? Module.default.CompatComponent.render({}).type.prototype : Module.default.CompatComponent.prototype;

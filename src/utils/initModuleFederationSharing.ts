@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import ReactDOMClient from 'react-dom/client';
 import ReactDOMServer from 'react-dom/server';
 import type { ModuleFederation, ModuleFederationRuntimePlugin } from '@module-federation/enhanced/runtime';
+import { ManifestShareScopePlugin } from '../plugins/ManifestShareScopePlugin';
 import { SequentialLoadPlugin } from '../plugins/SequentialLoadPlugin';
 
 export const initModuleFederationSharing = ({
@@ -63,7 +64,7 @@ export const initModuleFederationSharing = ({
         name: scope ?? name ?? '',
         remotes: [],
         shared,
-        plugins: [SequentialLoadPlugin(), ...plugins],
+        plugins: [SequentialLoadPlugin(), ManifestShareScopePlugin(), ...plugins],
     });
 
     globalThis.moduleFederationRuntime = {
