@@ -2,12 +2,88 @@ import React from 'react';
 
 type LoadModule = (scope: string, module: string, url: string, preventSingleton?: boolean) => Promise<unknown>;
 
+const normalizeUrl = (url: string) => {
+    try {
+        // try simplifying url to avoid force when url is semantically the same, e.g.
+        // https://example.com/remoteEntry.js and https://example.com/js/../remoteEntry.js
+        return new URL(url).toString();
+    } catch {
+        return url;
+    }
+};
+
+const resetAfterCacheTime = (scope: string, module: string, url: string) => {
+    const key = `${scope}\n${module}\n${url}`;
+
+    if (!globalThis.moduleFederationScopes.errorResetTimeouts) {
+        globalThis.moduleFederationScopes.errorResetTimeouts = new Set();
+    }
+
+    const errorResetTimeouts = globalThis.moduleFederationScopes.errorResetTimeouts;
+
+    if (errorResetTimeouts.has(key)) {
+        return;
+    }
+
+    errorResetTimeouts.add(key);
+    setTimeout(() => {
+        const { registeredScopes } = globalThis.moduleFederationScopes;
+
+        if (registeredScopes[scope] === url) {
+            registeredScopes[scope] = '';
+        }
+
+        errorResetTimeouts.delete(key);
+    }, 60000);
+};
+
+const legacyLoadModule: LoadModule = (scope, module, url, preventSingleton = false) => {
+    if (!globalThis.moduleFederationRuntime || !globalThis.moduleFederationScopes) {
+        throw new Error('[chayns-api] moduleFederationSharing has not been initialized. Make sure to call initModuleFederationSharing.');
+    }
+
+    const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
+    const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
+    const remoteUrl = normalizeUrl(url);
+
+    if (registeredScopes[scope] !== remoteUrl || preventSingleton) {
+        if (scope in registeredScopes) {
+            console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${remoteUrl}`);
+        }
+        registerRemotes([
+            {
+                shareScope: url.endsWith('v2.remoteEntry.js') || url.endsWith('mf-manifest.json') ? 'chayns-api' : 'default',
+                name: scope,
+                entry: url,
+            }
+        ], { force: (scope in registeredScopes) || preventSingleton });
+
+        registeredScopes[scope] = remoteUrl;
+        moduleMap[scope] = {};
+        componentMap[scope] = {};
+    }
+
+    if (!(module in moduleMap[scope])) {
+        const path = `${scope}/${module.replace(/^\.\//, '')}`;
+
+        const promise = loadRemote(path);
+
+        promise.catch((e) => {
+            console.error("[chayns-api] Failed to load module", scope, remoteUrl, e);
+            resetAfterCacheTime(scope, module, remoteUrl);
+        });
+
+        return promise;
+    }
+    return moduleMap[scope][module];
+};
+
 export const loadModule: LoadModule = (...args) => {
     if (!globalThis.moduleFederationRuntime) {
         throw new Error('[chayns-api] moduleFederationSharing has not been initialized. Make sure to call initModuleFederationSharing.');
     }
 
-    return globalThis.moduleFederationRuntime.loadModule(...args);
+    return globalThis.moduleFederationRuntime.loadModule?.(...args) ?? legacyLoadModule(...args);
 };
 
 const loadComponent = (scope: string, module: string, url: string, skipCompatMode = false, preventSingleton = false) => {
@@ -19,8 +95,9 @@ const loadComponent = (scope: string, module: string, url: string, skipCompatMod
         throw new Error('[chayns-api] moduleFederationSharing has not been initialized. Make sure to call initModuleFederationSharing.');
     }
 
-    const { getInstance, loadModule } = globalThis.moduleFederationRuntime;
-    const { componentMap, componentRegistrationKeys } = globalThis.moduleFederationScopes;
+    const { getInstance, loadModule: hostLoadModule } = globalThis.moduleFederationRuntime;
+    const { componentMap } = globalThis.moduleFederationScopes;
+    const componentRegistrationKeys = globalThis.moduleFederationScopes.componentRegistrationKeys ??= {};
 
     if (!componentMap[scope]) {
         componentMap[scope] = {};
@@ -30,7 +107,7 @@ const loadComponent = (scope: string, module: string, url: string, skipCompatMod
     }
 
     if (!(module in componentMap[scope]) || componentRegistrationKeys[scope][module] !== url) {
-        const promise = loadModule(scope, module, url, preventSingleton).then((Module: any) => {
+        const promise = (hostLoadModule ?? legacyLoadModule)(scope, module, url, preventSingleton).then((Module: any) => {
             if (typeof Module.default === 'function') {
                 return Module;
             }

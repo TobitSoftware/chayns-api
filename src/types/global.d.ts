@@ -7,7 +7,7 @@ declare var moduleFederationScopes: {
 };
 
 declare var moduleFederationRuntime: {
-    loadModule: (scope: string, module: string, url: string, preventSingleton?: boolean) => Promise<unknown>;
+    loadModule?: (scope: string, module: string, url: string, preventSingleton?: boolean) => Promise<unknown>;
     loadRemote: import('@module-federation/enhanced/runtime').ModuleFederation['loadRemote'];
     registerRemotes: import('@module-federation/enhanced/runtime').ModuleFederation['registerRemotes'];
     loadShareSync: import('@module-federation/enhanced/runtime').ModuleFederation['loadShareSync'];
