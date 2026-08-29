@@ -7,7 +7,7 @@ export const SequentialLoadPlugin: () => ModuleFederationRuntimePlugin = () => {
     return {
         name: 'sequential-load',
         async beforeInitContainer(args) {
-            const manifest = args.origin.snapshotHandler.manifestCache.get(args.remoteEntryInitOptions.version);
+            const manifest = args.origin.snapshotHandler.manifestCache.get(args.remoteInfo.entry) ?? args.origin.snapshotHandler.manifestCache.get(args.remoteEntryInitOptions.version);
             const requiredShares = new Set(manifest?.shared.map(share => share.name));
 
             for (const [key, pkg] of Object.entries(args.shareScope)) {
