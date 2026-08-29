@@ -8,6 +8,13 @@ import type { ModuleFederation, ModuleFederationRuntimePlugin } from '@module-fe
 import { ManifestShareScopePlugin } from '../plugins/ManifestShareScopePlugin';
 import { SequentialLoadPlugin } from '../plugins/SequentialLoadPlugin';
 
+let ReactCompilerRuntime;
+try {
+    ReactCompilerRuntime = require('react/compiler-runtime');
+} catch {
+    ReactCompilerRuntime = null;
+}
+
 const ERROR_CACHE_TIME = 60000;
 
 type LoadModule = (scope: string, module: string, url: string, preventSingleton?: boolean) => Promise<unknown>;
@@ -120,6 +127,13 @@ export const initModuleFederationSharing = ({
             lib: () => JSXRuntime,
         },
     };
+    if (ReactCompilerRuntime) {
+        shared['react/compiler-runtime'] = {
+            version: React.version,
+            scope: [`chayns-react-${React.version}`, 'chayns-api'],
+            lib: () => ReactCompilerRuntime,
+        };
+    }
 
     const instance: ModuleFederation = createInstance({
         name: scope ?? name ?? '',
