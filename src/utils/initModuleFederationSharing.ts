@@ -8,6 +8,66 @@ import type { ModuleFederation, ModuleFederationRuntimePlugin } from '@module-fe
 import { ManifestShareScopePlugin } from '../plugins/ManifestShareScopePlugin';
 import { SequentialLoadPlugin } from '../plugins/SequentialLoadPlugin';
 
+const ERROR_CACHE_TIME = 60000;
+
+type LoadModule = (scope: string, module: string, url: string, preventSingleton?: boolean) => Promise<unknown>;
+
+const normalizeUrl = (url: string) => {
+    try {
+        return new URL(url).toString();
+    } catch {
+        return url;
+    }
+};
+
+const createLoadModule = (): LoadModule => async (scope, module, url, preventSingleton = false) => {
+    const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
+    const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
+    const remoteUrl = normalizeUrl(url);
+
+    if (registeredScopes[scope] !== remoteUrl || preventSingleton) {
+        if (scope in registeredScopes) {
+            console.error(`[chayns-api] call registerRemote with force for scope ${scope}. url: ${remoteUrl}`);
+        }
+        registerRemotes(
+            [{ name: scope, entry: url }],
+            { force: scope in registeredScopes || preventSingleton },
+        );
+
+        registeredScopes[scope] = remoteUrl;
+        moduleMap[scope] = {};
+        componentMap[scope] = {};
+    }
+
+    if (!(module in moduleMap[scope])) {
+        const path = `${scope}/${module.replace(/^\.\//, '')}`;
+        const promise = loadRemote(path);
+
+        promise.catch((error) => {
+            console.error('[chayns-api] Failed to load module', scope, remoteUrl, error);
+            const key = `${scope}\n${module}\n${remoteUrl}`;
+            const errorResetTimeouts = globalThis.moduleFederationScopes.errorResetTimeouts ?? new Set<string>();
+            globalThis.moduleFederationScopes.errorResetTimeouts = errorResetTimeouts;
+
+            if (errorResetTimeouts.has(key)) {
+                return;
+            }
+
+            errorResetTimeouts.add(key);
+            setTimeout(() => {
+                if (registeredScopes[scope] === remoteUrl) {
+                    registeredScopes[scope] = '';
+                }
+                errorResetTimeouts.delete(key);
+            }, ERROR_CACHE_TIME);
+        });
+
+        moduleMap[scope][module] = promise;
+    }
+
+    return moduleMap[scope][module];
+};
+
 export const initModuleFederationSharing = ({
     scope,
     name,
@@ -40,7 +100,7 @@ export const initModuleFederationSharing = ({
             lib: () => React,
         },
         'react-dom': {
-            version: React.version, // intended, because react dom.version is not identical to package json react version (hash in version)
+            version: React.version,
             scope: [`chayns-react-${React.version}`, 'chayns-api'],
             lib: () => ReactDOM,
         },
@@ -69,6 +129,7 @@ export const initModuleFederationSharing = ({
     });
 
     globalThis.moduleFederationRuntime = {
+        loadModule: createLoadModule(),
         loadRemote: instance.loadRemote.bind(instance),
         registerRemotes: instance.registerRemotes.bind(instance),
         loadShareSync: instance.loadShareSync.bind(instance),
