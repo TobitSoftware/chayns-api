@@ -14,40 +14,46 @@ const isManifestUrl = (url: string) => {
     }
 };
 
-export const ManifestShareScopePlugin = (): ModuleFederationRuntimePlugin => ({
-    name: 'manifest-share-scope',
-    beforeRegisterRemote(args) {
-        if ('entry' in args.remote && (args.remote.entry.endsWith('v2.remoteEntry.js') || isManifestUrl(args.remote.entry))) {
-            Object.assign(args.remote, { shareScope: LEGACY_SHARE_SCOPE });
-        }
-        return args;
-    },
-    async beforeRequest(args) {
-        const remote = args.options.remotes.find((candidate) => {
-            const name = candidate.name;
-            const alias = candidate.alias;
-            return args.id === name || args.id.startsWith(`${name}/`) || (alias && (args.id === alias || args.id.startsWith(`${alias}/`)));
-        });
+export const ManifestShareScopePlugin = (): ModuleFederationRuntimePlugin => {
+    const legacyRemotes = new WeakSet<object>();
 
-        if (!remote || !('entry' in remote) || !isManifestUrl(remote.entry)) {
+    return {
+        name: 'manifest-share-scope',
+        beforeRegisterRemote(args) {
+            if (args.remote.shareScope) {
+                legacyRemotes.add(args.remote);
+            } else if ('entry' in args.remote && args.remote.entry.endsWith('v2.remoteEntry.js')) {
+                Object.assign(args.remote, { shareScope: LEGACY_SHARE_SCOPE });
+            }
             return args;
-        }
+        },
+        async beforeRequest(args) {
+            const remote = args.options.remotes.find((candidate) => {
+                const name = candidate.name;
+                const alias = candidate.alias;
+                return args.id === name || args.id.startsWith(`${name}/`) || (alias && (args.id === alias || args.id.startsWith(`${alias}/`)));
+            });
 
-        await args.origin.snapshotHandler.loadRemoteSnapshotInfo({
-            moduleInfo: remote,
-            id: args.id,
-        });
+            if (!remote || legacyRemotes.has(remote) || !('entry' in remote) || !isManifestUrl(remote.entry)) {
+                return args;
+            }
 
-        const manifest = args.origin.snapshotHandler.manifestCache.get(remote.entry);
-        const remoteShareScope = (manifest?.metaData as { reactShareScope?: string } | undefined)?.reactShareScope;
-        const reactRequiredVersion = manifest?.shared.find((shared) => shared.name === 'react')?.requiredVersion;
+            await args.origin.snapshotHandler.loadRemoteSnapshotInfo({
+                moduleInfo: remote,
+                id: args.id,
+            });
 
-        remote.shareScope = !remoteShareScope
-            ? LEGACY_SHARE_SCOPE
-            : reactRequiredVersion && satisfy(React.version, reactRequiredVersion)
-                ? `${HOST_REACT_SHARE_SCOPE}-${React.version}`
-                : remoteShareScope;
+            const manifest = args.origin.snapshotHandler.manifestCache.get(remote.entry);
+            const remoteShareScope = (manifest?.metaData as { reactShareScope?: string } | undefined)?.reactShareScope;
+            const reactRequiredVersion = manifest?.shared.find((shared) => shared.name === 'react')?.requiredVersion;
 
-        return args;
-    },
-});
+            remote.shareScope = !remoteShareScope
+                ? LEGACY_SHARE_SCOPE
+                : reactRequiredVersion && satisfy(React.version, reactRequiredVersion)
+                    ? `${HOST_REACT_SHARE_SCOPE}-${React.version}`
+                    : remoteShareScope;
+
+            return args;
+        },
+    };
+};
