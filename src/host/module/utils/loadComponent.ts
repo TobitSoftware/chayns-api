@@ -41,6 +41,7 @@ const legacyLoadModule: LoadModule = (scope, module, url, preventSingleton = fal
     if (!globalThis.moduleFederationRuntime || !globalThis.moduleFederationScopes) {
         throw new Error('[chayns-api] moduleFederationSharing has not been initialized. Make sure to call initModuleFederationSharing.');
     }
+    console.warn('[chayns-api] Using legacy loadModule implementation. Please update the host to 3.7.0 or higher to use the new loadModule implementation.');
 
     const { loadRemote, registerRemotes } = globalThis.moduleFederationRuntime;
     const { registeredScopes, moduleMap, componentMap } = globalThis.moduleFederationScopes;
