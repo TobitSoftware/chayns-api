@@ -1,4 +1,5 @@
 import React from "react";
+import type { Root } from 'react-dom/client';
 
 const ERROR_CACHE_TIME = 60000;
 
@@ -110,6 +111,8 @@ const loadComponent = (scope: string, module: string, url: string, skipCompatMod
 
                 class CompatComponent extends React.Component {
                     ref: React.RefObject<HTMLDivElement>;
+                    timeout?: ReturnType<typeof setTimeout>;
+                    root?: Root;
 
                     constructor(props) {
                         super(props);
@@ -125,7 +128,14 @@ const loadComponent = (scope: string, module: string, url: string, skipCompatMod
                     }
 
                     componentWillUnmount() {
-                        OriginalCompatComponent.componentWillUnmount.apply(this);
+                        // Ensures clear timeout to prevent issues with outdated compatMode implementations
+                        clearTimeout(this.timeout);
+                        // Very old versions of compatMode components may not have a componentWillUnmount method, so we need to check for its existence before calling it
+                        if (typeof OriginalCompatComponent.componentWillUnmount === 'function') {
+                            OriginalCompatComponent.componentWillUnmount.apply(this);
+                        } else if (this.root) {
+                            this.root.unmount();
+                        }
                     }
 
                     render() {
