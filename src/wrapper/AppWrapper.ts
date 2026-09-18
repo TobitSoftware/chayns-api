@@ -172,7 +172,7 @@ export class AppWrapper implements IChaynsReact {
                 userId: userId,
                 personId: AppUser.PersonID,
                 isAnonymous: AppUser.IsAnonymous,
-                uacGroups: [],
+                uacGroups: AppUser.UACGroups?.map((group) => ({ id: group.GroupID })) ?? [],
             },
             customData: null,
             isAdminModeActive: AppUser.AdminMode,
