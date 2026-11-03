@@ -11,7 +11,7 @@ global.IS_REACT_ACT_ENVIRONMENT = true;
 const { act, createElement, StrictMode } = require('react');
 const { createRoot } = require('react-dom/client');
 const { ChaynsContext } = require('../dist/cjs/components/ChaynsContext');
-const { useSafeArea } = require('../dist/cjs/hooks/useSafeArea');
+const { useSafeArea, useSafeAreaListener } = require('../dist/cjs/hooks/useSafeArea');
 const { AppName, HingeStatus } = require('../dist/cjs/types/IChaynsReact');
 const { AppWrapper } = require('../dist/cjs/wrapper/AppWrapper');
 const { normalizeFunctions } = require('../dist/cjs/wrapper/normalizeFunctions');
@@ -312,6 +312,29 @@ test('does not mix compatibility subscriptions belonging to different hosts', as
     assert.deepEqual(await Promise.all([firstValue, secondValue]), [insets, other]);
 });
 
+test('a listener hook cleanup removes its own registration when used more than once', async () => {
+    let addListener;
+    const add = wrapper.functions.addAppleSafeAreaListener;
+    wrapper.functions.addAppleSafeAreaListener = async (callback) => {
+        const id = await add(callback);
+        listenerIds.push(id);
+        return id;
+    };
+    const ListenerProbe = () => { addListener = useSafeAreaListener(); return null; };
+    root = createRoot(document.createElement('div'));
+    await act(async () => root.render(createElement(ChaynsContext.Provider, { value: wrapper }, createElement(ListenerProbe))));
+    const firstValues = [];
+    const secondValues = [];
+    const removeFirst = addListener((value) => firstValues.push(value));
+    const removeSecond = addListener((value) => secondValues.push(value));
+    await act(async () => removeFirst());
+    emit(insets);
+    assert.deepEqual(firstValues, []);
+    assert.deepEqual(secondValues, [insets]);
+    removeSecond();
+});
+
+
 test('adding a listener while the first getter is pending does not register call 300 again', async () => {
     const pending = wrapper.functions.getAppleSafeArea();
     const values = [];
@@ -423,4 +446,37 @@ test('retries an asynchronously rejected compatibility subscription without losi
     assert.equal(attempts, 2);
     assert.equal(errors.mock.calls.length, 1);
     await functions.removeAppleSafeAreaListener(id);
+});
+
+
+test('the hook cleans up the old host and listens to updated provider functions', async () => {
+    const values = wrapper.values;
+    const createHost = () => {
+        let counter = 0;
+        const callbacks = new Map();
+        return {
+            values,
+            subscribe: () => () => {},
+            callbacks,
+            functions: {
+                addAppleSafeAreaListener: (callback) => { const id = ++counter; callbacks.set(id, callback); return Promise.resolve(id); },
+                removeAppleSafeAreaListener: (id) => { callbacks.delete(id); return Promise.resolve(); },
+            },
+        };
+    };
+    const oldHost = createHost();
+    wrapper = oldHost;
+    await renderHook();
+    await act(async () => oldHost.callbacks.forEach((callback) => callback(insets)));
+    assert.deepEqual(currentValue, insets);
+    const newHost = createHost();
+    wrapper = newHost;
+    await renderHook();
+    assert.equal(oldHost.callbacks.size, 0);
+    assert.equal(newHost.callbacks.size, 1);
+    const latest = { ...insets, right: 0, hingeStatus: HingeStatus.PartiallyOpen };
+    await act(async () => newHost.callbacks.forEach((callback) => callback(latest)));
+    assert.deepEqual(currentValue, latest);
+    await renderHook(false);
+    assert.equal(newHost.callbacks.size, 0);
 });
