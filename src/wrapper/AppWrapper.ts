@@ -11,6 +11,7 @@ import { DeviceLanguage } from '../constants/languages';
 import DialogHandler from '../handler/DialogHandler';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../utils/apiListener';
 import {
+    AppleSafeArea,
     AppName,
     AvailableSharingServices,
     ChaynsReactFunctions,
@@ -34,7 +35,6 @@ import {
     TappEvent,
 } from '../types/IChaynsReact';
 import invokeAppCall from '../utils/appCall';
-import { getAppAppleSafeAreaFunctions } from '../utils/appleSafeArea';
 import { addAppStorageListener, clearAppStorage, isAppStorageAvailable, setAppStorageItem } from '../utils/appStorage';
 import getDeviceInfo, { getScreenSize } from '../utils/deviceHelper';
 import { isAppCallSupported } from '../utils/is';
@@ -46,6 +46,8 @@ export class AppWrapper implements IChaynsReact {
     history: IChaynsReact['history'] = null;
 
     accessToken = '';
+
+    latestAppleSafeArea: AppleSafeArea | null = null;
 
     private trustedDomains: string[] = DefaultTrustedDomains;
 
@@ -307,7 +309,30 @@ export class AppWrapper implements IChaynsReact {
             }
             return id;
         },
-        addAppleSafeAreaListener: (callback) => getAppAppleSafeAreaFunctions().addAppleSafeAreaListener(callback),
+        addAppleSafeAreaListener: async (callback) => {
+            const { id, shouldInitialize } = addApiListener('appleSafeAreaListener', callback);
+
+            if (this.latestAppleSafeArea) {
+                callback(this.latestAppleSafeArea);
+            }
+
+            if (shouldInitialize) {
+                void this.appCall(300, {}, {
+                    callback: (v) => {
+                        this.latestAppleSafeArea = {
+                            top: v.top,
+                            left: v.left,
+                            bottom: v.bottom,
+                            right: v.right,
+                            ...(v.hingeAngle === undefined ? {} : { hingeAngle: v.hingeAngle }),
+                            ...(v.hingeStatus === undefined ? {} : { hingeStatus: v.hingeStatus }),
+                        };
+                        dispatchApiEvent('appleSafeAreaListener', this.latestAppleSafeArea);
+                    },
+                });
+            }
+            return id;
+        },
         customCallbackFunction: async () => {
             this.notImplemented('customCallbackFunction');
         },
@@ -350,15 +375,25 @@ export class AppWrapper implements IChaynsReact {
             pageWidth: window.innerWidth,
             topBarHeight: 0,
         }),
-        getAppleSafeArea: () => getAppAppleSafeAreaFunctions().getAppleSafeArea(),
-        invokeCall: async (value, callback) => {
-            if (value.action === 300) {
-                const functions = getAppAppleSafeAreaFunctions();
-                if (callback) {
-                    await functions.addAppleSafeAreaListener(callback);
-                }
-                return functions.getAppleSafeArea();
+        getAppleSafeArea: async () => {
+            if (this.latestAppleSafeArea) {
+                return this.latestAppleSafeArea;
             }
+
+            const v = await this.appCall(300, {});
+
+            this.latestAppleSafeArea = {
+                top: v?.top ?? 0,
+                left: v?.left ?? 0,
+                bottom: v?.bottom ?? 0,
+                right: v?.right ?? 0,
+                ...(v?.hingeAngle === undefined ? {} : { hingeAngle: v.hingeAngle }),
+                ...(v?.hingeStatus === undefined ? {} : { hingeStatus: v.hingeStatus }),
+            };
+
+            return this.latestAppleSafeArea;
+        },
+        invokeCall: async (value, callback) => {
             return this.appCall(value.action, value.value, { callback });
         },
         invokePaymentCall: async (value, callback) => {
@@ -490,7 +525,12 @@ export class AppWrapper implements IChaynsReact {
                 this.resizeListener = null;
             }
         },
-        removeAppleSafeAreaListener: (id) => getAppAppleSafeAreaFunctions().removeAppleSafeAreaListener(id),
+        removeAppleSafeAreaListener: async (id) => {
+            const shouldRemove = removeApiListener('appleSafeAreaListener', id);
+            if (shouldRemove) {
+                // App does not support removal of appleSafeAreaListener callback which makes this a no-op
+            }
+        },
         selectPage: async (options) => {
             if (this.values?.site?.id && options.siteId && options.siteId !== this.values?.site?.id) {
                 const url = new URL(`https://chayns.site/${options.siteId}`);

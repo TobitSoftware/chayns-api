@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppleSafeArea, AppName } from '../types/IChaynsReact';
 import { useFunctionsSelector, useValuesSelector } from './context';
 
@@ -41,16 +41,17 @@ const isSafeAreaSupported = (os: string | null | undefined, app: any | undefined
 export const useSafeAreaListener = () => {
     const addListener = useFunctionsSelector(f => f.addAppleSafeAreaListener);
     const removeListener = useFunctionsSelector(f => f.removeAppleSafeAreaListener);
+    const promiseRef = useRef<Promise<number>>();
 
-    return useCallback((callback: (result: AppleSafeArea) => void) => {
-        const listenerId = addListener(callback);
+    return useCallback(((callback: (result: AppleSafeArea) => void) => {
+        promiseRef.current = addListener(callback);
 
         return () => {
-            void listenerId.then(removeListener);
-        };
-    }, [addListener, removeListener]);
-};
-
+            void promiseRef.current?.then(removeListener);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }), [])
+}
 /**
  * Returns safe-area insets and optional iPhone Duo hinge metadata.
  * Hinge updates allow layouts to react when the device is opened or closed.

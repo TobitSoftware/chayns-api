@@ -1,29 +1,88 @@
-import { ChaynsReactFunctions } from '../types/IChaynsReact';
-import { getAppleSafeAreaFunctions } from '../utils/appleSafeArea';
+import { AppleSafeArea, ChaynsReactFunctions } from '../types/IChaynsReact';
 
 const createAppleSafeAreaFunctions = (functions: ChaynsReactFunctions) => {
     const runtimeFunctions = functions as Partial<ChaynsReactFunctions>;
-    const host = runtimeFunctions.addAppleSafeAreaListener ?? runtimeFunctions.invokeCall ?? functions;
+    const baseAddListener: ChaynsReactFunctions['addAppleSafeAreaListener'] = runtimeFunctions.addAppleSafeAreaListener
+        ?? ((callback) => {
+            if (functions.invokeCall) {
+                void functions.invokeCall({ action: 300 }, callback);
+            }
 
-    return getAppleSafeAreaFunctions(host, (callback) => {
-        if (runtimeFunctions.addAppleSafeAreaListener) {
-            return runtimeFunctions.addAppleSafeAreaListener(callback);
+            return Promise.resolve(-1);
+        });
+    const baseRemoveListener: ChaynsReactFunctions['removeAppleSafeAreaListener'] = runtimeFunctions.removeAppleSafeAreaListener
+        ?? (() => Promise.resolve());
+
+    let upstreamListenerId: Promise<number> | null = null;
+    let hasLatestValue = false;
+    let latestValue: AppleSafeArea | null = null;
+    let counter = 0;
+    const listeners: Record<number, (result: AppleSafeArea) => void> = {};
+
+    const dispatch = (value: AppleSafeArea) => {
+        latestValue = value;
+        hasLatestValue = true;
+        Object.values(listeners).forEach((listener) => listener(value));
+    };
+
+    const addAppleSafeAreaListener: ChaynsReactFunctions['addAppleSafeAreaListener'] = (callback) => {
+        const id = ++counter;
+        listeners[id] = callback;
+
+        if (hasLatestValue && latestValue) {
+            callback(latestValue);
         }
-        if (runtimeFunctions.invokeCall) {
-            return runtimeFunctions.invokeCall({ action: 300 }, callback);
+
+        if (!upstreamListenerId) {
+            upstreamListenerId = baseAddListener((result) => {
+                dispatch(result);
+            });
         }
-        if (runtimeFunctions.getAppleSafeArea) {
-            return runtimeFunctions.getAppleSafeArea().then(callback);
+
+        return Promise.resolve(id);
+    };
+
+    const removeAppleSafeAreaListener: ChaynsReactFunctions['removeAppleSafeAreaListener'] = (id) => {
+        delete listeners[id];
+
+        if (Object.keys(listeners).length === 0 && upstreamListenerId) {
+            void upstreamListenerId.then((listenerId) => baseRemoveListener(listenerId));
+            upstreamListenerId = null;
         }
-        callback({ top: 0, left: 0, bottom: 0, right: 0 });
-        return undefined;
-    });
+
+        return Promise.resolve();
+    };
+
+    const baseGetSafeArea = runtimeFunctions.getAppleSafeArea;
+
+    const getAppleSafeArea: ChaynsReactFunctions['getAppleSafeArea'] = async () => {
+        if (hasLatestValue && latestValue) {
+            return latestValue;
+        }
+
+        if (baseGetSafeArea) {
+            const result = await baseGetSafeArea();
+            dispatch(result);
+            return result;
+        }
+
+        const fallback: AppleSafeArea = { top: 0, left: 0, bottom: 0, right: 0 };
+        return fallback;
+    };
+
+    return {
+        addAppleSafeAreaListener,
+        removeAppleSafeAreaListener,
+        getAppleSafeArea,
+    };
 };
 
 export const normalizeFunctions = (functions: ChaynsReactFunctions): ChaynsReactFunctions => {
     const runtimeFunctions = functions as Partial<ChaynsReactFunctions>;
 
-    const hasSafeAreaFunctions = runtimeFunctions.addAppleSafeAreaListener && runtimeFunctions.removeAppleSafeAreaListener && runtimeFunctions.getAppleSafeArea;
+    const hasSafeAreaFunctions = runtimeFunctions.addAppleSafeAreaListener
+        && runtimeFunctions.removeAppleSafeAreaListener
+        && runtimeFunctions.getAppleSafeArea;
 
     if (hasSafeAreaFunctions && runtimeFunctions.isTrustedUrl) {
         return functions;
@@ -32,21 +91,7 @@ export const normalizeFunctions = (functions: ChaynsReactFunctions): ChaynsReact
     const normalizedFunctions = { ...functions } as ChaynsReactFunctions;
 
     if (!hasSafeAreaFunctions) {
-        const safeAreaFunctions = createAppleSafeAreaFunctions(functions);
-        Object.assign(normalizedFunctions, safeAreaFunctions);
-
-        if (runtimeFunctions.invokeCall) {
-            const invokeCall = runtimeFunctions.invokeCall;
-            normalizedFunctions.invokeCall = async (value, callback): Promise<unknown> => {
-                if (value.action === 300) {
-                    if (callback) {
-                        await safeAreaFunctions.addAppleSafeAreaListener(callback);
-                    }
-                    return safeAreaFunctions.getAppleSafeArea();
-                }
-                return invokeCall(value, callback);
-            };
-        }
+        Object.assign(normalizedFunctions, createAppleSafeAreaFunctions(functions));
     }
 
     normalizedFunctions.isTrustedUrl = runtimeFunctions.isTrustedUrl ?? (() => Promise.resolve(true));
