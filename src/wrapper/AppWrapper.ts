@@ -11,6 +11,7 @@ import { DeviceLanguage } from '../constants/languages';
 import DialogHandler from '../handler/DialogHandler';
 import { addApiListener, dispatchApiEvent, removeApiListener } from '../utils/apiListener';
 import {
+    AppleSafeArea,
     AppName,
     AvailableSharingServices,
     ChaynsReactFunctions,
@@ -46,7 +47,7 @@ export class AppWrapper implements IChaynsReact {
 
     accessToken = '';
 
-    latestAppleSafeArea = null;
+    latestAppleSafeArea: AppleSafeArea | null = null;
 
     private trustedDomains: string[] = DefaultTrustedDomains;
 
@@ -323,6 +324,8 @@ export class AppWrapper implements IChaynsReact {
                             left: v.left,
                             bottom: v.bottom,
                             right: v.right,
+                            ...(v.hingeAngle === undefined ? {} : { hingeAngle: v.hingeAngle }),
+                            ...(v.hingeStatus === undefined ? {} : { hingeStatus: v.hingeStatus }),
                         };
                         dispatchApiEvent('appleSafeAreaListener', this.latestAppleSafeArea);
                     },
@@ -384,6 +387,8 @@ export class AppWrapper implements IChaynsReact {
                 left: v?.left ?? 0,
                 bottom: v?.bottom ?? 0,
                 right: v?.right ?? 0,
+                ...(v?.hingeAngle === undefined ? {} : { hingeAngle: v.hingeAngle }),
+                ...(v?.hingeStatus === undefined ? {} : { hingeStatus: v.hingeStatus }),
             };
 
             return this.latestAppleSafeArea;

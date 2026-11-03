@@ -1210,11 +1210,22 @@ export type AnonymousAccountResult = {
     token: string;
 }
 
+/** Hinge posture reported by the native app on iPhone Duo. */
+export enum HingeStatus {
+    Closed = 'closed',
+    PartiallyOpen = 'partiallyOpen',
+    FullyOpen = 'fullyOpen',
+}
+
 export interface AppleSafeArea {
     top: number;
     left: number;
     bottom: number;
     right: number;
+    /** Only provided by the native app on iPhone Duo. */
+    hingeAngle?: number;
+    /** Only provided by the native app on iPhone Duo. */
+    hingeStatus?: HingeStatus;
 }
 
 export type PageMainGroupType = {

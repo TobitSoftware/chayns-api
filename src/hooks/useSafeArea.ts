@@ -35,6 +35,7 @@ const isSafeAreaSupported = (os: string | null | undefined, app: any | undefined
 };
 
 /**
+ * Listens for safe-area and optional iPhone Duo hinge updates from the native app.
  * @category Hooks
  */
 export const useSafeAreaListener = () => {
@@ -52,6 +53,8 @@ export const useSafeAreaListener = () => {
     }), [])
 }
 /**
+ * Returns safe-area insets and optional iPhone Duo hinge metadata.
+ * Hinge updates allow layouts to react when the device is opened or closed.
  * @category Hooks
  */
 export const useSafeArea = ({ enabled = true } = {}) => {
