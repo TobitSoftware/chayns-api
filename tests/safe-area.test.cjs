@@ -205,3 +205,29 @@ test('does not register native listeners on unsupported runtimes', async () => {
     assert.equal(nativeCalls.length, 0);
     assert.deepEqual(currentValue, { top: 0, left: 0, bottom: 0, right: 0 });
 });
+
+for (const useDialogCall of [false, true]) {
+    test(`keeps the safe-area callback intact when another wrapper registers a ${useDialogCall ? 'dialog' : 'regular'} call`, async () => {
+        const values = [];
+        await subscribe((value) => values.push(value));
+        const safeAreaCallback = nativeCalls.at(-1).value.callback.replace(/^window\./, '');
+        const other = new AppWrapper();
+        let dialogResult;
+        const pending = useDialogCall
+            ? other.functions.invokeDialogCall({ action: 999, value: {} }, (value) => { dialogResult = value; })
+            : other.functions.invokeCall({ action: 999, value: {} });
+        const otherCallback = nativeCalls.at(-1).value.callback.replace(/^window\./, '');
+        assert.notEqual(otherCallback, safeAreaCallback);
+        window[otherCallback]({ retVal: { success: true } });
+        const callResult = await pending;
+        assert.deepEqual(useDialogCall ? dialogResult : callResult, { success: true });
+        const updates = Array.from({ length: 181 }, (_, hingeAngle) => {
+            let hingeStatus = HingeStatus.PartiallyOpen;
+            if (hingeAngle === 0) hingeStatus = HingeStatus.Closed;
+            if (hingeAngle === 180) hingeStatus = HingeStatus.FullyOpen;
+            return { ...insets, hingeAngle, hingeStatus };
+        });
+        updates.forEach(emit);
+        assert.deepEqual(values, updates);
+    });
+}
