@@ -3,7 +3,6 @@
 
 import throttle from 'lodash.throttle';
 import getUserInfo from '../calls/getUserInfo';
-import { addAppleSafeAreaListener as addNativeAppleSafeAreaListener } from '../calls/appleSafeAreaListener';
 import { sendMessageToGroup, sendMessageToPage, sendMessageToUser } from '../calls/sendMessage';
 import { DefaultLoginDialogOptions } from '../constants';
 import { DefaultTrustedDomains } from '../constants/trustedDomains';
@@ -311,21 +310,24 @@ export class AppWrapper implements IChaynsReact {
             return id;
         },
         addAppleSafeAreaListener: async (callback) => {
-            const { id, shouldInitialize } = addApiListener('appleSafeAreaListener', (value: AppleSafeArea) => {
-                this.latestAppleSafeArea = value;
-                callback(value);
-            });
+            const { id, shouldInitialize } = addApiListener('appleSafeAreaListener', callback);
 
             if (this.latestAppleSafeArea) {
                 callback(this.latestAppleSafeArea);
             }
 
             if (shouldInitialize) {
-                addNativeAppleSafeAreaListener({
-                    invokeCall: this.functions.invokeCall,
-                    callback: (value) => {
-                        this.latestAppleSafeArea = value;
-                        dispatchApiEvent('appleSafeAreaListener', value);
+                void this.appCall(300, {}, {
+                    callback: (v) => {
+                        this.latestAppleSafeArea = {
+                            top: v.top,
+                            left: v.left,
+                            bottom: v.bottom,
+                            right: v.right,
+                            ...(v.hingeAngle === undefined ? {} : { hingeAngle: v.hingeAngle }),
+                            ...(v.hingeStatus === undefined ? {} : { hingeStatus: v.hingeStatus }),
+                        };
+                        dispatchApiEvent('appleSafeAreaListener', this.latestAppleSafeArea);
                     },
                 });
             }
@@ -373,22 +375,23 @@ export class AppWrapper implements IChaynsReact {
             pageWidth: window.innerWidth,
             topBarHeight: 0,
         }),
-        /** Reads the shared safe-area stream without registering a separate native callback. */
         getAppleSafeArea: async () => {
             if (this.latestAppleSafeArea) {
                 return this.latestAppleSafeArea;
             }
 
-            let resolveValue!: (value: AppleSafeArea) => void;
-            const result = new Promise<AppleSafeArea>((resolve) => {
-                resolveValue = resolve;
-            });
-            const id = await this.functions.addAppleSafeAreaListener(resolveValue);
-            try {
-                return await result;
-            } finally {
-                await this.functions.removeAppleSafeAreaListener(id);
-            }
+            const v = await this.appCall(300, {});
+
+            this.latestAppleSafeArea = {
+                top: v?.top ?? 0,
+                left: v?.left ?? 0,
+                bottom: v?.bottom ?? 0,
+                right: v?.right ?? 0,
+                ...(v?.hingeAngle === undefined ? {} : { hingeAngle: v.hingeAngle }),
+                ...(v?.hingeStatus === undefined ? {} : { hingeStatus: v.hingeStatus }),
+            };
+
+            return this.latestAppleSafeArea;
         },
         invokeCall: async (value, callback) => {
             return this.appCall(value.action, value.value, { callback });
@@ -523,8 +526,10 @@ export class AppWrapper implements IChaynsReact {
             }
         },
         removeAppleSafeAreaListener: async (id) => {
-            removeApiListener('appleSafeAreaListener', id);
-            // The native app does not support removing the safe-area callback.
+            const shouldRemove = removeApiListener('appleSafeAreaListener', id);
+            if (shouldRemove) {
+                // App does not support removal of appleSafeAreaListener callback which makes this a no-op
+            }
         },
         selectPage: async (options) => {
             if (this.values?.site?.id && options.siteId && options.siteId !== this.values?.site?.id) {

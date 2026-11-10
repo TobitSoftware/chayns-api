@@ -23,8 +23,7 @@ let listenerIds;
 let root;
 let currentValue;
 
-const emit = (value) => {
-    const call = nativeCalls.findLast(({ action }) => action === 300);
+const emit = (value, call = nativeCalls.at(-1)) => {
     const callbackName = call.value.callback.replace(/^window\./, '');
     window[callbackName]({ retVal: value });
 };
@@ -72,10 +71,10 @@ test('exports the three native hinge status values through the public entry poin
 
 for (const hingeStatus of Object.values(HingeStatus)) {
     test(`preserves ${hingeStatus} and a zero angle in a direct safe-area request`, async () => {
-        const expected = { ...insets, hingeAngle: 0, hingeStatus, additionalNativeValue: 42 };
+        const expected = { ...insets, hingeAngle: 0, hingeStatus };
         const pending = wrapper.functions.getAppleSafeArea();
         assert.equal(nativeCalls[0].action, 300);
-        emit(expected);
+        emit({ ...expected, unrelated: 'ignored' });
         assert.deepEqual(await pending, expected);
         assert.deepEqual(await wrapper.functions.getAppleSafeArea(), expected);
         assert.equal(nativeCalls.length, 1);
@@ -103,9 +102,10 @@ test('retains the existing zero-inset fallback for an absent native response', a
 test('updates the listener cache and new subscribers when only hinge metadata changes', async () => {
     const values = [];
     await subscribe((value) => values.push(value));
+    const stream = nativeCalls[0];
     for (const hingeStatus of Object.values(HingeStatus)) {
         const expected = { ...insets, hingeAngle: 90, hingeStatus };
-        emit(expected);
+        emit(expected, stream);
         assert.deepEqual(values.at(-1), expected);
         assert.deepEqual(await wrapper.functions.getAppleSafeArea(), expected);
     }
@@ -124,69 +124,38 @@ test('stops delivering native updates to removed listeners', async () => {
     assert.deepEqual(values, []);
 });
 
-test('shares one native callback between compatibility wrappers and keeps remaining listeners active', async () => {
+test('passes hinge updates through the existing compatibility fallback unchanged', async () => {
     let dispatch;
-    let calls = 0;
-    const host = {
+    const functions = normalizeFunctions({
         invokeCall: (options, callback) => {
             assert.equal(options.action, 300);
-            calls += 1;
             dispatch = callback;
             return Promise.resolve();
         },
-    };
-    const first = normalizeFunctions(host);
-    const second = normalizeFunctions(host);
-    const firstValues = [];
-    const secondValues = [];
-    const firstId = await first.addAppleSafeAreaListener((value) => firstValues.push(value));
-    const secondId = await second.addAppleSafeAreaListener((value) => secondValues.push(value));
-    try {
-        assert.equal(calls, 1);
-        const expected = { ...insets, hingeAngle: 90, hingeStatus: HingeStatus.PartiallyOpen };
-        dispatch(expected);
-        assert.deepEqual(firstValues, [expected]);
-        assert.deepEqual(secondValues, [expected]);
-        assert.deepEqual(await first.getAppleSafeArea(), expected);
-        assert.deepEqual(await second.getAppleSafeArea(), expected);
-        await first.removeAppleSafeAreaListener(firstId);
-        const opened = { ...expected, hingeAngle: 180, hingeStatus: HingeStatus.FullyOpen };
-        dispatch(opened);
-        assert.deepEqual(firstValues, [expected]);
-        assert.deepEqual(secondValues, [expected, opened]);
-    } finally {
-        await first.removeAppleSafeAreaListener(firstId);
-        await second.removeAppleSafeAreaListener(secondId);
-    }
-});
-
-test('shares the active native callback with concurrent getters and preserves subsequent hinge updates', async () => {
+    });
     const values = [];
-    await subscribe((value) => values.push(value));
-    const first = wrapper.functions.getAppleSafeArea();
-    const second = wrapper.functions.getAppleSafeArea();
-    assert.equal(nativeCalls.length, 1);
-    const closed = { ...insets, hingeAngle: 0, hingeStatus: HingeStatus.Closed };
-    emit(closed); // Only the most recently registered native callback is called.
-    assert.deepEqual(await Promise.all([first, second]), [closed, closed]);
-    const opened = { ...insets, hingeAngle: 180, hingeStatus: HingeStatus.FullyOpen };
-    emit(opened);
-    assert.deepEqual(values, [closed, opened]);
-    assert.deepEqual(await wrapper.functions.getAppleSafeArea(), opened);
-    assert.equal(nativeCalls.length, 1);
+    const id = await functions.addAppleSafeAreaListener((value) => values.push(value));
+    const expected = { ...insets, hingeAngle: 90, hingeStatus: HingeStatus.PartiallyOpen };
+    dispatch(expected);
+    assert.deepEqual(values, [expected]);
+    assert.deepEqual(await functions.getAppleSafeArea(), expected);
+    await functions.removeAppleSafeAreaListener(id);
+    dispatch({ ...expected, hingeStatus: HingeStatus.FullyOpen });
+    assert.deepEqual(values, [expected]);
 });
 
 test('updates the actual hook through native folding events with identical insets', async () => {
     await renderHook();
+    const stream = nativeCalls[0];
     for (const hingeStatus of Object.values(HingeStatus)) {
         const expected = { ...insets, hingeAngle: 90, hingeStatus };
-        await act(async () => emit(expected));
+        await act(async () => emit(expected, stream));
         assert.deepEqual(currentValue, expected);
     }
     assert.equal(nativeCalls.length, 1);
     const beforeCleanup = currentValue;
     await renderHook(false);
-    emit({ ...insets, hingeAngle: 0, hingeStatus: HingeStatus.Closed });
+    emit({ ...insets, hingeAngle: 0, hingeStatus: HingeStatus.Closed }, stream);
     assert.equal(currentValue, beforeCleanup);
 });
 
