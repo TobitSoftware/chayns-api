@@ -207,21 +207,13 @@ export class AppWrapper implements IChaynsReact {
 
     counter: number = 0;
 
-    private getCallbackName(): string {
-        let callbackName: string;
-        do {
-            callbackName = `chaynsApiV5Callback_${this.counter++}`;
-        } while (callbackName in window);
-        return callbackName;
-    }
-
     appCall(action, value: unknown = {}, { callback, awaitResult = true } = {}) {
         if (!awaitResult) {
             invokeAppCall({ action, value });
             return;
         }
         return new Promise((resolve) => {
-            const callbackName = this.getCallbackName();
+            const callbackName = `chaynsApiV5Callback_${this.counter++}`;
             window[callbackName] = (v) => {
                 if (callback) {
                     callback(v?.retVal ?? v);
@@ -405,7 +397,7 @@ export class AppWrapper implements IChaynsReact {
             return this.appCall(value.action, value.value, { callback });
         },
         invokeDialogCall: async (value, callback) => {
-            const callbackName = this.getCallbackName();
+            const callbackName = `chaynsApiV5Callback_${this.counter++}`;
             window[callbackName] = ({ retVal }) => {
                 callback?.(retVal);
                 delete window[callbackName];
