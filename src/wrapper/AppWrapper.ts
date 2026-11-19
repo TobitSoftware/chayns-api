@@ -798,7 +798,7 @@ export class AppWrapper implements IChaynsReact {
         this.appCall(254, {
             enabled: true,
         }, {
-            callback: ({ colorMode }) => {
+            callback: ({ colorMode, systemFontSize }) => {
                 this.values = {
                     ...this.values,
                     site: {
@@ -807,6 +807,9 @@ export class AppWrapper implements IChaynsReact {
                     }
                 };
                 document.dispatchEvent(new CustomEvent('chayns_api_data', { detail: { type: 'site', value: this.values.site } }));
+                if (typeof systemFontSize === 'number' && systemFontSize > 0) {
+                    reloadChaynsCss(systemFontSize);
+                }
             },
             awaitResult: true
         });
