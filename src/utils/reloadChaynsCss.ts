@@ -10,6 +10,24 @@ const reloadChaynsCss = (systemFontSize: number) => {
     }
 
     const url = new URL(currentLink.href);
+
+    const existingParam = [...url.searchParams.keys()].find(
+        key => key.toLowerCase() === 'systemfontsize'
+    );
+
+    if (
+        existingParam !== undefined &&
+        url.searchParams.get(existingParam) === String(systemFontSize)
+    ) {
+        return;
+    }
+
+    [...url.searchParams.keys()].forEach(key => {
+        if (key.toLowerCase() === 'systemfontsize') {
+            url.searchParams.delete(key);
+        }
+    });
+
     url.searchParams.set('systemFontSize', String(systemFontSize));
 
     const newLink = document.createElement('link');
