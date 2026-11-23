@@ -1,8 +1,26 @@
+let requestId = 0;
+let pendingLink: HTMLLinkElement | null = null;
+
 export const reloadChaynsCss = (systemFontSize: number) => {
-    const currentLink = document.querySelector(
+    if (pendingLink?.isConnected) {
+        const pendingUrl = new URL(pendingLink.href);
+        const pendingParam = [...pendingUrl.searchParams.keys()].find(
+            key => key.toLowerCase() === 'systemfontsize'
+        );
+
+        if (pendingParam !== undefined && pendingUrl.searchParams.get(pendingParam) === String(systemFontSize)) {
+            return;
+        }
+    }
+
+    const currentRequestId = ++requestId;
+    pendingLink?.remove();
+    pendingLink = null;
+
+    const currentLink = document.querySelector<HTMLLinkElement>(
         'link[rel="stylesheet"][href*="style-staging.tobit.cloud/css/"], ' +
         'link[rel="stylesheet"][href*="style.tobit.cloud/css/"]'
-    ) as HTMLLinkElement | null;
+    );
 
     if (!currentLink) {
         console.warn('Stylesheet nicht gefunden.');
@@ -35,13 +53,25 @@ export const reloadChaynsCss = (systemFontSize: number) => {
     newLink.type = 'text/css';
     newLink.href = url.toString();
     newLink.onload = () => {
+        if (currentRequestId !== requestId) {
+            newLink.remove();
+            return;
+        }
+
         currentLink.remove();
+        pendingLink = null;
     };
 
     newLink.onerror = () => {
         newLink.remove();
-        console.error('[chayns-api] Error loading chayns-css with systemFontSize:', systemFontSize);
+        if (pendingLink === newLink) {
+            pendingLink = null;
+        }
+        if (currentRequestId === requestId) {
+            console.error('[chayns-api] Error loading chayns-css with systemFontSize:', systemFontSize);
+        }
     };
 
+    pendingLink = newLink;
     currentLink.after(newLink);
 }
