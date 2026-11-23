@@ -1,4 +1,4 @@
-const reloadChaynsCss = (systemFontSize: number) => {
+export const reloadChaynsCss = (systemFontSize: number) => {
     const currentLink = document.querySelector(
         'link[rel="stylesheet"][href*="style-staging.tobit.cloud/css/"], ' +
         'link[rel="stylesheet"][href*="style.tobit.cloud/css/"]'

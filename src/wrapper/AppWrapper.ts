@@ -38,6 +38,7 @@ import invokeAppCall from '../utils/appCall';
 import { addAppStorageListener, clearAppStorage, isAppStorageAvailable, setAppStorageItem } from '../utils/appStorage';
 import getDeviceInfo, { getScreenSize } from '../utils/deviceHelper';
 import { isAppCallSupported } from '../utils/is';
+import { reloadChaynsCss } from '../utils/reloadChaynsCss';
 
 export class AppWrapper implements IChaynsReact {
 
